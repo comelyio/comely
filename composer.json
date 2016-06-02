@@ -1,0 +1,13 @@
+{
+  "name": "comely/comely",
+  "description": "Kernel and IO Components",
+  "minimum-stability": "stable",
+  "keywords": ["comely", "kernel"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Furqan A. Siddiqui",
+      "email": "mfsid@comely.io"
+    }
+  ]
+}
