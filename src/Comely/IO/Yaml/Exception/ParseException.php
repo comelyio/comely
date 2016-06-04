@@ -17,7 +17,7 @@ class ParseException extends YamlException
      */
     public static function badInput(string $method) : ParseException
     {
-        return new self($method, "First argument must be path to a YAML file", 1001);
+        return new self($method, "First argument must be path to a YAML file", 1101);
     }
 
     /**
@@ -27,7 +27,7 @@ class ParseException extends YamlException
      */
     public static function fileNotFound(string $method, string $file) : ParseException
     {
-        return new self($method, sprintf('YAML file "%1$s" not found in "%2$s/"', basename($file), dirname($file)), 1002);
+        return new self($method, sprintf('YAML file "%1$s" not found in "%2$s/"', basename($file), dirname($file)), 1102);
     }
 
     /**
@@ -37,7 +37,7 @@ class ParseException extends YamlException
      */
     public static function badInputUnicode(string $method, string $file) : ParseException
     {
-        return new self($method, sprintf('YAML input must be valid UTF-8 in "%1$s"', $file), 1003);
+        return new self($method, sprintf('YAML input must be valid UTF-8 in "%1$s"', $file), 1103);
     }
 
     /**
@@ -47,7 +47,7 @@ class ParseException extends YamlException
      */
     public static function badYamlFile(string $method, string $file)
     {
-        return new self($method, sprintf('An error occured while parsing "%1$s"', $file), 1004);
+        return new self($method, sprintf('An error occured while parsing "%1$s"', $file), 1104);
     }
 
     /**
@@ -59,6 +59,6 @@ class ParseException extends YamlException
      */
     public static function parseError(string $method, string $file, int $line, string $error)
     {
-        return new self($method, sprintf('%1$s in "%2$s" on line %3$d', $error, $file, $line), 1005);
+        return new self($method, sprintf('%1$s in "%2$s" on line %3$d', $error, $file, $line), 1105);
     }
 }

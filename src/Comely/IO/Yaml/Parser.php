@@ -8,6 +8,7 @@ use Comely\IO\Yaml\Parser\LinesBuffer;
 use Comely\IO\Yaml\Parser\Line;
 
 /**
+ * Class Parser
  * Parse YAML files into PHP Array or JSON
  * @package Comely\IO\Yaml
  */
@@ -169,7 +170,7 @@ class Parser
                         $parsed[]   =   $value;
                         continue;
                     } else {
-                        // Uncalled for multi-line string
+                        // Irrational string
                         // Ignore?
                     }
                 }

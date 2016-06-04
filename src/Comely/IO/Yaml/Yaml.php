@@ -14,10 +14,11 @@ class Yaml
 {
     const OUTPUT_ARRAY  =   0;
     const OUTPUT_JSON   =   1;
-    const INDENT    =   4;
 
     /**
-     * @param string $input valid YAML body or path to a YAML file
+     * Parse YAML files into PHP Array or JSON encoded string
+     *
+     * @param string $input path to YAML (.yml|.yaml) file
      * @param int $outputFlag
      * @param int $jsonFlag
      * @return array|string
@@ -26,5 +27,18 @@ class Yaml
     {
         $parsed =   (new Parser($input))->parse();
         return ($outputFlag === self::OUTPUT_JSON) ? json_encode($parsed, $jsonFlag) : $parsed;
+    }
+
+    /**
+     * Compose and save PHP Array as YAML file
+     *
+     * @param array $input
+     * @param string $output path to YAML (.yml|.yaml) file to be written
+     * @param int $indent
+     * @return bool
+     */
+    public static function Compose(array $input, string $output, int $indent = 4) : bool
+    {
+        return (new Composer($input, $indent))->save($output);
     }
 }
