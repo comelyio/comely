@@ -83,8 +83,13 @@ class Repository
      */
     public static function __callStatic(string $name, array $arguments = null)
     {
+        // Validate Call, It should be called directly from Repository
+        static::validateCall();
+
+        // Check is instance is in Repository
         $instance   =   static::find($name);
         if(!$instance) {
+            // Instance not found, throw exception
             throw RepositoryException::instanceNotFound($name);
         }
 
