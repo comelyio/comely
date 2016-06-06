@@ -6,5 +6,5 @@ declare(strict_types=1);
  * All static helper methods can be found here
  */
 class Comely {
-
+	
 }

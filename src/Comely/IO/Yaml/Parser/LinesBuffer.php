@@ -37,7 +37,7 @@ class LinesBuffer
      * @param array $lines
      * @return LinesBuffer
      */
-    public function bootstrap(array $lines) : LinesBuffer
+    public function bootstrap(array $lines) : self
     {
         $this->lines    =   $lines;
         return $this;
@@ -118,7 +118,7 @@ class LinesBuffer
      * @param int $linesOffset
      * @return LinesBuffer
      */
-    public function createSubBuffer(string $key, int $indent, int $linesOffset) : LinesBuffer
+    public function createSubBuffer(string $key, int $indent, int $linesOffset) : self
     {
         $this->subBuffer    =   new LinesBuffer($key, $indent, $linesOffset);
         return $this->subBuffer;

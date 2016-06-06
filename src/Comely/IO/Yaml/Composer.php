@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace Comely\IO\Yaml;
+
 use Comely\IO\Yaml\Exception\ComposeException;
 
 /**
@@ -26,12 +27,12 @@ class Composer
     {
         // Check if input is non-empty associative Array
         if(empty($input)    ||  is_int(key($input))) {
-            throw ComposeException::badInput(__CLASS__);
+            throw ComposeException::badInput();
         }
 
         // Check if valid indent is provided
         if($indent  <  2   ||   $indent >   10) {
-            throw ComposeException::indentRequired(__CLASS__);
+            throw ComposeException::indentRequired();
         }
 
         $this->input    =   $input;
@@ -47,12 +48,12 @@ class Composer
     {
         // Check if $output path leads to valid looking YAML file
         if(!preg_match("/^[\w\:\-_\\/\.]+\.(yml|yaml)$/", $output)) {
-            throw ComposeException::badOutputFile(__CLASS__);
+            throw ComposeException::badOutputFile();
         }
 
         // Check if directory is writable
         if(!@is_writable(dirname($output))) {
-            throw ComposeException::outputDirUnwritable(__CLASS__, dirname($output));
+            throw ComposeException::outputDirUnwritable(dirname($output));
         }
 
         // Generate Yaml
@@ -70,7 +71,7 @@ class Composer
 
         $write  =   @file_put_contents($output, $content, LOCK_EX);
         if(!$write) {
-            throw ComposeException::writeFailed(__CLASS__, $output);
+            throw ComposeException::writeFailed($output);
         }
 
         return true;
@@ -105,7 +106,7 @@ class Composer
         foreach($input as $key => $value) {
             // In first tier all keys must be String
             if($tier    === 1   &&  !is_string($key)) {
-                throw ComposeException::firstTierNonIntegerKey(__CLASS__);
+                throw ComposeException::firstTierNonIntegerKey();
             }
 
             if(is_scalar($value)    ||  is_null($value)) {
@@ -191,11 +192,11 @@ class Composer
         }
 
         if(empty($composed) ||  ctype_space($composed)) {
-            throw ComposeException::composeFailed(__METHOD__);
+            throw ComposeException::composeFailed();
         }
 
         $composed   .=  $lb;
-        
+
         return $composed;
     }
 

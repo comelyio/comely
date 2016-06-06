@@ -26,19 +26,19 @@ class Parser
     {
         // $input param must be provided with path to YAML (.yml|.yaml) file
         if(!preg_match("/^[\w\:\-_\\/\.]+\.(yml|yaml)$/", $input)) {
-            throw ParseException::badInput(__CLASS__);
+            throw ParseException::badInput();
         }
 
         // Store YAML file path and content
         $this->file =   $input;
         $this->input    =   @file_get_contents($this->file);
         if(!is_string($this->input)) {
-            throw ParseException::fileNotFound(__CLASS__, $this->file);
+            throw ParseException::fileNotFound($this->file);
         }
 
         // YAML files are expected in UTF-8 encoding
         if(!preg_match("//u", $this->input)) {
-            throw ParseException::badInputUnicode(__CLASS__, $this->file);
+            throw ParseException::badInputUnicode($this->file);
         }
     }
 
@@ -49,7 +49,7 @@ class Parser
      */
     private function parseError(string $message, int $line)
     {
-        throw ParseException::parseError(__CLASS__, $this->file, $line, $message);
+        throw ParseException::parseError($this->file, $line, $message);
     }
 
 
@@ -198,7 +198,7 @@ class Parser
 
         // Result cannot be Empty on no-key buffer
         if(empty($parsed)   &&  empty($buffer->getKey())) {
-            throw ParseException::badYamlFile(__METHOD__, $this->file);
+            throw ParseException::badYamlFile($this->file);
         }
 
         // Imports should be merged with final result
@@ -274,6 +274,8 @@ class Parser
                 throw new ParseException(__METHOD__, "Unmatched starting and ending quotes");
             }
         }
+
+        // TODO, Inline Sequences and Mapping
 
         return $value;
     }
