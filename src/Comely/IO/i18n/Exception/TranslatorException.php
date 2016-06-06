@@ -16,9 +16,9 @@ class TranslatorException extends i18nException
     /**
      * @return TranslatorException
      */
-    public static function reInitError() : TranslatorException
+    public static function initError() : TranslatorException
     {
-        return new self(self::$componentId, "Translator couldn't be re-instantiated", 1101);
+        return new self(self::$componentId, "Global translator function couldn't be defined", 1101);
     }
 
     /**

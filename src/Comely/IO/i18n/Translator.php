@@ -3,27 +3,37 @@ declare(strict_types=1);
 
 namespace Comely\IO\i18n;
 
+// Defined global translate functions
+require __DIR__ . DIRECTORY_SEPARATOR . "Translator" . DIRECTORY_SEPARATOR . "globalTranslateFunctions.php";
+
 use Comely\IO\i18n\Exception\TranslatorException;
 use Comely\IO\i18n\Translator\Language;
 use Comely\IO\i18n\Translator\TranslatorInterface;
+use Comely\IO\Repository\Repository;
 use Comely\IO\Yaml\Yaml;
 
 /**
  * Class Translator
  * @package Comely\IO\i18n
  */
-class Translator implements TranslatorInterface
+class Translator extends Repository implements TranslatorInterface
 {
     private $languagesPath;
     private $boundLanguage;
     private $boundFallback;
 
+    /**
+     * Translator constructor.
+     */
     public function __construct()
     {
         // Check if Translator has already been instantiated
-        if(function_exists("__")) {
-            throw TranslatorException::reInitError();
+        if(!function_exists("__")) {
+            throw TranslatorException::initError();
         }
+
+        // Set languages path to current directory
+        $this->languagesPath    =   "./";
     }
 
     /**
@@ -39,9 +49,9 @@ class Translator implements TranslatorInterface
         // Check if path is a valid directory
         if(@is_dir($languagesPath)  &&  @is_readable($languagesPath)) {
             // Check if directory has one or more YAML language files
-            $languages  =   glob("*.{yml|yaml}");
+            $languages  =   glob($languagesPath . "*.{yml,yaml}", GLOB_BRACE);
             if(!empty($languages)) {
-                $this->$languagesPath    =   $languagesPath;
+                $this->languagesPath    =   $languagesPath;
                 return $this;
             } else {
                 throw TranslatorException::noLanguageFiles($languagesPath);
@@ -60,9 +70,9 @@ class Translator implements TranslatorInterface
     {
         $languageFile   =   $this->languagesPath . $name;
         if(@is_readable($languageFile . ".yml")) {
-            return (!$returnPath) ? true : $languageFile . "yml";
+            return (!$returnPath) ? true : $languageFile . ".yml";
         } elseif(@is_readable($languageFile . ".yaml")) {
-            return (!$returnPath) ? true : $languageFile . "yaml";
+            return (!$returnPath) ? true : $languageFile . ".yaml";
         } else {
             return false;
         }
@@ -101,26 +111,31 @@ class Translator implements TranslatorInterface
 
     /**
      * @param Language $lang
+     * @return Translator
      */
-    public function bindLanguage(Language $lang)
+    public function bindLanguage(Language $lang) : self
     {
         $this->boundLanguage    =   $lang;
+        return $this;
     }
 
     /**
      * @param Language $lang
+     * @return Translator
      */
-    public function bindFallbackLanguage(Language $lang)
+    public function bindFallbackLanguage(Language $lang) : self
     {
         $this->boundFallback    =   $lang;
+        return $this;
     }
 
     /**
      * @param Language $lang
+     * @return Translator
      */
-    public function bindFallback(Language $lang)
+    public function bindFallback(Language $lang) : self
     {
-        $this->bindFallbackLanguage($lang);
+        return $this->bindFallbackLanguage($lang);
     }
 
     /**
@@ -150,7 +165,7 @@ class Translator implements TranslatorInterface
         } else {
             // Check if Fallback language object is set
             if($this->boundFallback instanceof Language) {
-                return $this->boundLanguage->get($key);
+                return $this->boundFallback->get($key);
             }
         }
 

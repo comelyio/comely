@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Comely\IO\i18n\Translator;
 
+use Comely\IO\i18n\Translator;
 use Comely\IO\i18n\Translator\Language;
 
 /**
@@ -15,9 +16,9 @@ interface TranslatorInterface
      * Set path to directory containing language (YAML) files
      *
      * @param string $languagesPath
-     * @return TranslatorInterface
+     * @return Translator
      */
-    public function setLanguagesPath(string $languagesPath) : self;
+    public function setLanguagesPath(string $languagesPath) : Translator;
 
     /**
      * Check if language (YAML) file exists
@@ -34,23 +35,25 @@ interface TranslatorInterface
      * @param string $name
      * @return \Comely\IO\i18n\Translator\Language
      */
-    public function language(string $name) : Language;
-
+    public function language(string $name): Language;
+    
     /**
      * Bind a language as default for translations
      *
      * @param \Comely\IO\i18n\Translator\Language $lang
+     * @return Translator
      */
-    public function bindLanguage(Language $lang);
+    public function bindLanguage(Language $lang) : Translator;
 
     /**
      * Bind a fallback language
      * In case a key cannot be translated in default bound language
      *
      * @param \Comely\IO\i18n\Translator\Language $lang
+     * @return Translator
      */
-    public function bindFallback(Language $lang);
-    public function bindFallbackLanguage(Language $lang);
+    public function bindFallback(Language $lang) : Translator;
+    public function bindFallbackLanguage(Language $lang) : Translator;
 
     /**
      * Translate a String

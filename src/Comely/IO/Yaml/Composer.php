@@ -47,7 +47,7 @@ class Composer
     public function save(string $output) : bool
     {
         // Check if $output path leads to valid looking YAML file
-        if(!preg_match("/^[\w\:\-_\\/\.]+\.(yml|yaml)$/", $output)) {
+        if(!preg_match("#^[\w\:\-\_\\\/\.]+\.(yml|yaml)$#", $output)) {
             throw ComposeException::badOutputFile();
         }
 

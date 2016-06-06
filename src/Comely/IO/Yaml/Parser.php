@@ -25,7 +25,7 @@ class Parser
     public function __construct(string $input)
     {
         // $input param must be provided with path to YAML (.yml|.yaml) file
-        if(!preg_match("/^[\w\:\-_\\/\.]+\.(yml|yaml)$/", $input)) {
+        if(!preg_match("#^[\w\:\-\_\\\/\.]+\.(yml|yaml)$#", $input)) {
             throw ParseException::badInput();
         }
 
