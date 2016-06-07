@@ -8,7 +8,7 @@ namespace Comely\IO\Filesystem;
  * Filesystem Exception
  * @package Comely\IO\Filesystem
  */
-class FsException extends \ComelyException
+class FilesystemException extends \ComelyException
 {
     protected static $componentId   =   __NAMESPACE__;
 }

@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace Comely\IO\Filesystem\Exception;
 
-use Comely\IO\Filesystem\FsException;
+use Comely\IO\Filesystem\FilesystemException;
 
 /**
  * Class DiskException
  * @package Comely\IO\Filesystem\Exception
  */
-class DiskException extends FsException
+class DiskException extends FilesystemException
 {
     protected static $componentId   =   "Comely\\IO\\Filesystem\\Disk";
 
