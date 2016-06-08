@@ -66,6 +66,6 @@ class ComposeException extends YamlException
      */
     public static function writeFailed(string $file) : ComposeException
     {
-        return new self(self::$componentId, sprintf('Failed to write "%1$s" in "%2$s/"', basename($file), dirname($file)), 1207);
+        return new self(self::$componentId, sprintf('Failed to write "%1$s" in "%2$s"', basename($file), dirname($file) . DIRECTORY_SEPARATOR), 1207);
     }
 }
