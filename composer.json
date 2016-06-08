@@ -9,5 +9,10 @@
       "name": "Furqan A. Siddiqui",
       "email": "mfsid@comely.io"
     }
-  ]
+  ],
+  "autoload": {
+    "psr-4": {
+      "Comely\\": "src/"
+    }
+  }
 }
