@@ -2,3 +2,4 @@
 .idea/
 tests/
 composer.phar
+phpunit-5.4.2.phar
