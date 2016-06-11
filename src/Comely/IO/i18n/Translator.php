@@ -9,8 +9,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . "Translator" . DIRECTORY_SEPARATOR . "gl
 use Comely\IO\i18n\Exception\TranslatorException;
 use Comely\IO\i18n\Translator\Language;
 use Comely\IO\i18n\Translator\TranslatorInterface;
-use Comely\IO\Repository\Repository;
 use Comely\IO\Yaml\Yaml;
+use Comely\Kernel\Repository;
 
 /**
  * Class Translator

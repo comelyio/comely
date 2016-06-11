@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Comely\IO\Repository;
+namespace Comely\Kernel;
+
+use Comely\Kernel\Exception\RepositoryException;
 
 /**
  * Class Repository
@@ -12,7 +14,7 @@ namespace Comely\IO\Repository;
  * Custom user-defined instances can be bound using bind() method and
  * retrieved using find() method.
  *
- * @package Comely\IO
+ * @package Comely\Kernel
  */
 class Repository
 {

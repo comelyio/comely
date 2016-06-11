@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace
 {
     // Use Repository
-    use Comely\IO\Repository\Repository;
+    use Comely\Kernel\Repository;
 
     /**
      * Global translate function # 1

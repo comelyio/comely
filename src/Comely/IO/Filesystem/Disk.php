@@ -80,6 +80,19 @@ class Disk
     }
 
     /**
+     * Get privileges of current Disk instance
+     * @return string
+     */
+    public function diskPrivileges() : string
+    {
+        $privileges =   "";
+        if($this->privilegeRead === true) $privileges   .=  "r";
+        if($this->privilegeWrite === true) $privileges   .=  "w";
+
+        return $privileges;
+    }
+
+    /**
      * Read a file from Disk
      *
      * @param string $filename

@@ -1,15 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace Comely\IO\Repository;
+namespace Comely\Kernel\Exception;
+
+use Comely\Kernel\KernelException;
 
 /**
  * Class RepositoryException
- * @package Comely\IO\Repository
+ * @package Comely\Kernel\Exception
  */
-class RepositoryException extends \ComelyException
+class RepositoryException extends KernelException
 {
-    protected static $componentId   =   __NAMESPACE__;
+    protected static $componentId   =   "Comely\\Kernel\\Repository";
 
     /**
      * @return RepositoryException
