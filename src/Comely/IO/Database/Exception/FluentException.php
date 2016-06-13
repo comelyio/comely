@@ -54,4 +54,33 @@ class FluentException extends DatabaseException
             1103
         );
     }
+
+    /**
+     * @param string $colName
+     * @param string $colType
+     * @param string $dbDriver
+     * @return FluentException
+     */
+    public static function unSupportedColumn(string $colName, string $colType, string $dbDriver) : FluentException
+    {
+        return new self(
+            self::$componentId,
+            sprintf(
+                'Database driver "%1$s" doesn\'t support column type "%2$s" for column "%3$s"',
+                strtoupper($dbDriver),
+                strtoupper($colType),
+                $colName
+            ),
+            1104
+        );
+    }
+
+    /**
+     * @param string $error
+     * @return FluentException
+     */
+    public static function columnParseError(string $error) : FluentException
+    {
+        return new self(self::$componentId, $error, 1105);
+    }
 }

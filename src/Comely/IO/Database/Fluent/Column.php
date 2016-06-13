@@ -28,7 +28,7 @@ class Column
         // Default attributes
         if($defaultAttributes   === true) {
             $this->attributes["charset"]    =   "utf8";
-            $this->attributes["collation"]  =   "utf8_general_ci";
+            $this->attributes["collation"]  =   "utf8_unicode_ci";
         }
     }
 
@@ -56,18 +56,6 @@ class Column
 
         // Save default value
         $this->default  =   $value;
-    }
-
-    /**
-     * Sets an attribute
-     *
-     * @param string $key
-     * @param $value
-     * @return Column
-     */
-    public function setAttr(string $key, $value) : self
-    {
-        $this->attributes[$key] =   $value;
         return $this;
     }
 
@@ -131,20 +119,22 @@ class Column
     /**
      * Sets "primary" attribute for PRIMARY KEY
      *
-     * If column type is integer, this will also set "ai" attribute (auto_increment)
-     *
      * @return Column
      */
     public function primaryKey() : self
     {
         $this->attributes["primary"]    =   1;
+        return $this;
+    }
 
-        // Check if column type is INT
-        if($this->type  === "int") {
-            // Set "ai" attribute for auto_increment
-            $this->attributes["ai"] =   1;
-        }
-
+    /**
+     * Sets "ai" (auto-increment) attribute for column
+     *
+     * @return Column
+     */
+    public function autoIncrement() : self
+    {
+        $this->attributes["ai"] =   1;
         return $this;
     }
 
@@ -158,6 +148,17 @@ class Column
     public function nullable() : self
     {
         $this->attributes["nullable"]   =   1;
+        return $this;
+    }
+
+    /**
+     * Sets UNIQUE KEY attribute
+     *
+     * @return Column
+     */
+    public function unique() : self
+    {
+        $this->attributes["unique"]   =   1;
         return $this;
     }
 }

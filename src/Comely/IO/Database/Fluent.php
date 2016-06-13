@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Comely\IO\Database;
 
 use Comely\IO\Database\Exception\FluentException;
-use Comely\IO\Database\Fluent\Column;
+use Comely\IO\Database\Fluent\DataTypesTrait;
 
 /**
  * Fluent ORM
@@ -21,161 +21,316 @@ abstract class Fluent
     const STR_VARIABLE  =   64;
 
     protected $db;
+    protected $dbDriver;
     protected $columns;
+    protected $constraints;
     protected $tableName;
+    protected $tableEngine;
+
+    use DataTypesTrait;
 
     /**
      * Fluent constructor.
      * @param Database $db
-     * @param string $table
+     * @param string $tableName
      */
-    public function __construct(Database $db, string $table)
+    public function __construct(Database $db, string $tableName)
     {
         $this->db   =   $db;
+        $this->dbDriver =   $this->db->driver();
         $this->columns  =   [];
-        $this->tableName    =   $table;
+        $this->constraints  =   [];
+        $this->tableName    =   $tableName;
+        $this->tableEngine  =   "InnoDB";
     }
 
     /**
-     * Defines an Integer column
+     * Set storage engine (for MySQL)
      *
-     * @param string $name
-     * @param int $size
-     * @param int|null $digits
-     * @return Column
+     * @param string $engine
+     * @return Fluent
+     */
+    public function setEngine(string $engine) : self
+    {
+        $this->tableEngine  =   $engine;
+        return $this;
+    }
+
+    /**
+     * Generate CREATE TABLE query
+     * 
+     * @param bool $dropExisting
+     * @return string
      * @throws FluentException
      */
-    final protected function int(string $name, int $size = self::INT_MEDIUM, int $digits = null) : Column
+    public function getStructure($dropExisting = false) : string
     {
-        // Check Integer size
-        if(!in_array($size, [1,2,4,8,16])) {
-            // size param. must be passed with one of Fluent::INT_* flags
-            throw FluentException::badIntegerSize();
+        // Configure line endings and indents
+        $lb =   "\n";
+        $indent =   str_repeat(" ", 2);
+
+        // Include command to drop existing table?
+        if($dropExisting    === true) {
+            // Works with MySQL and SQLite
+            $sqlTable   =   sprintf("DROP TABLE IF EXISTS `%s`;%s", $this->tableName, $lb);
+        } else {
+            // Start with an empty String
+            $sqlTable   =   "";
         }
 
-        // Create column
-        $this->columns[$name]    =   new Column;
-        $this->columns[$name]->type =   "int";
-        $this->columns[$name]->scalarType =   "integer";
-        $this->columns[$name]->flag   =   $size;
+        // CREATE TABLE statement
+        $sqlTable   .=  sprintf("CREATE TABLE `%s` (%s", $this->tableName, $lb);
 
-        // Integer has specified number of digits?
-        if(is_int($digits)) {
-            $this->columns[$name]->attributes["digits"] =   $digits;
+        // Empty arrays to collect relevant data for reprocessing
+        $mySqlUniqueKeys    =   [];
+
+        // Iterate through columns
+        foreach($this->columns as $name => $column) {
+            // Start column with indent
+            $sqlTable   .=  sprintf("%s`%s` ", $indent, $name);
+
+            // Check column type
+            if($column->type  === "int") {
+                // Integer table
+                $integerTable   =   [
+                    self::INT_TINY =>  "tinyint",
+                    self::INT_SMALL =>  "smallint",
+                    self::INT_MEDIUM =>  "mediumint",
+                    self::INT_DEFAULT => "int",
+                    self::INT_BIG   => "bigint"
+                ];
+
+                // Integer column type
+                if($this->dbDriver  === "mysql") {
+                    $sqlTable   .=  $integerTable[$column->flag];
+
+                    // Number of digits explicitly specified?
+                    if(array_key_exists("digits", $column->attributes)) {
+                        $sqlTable   .=  sprintf("(%d)", $column->attributes["digits"]);
+                    }
+                } elseif($this->dbDriver    === "sqlite") {
+                    // SQLite is a simple as it gets
+                    $sqlTable   .=  "INTEGER";
+                } elseif($this->dbDriver    === "pgsql") {
+                    // PostgreSQL doesn't have AI
+                    if(array_key_exists("ai", $column->attributes)) {
+                        // SERIAL Type
+                    } else {
+                        // Integer Type
+                    }
+                }
+            } elseif($column->type    === "string") {
+                // String column type (char|varchar)
+                if($this->dbDriver  === "mysql") {
+                    // MySQL
+                    // Determine if its a CHAR or VARCHAR
+                    $sqlTable   .=  ($column->flag  === self::STR_FIXED) ? "char" : "varchar";
+
+                    // Check if explicit length has been provided
+                    if(array_key_exists("length", $column->attributes)) {
+                        $sqlTable   .=  sprintf("(%d)", $column->attributes["length"]);
+                    }
+                } elseif($this->dbDriver    === "sqlite") {
+                    // String types in SQLite
+                    $sqlTable   .=  "TEXT";
+                }
+            } elseif($column->type    === "text") {
+                // Data type TEXT
+                if($this->dbDriver  === "mysql") {
+                    // MySQL
+                    $sqlTable   .=  "TEXT";
+                } elseif($this->dbDriver    === "sqlite") {
+                    // SQLite
+                    $sqlTable   .=  "TEXT";
+                }
+            } elseif($column->type    === "enum") {
+                // Enums
+                $options    =   array_key_exists("options", $column->attributes) ? (array) $column->attributes["options"] : [];
+                if($this->dbDriver  === "mysql") {
+                    // Straight-forward enum implementation in MySQL
+                    $sqlTable   .=  "enum(";
+                    $sqlTable   .=  implode(",", array_map(function($opt) {
+                        return "'" . $opt . "'";
+                    }, $options));
+                    $sqlTable   .=  ")";
+                } elseif($this->dbDriver    === "sqlite") {
+                    // For SQLite we will use CHECK() on data type TEXT
+                    $sqlTable   .=  sprintf("TEXT CHECK(%s in (", $name);
+                    $sqlTable   .=  implode(",", array_map(function($opt) {
+                        return "'" . $opt . "'";
+                    }, $options));
+                    $sqlTable   .=  "))";
+                }
+            } elseif($column->scalarType    === "double") {
+                // Double and decimals
+                if($this->dbDriver  === "mysql") {
+                    // MySQL
+                    $sqlTable   .=  $column->type;
+                    if(array_key_exists("m", $column->attributes)) {
+                        $sqlTable   .=  "(" . $column->attributes["m"];
+                        if(array_key_exists("d", $column->attributes)) {
+                            $sqlTable   .=  "," . $column->attributes["d"];
+                        }
+
+                        $sqlTable   .=   ")";
+                    }
+                } elseif($this->dbDriver    === "sqlite") {
+                    // SQLite Real
+                    $sqlTable   .=  "REAL";
+                }
+            }
+
+            // Unsigned Number?
+            if(array_key_exists("signed", $column->attributes)  &&  $column->attributes["signed"]   === 0) {
+                // Is this attribute appropriate for this column type?
+                if(in_array($column->scalarType, ["integer","double"])) {
+                    if($this->dbDriver  === "sqlite"    &&  array_key_exists("ai", $column->attributes)) {
+                        // SQLite AI columns cannot have UNSIGNED declaration
+                    } else {
+                        $sqlTable   .=  " UNSIGNED";
+                    }
+                }
+            }
+
+            // Primary Key
+            if(array_key_exists("primary", $column->attributes)) {
+                $sqlTable   .=  " PRIMARY KEY";
+            }
+
+            // Auto-increment
+            if(array_key_exists("ai", $column->attributes)) {
+                // Is this attribute appropriate for this column type?
+                if(in_array($column->scalarType, ["integer","double"])) {
+                    if($this->dbDriver  === "mysql") {
+                        $sqlTable   .= " auto_increment";
+                    } elseif($this->dbDriver    === "sqlite") {
+                        $sqlTable   .=  " AUTOINCREMENT";
+
+                        // AUTOINCREMENT must be used with INTEGER PRIMARY KEY
+                        if(!array_key_exists("primary", $column->attributes)) {
+                            throw FluentException::columnParseError("AUTOINCREMENT must be used with INTEGER PRIMARY KEY");
+                        }
+                    }
+                }
+            }
+
+            // Unique
+            if(array_key_exists("unique", $column->attributes)) {
+                if($this->dbDriver  === "mysql") {
+                    // Save UNIQUE flag in an Array to be processed after all columns
+                    $mySqlUniqueKeys[]  =   $name;
+                } elseif ($this->dbDriver    === "sqlite") {
+                    // Add UNIQUE flag inline
+                    $sqlTable   .=  " UNIQUE";
+                }
+            }
+
+            // Special attributes
+            // MySQL charset and collation
+            if($this->dbDriver  === "mysql") {
+                if($column->scalarType  === "string") {
+                    $sqlTable   .=  " CHARACTER SET " . $column->attributes["charset"];
+                    $sqlTable   .=  " COLLATE " . $column->attributes["collation"];
+                }
+            }
+
+            // Is Nullable?
+            if(!array_key_exists("nullable", $column->attributes)) {
+                // Cannot be a NULL
+                $sqlTable   .=  " NOT NULL";
+            }
+
+            // Default Value
+            if($column->default === null) {
+                // Default Value is NULL, But column is?
+                if(array_key_exists("nullable", $column->attributes)) {
+                    $sqlTable   .=  " default NULL";
+                }
+            } else {
+                // Set default value
+                $sqlTable   .=  " default ";
+                $sqlTable   .=  (is_string($column->default)) ? sprintf("'%s'", $column->default) : $column->default;
+            }
+
+            // End column line
+            $sqlTable   .=  "," . $lb;
         }
 
-        // Return Column object for further attribution
-        return  $this->columns[$name];
-    }
-
-    /**
-     * Defines a String (char|varchar) column
-     *
-     * @param string $name
-     * @param int $len
-     * @param int $flag
-     * @return Column
-     * @throws FluentException
-     */
-    final protected function string(string $name, int $len = 255, int $flag = self::STR_VARIABLE) : Column
-    {
-        // Check variability flag
-        if(!in_array($flag, [self::STR_FIXED, self::STR_VARIABLE])) {
-            // String size must be declared Fixed (char) or Variable (varchar)
-            throw FluentException::badStringFlag();
+        // MySQL specific constrains and additional columns
+        if($this->dbDriver  === "mysql") {
+            // Unique Keys
+            if(count($mySqlUniqueKeys)  >   0) {
+                foreach($mySqlUniqueKeys as $uniqueKey) {
+                    $sqlTable   .=  sprintf("%sUNIQUE KEY (`%s`),%s", $indent, $uniqueKey, $lb);
+                }
+            }
         }
 
-        // Create String column
-        $this->columns[$name]   =   new Column;
-        $this->columns[$name]->type =   "string";
-        $this->columns[$name]->scalarType =   "string";
-        $this->columns[$name]->flag =   $flag;
-        $this->columns[$name]->attributes["length"] =   $len;
+        // Constraints
+        if(count($this->constraints)    >   0) {
+            foreach($this->constraints as $name => $constraint) {
+                // Given indent
+                $sqlTable   .=  $indent;
 
-        // Return Column object for further attribution
-        return  $this->columns[$name];
+                // Constraints for different database types
+                if($this->dbDriver  === "mysql") {
+                    // Check constraint type
+                    if($constraint["type"]  === "unique") {
+                        // Unique Constraint
+                        $sqlTable   .=  sprintf(
+                            "UNIQUE KEY `%s` (%s),%s",
+                            $name,
+                            implode(",", array_map(function($col) {
+                                return "`" . $col . "`";
+                            }, $constraint["cols"])),
+                            $lb
+                        );
+                    } elseif($constraint["type"]    === "foreign") {
+                        // Foreign Constraint
+                        $sqlTable   .=  sprintf(
+                            "FOREIGN KEY (`%s`) REFERENCES `%s`(`%s`),%s",
+                            $name,
+                            $constraint["table"],
+                            $constraint["col"],
+                            $lb
+                        );
+                    }
+                } elseif($this->dbDriver    === "sqlite") {
+                    // Check constraint type
+                    if($constraint["type"]  === "unique") {
+                        // Unique Constraint
+                        $sqlTable   .=  sprintf(
+                            "CONSTRAINT `%s` UNIQUE (%s),%s",
+                            $name,
+                            implode(",", array_map(function($col) {
+                                return "`" . $col . "`";
+                            }, $constraint["cols"])),
+                            $lb
+                        );
+                    } elseif($constraint["type"]    === "foreign") {
+                        // Foreign Constraint
+                        $sqlTable   .=  sprintf(
+                            "CONSTRAINT `%s` FOREIGN KEY (`%s`) REFERENCES `%s`(`%s`),%s",
+                            "cnstrnt_" . $name . "_frgn",
+                            $name,
+                            $constraint["table"],
+                            $constraint["col"],
+                            $lb
+                        );
+                    }
+                }
+            }
+        }
+
+        // Closing CREATE TABLE statement
+        $sqlTable   =   substr($sqlTable, 0, -1 * (1+strlen($lb))) . $lb;
+        if($this->dbDriver  === "mysql") {
+            // Specify storage engine
+            $sqlTable   .=  sprintf(") ENGINE=%s;", $this->tableEngine);
+        } else {
+            $sqlTable   .=  ");";
+        }
+
+        return $sqlTable;
     }
-
-    /**
-     * Defines a TEXT column
-     *
-     * @param string $name
-     * @return Column
-     */
-    final protected function text(string $name) : Column
-    {
-        // Create Text column
-        $this->columns[$name]   =   new Column;
-        $this->columns[$name]->type =   "text";
-        $this->columns[$name]->scalarType =   "string";
-        $this->columns[$name]->attributes["length"] =   $len;
-
-        // Return Column object for further attribution
-        return  $this->columns[$name];
-    }
-
-    /**
-     * Defines an ENUM column
-     *
-     * @param string $name
-     * @param \string[] ...$opts
-     * @return Column
-     */
-    final protected function enum(string $name, string ...$opts) : Column
-    {
-        // Create Enumeration column
-        $this->columns[$name]   =   new Column;
-        $this->columns[$name]->type =   "enum";
-        $this->columns[$name]->scalarType =   "string";
-        $this->columns[$name]->attributes["options"] =   $opts;
-
-        // Return Column object for further attribution
-        return  $this->columns[$name];
-    }
-
-    /**
-     * Defines a ("double"-precision) Numeric column
-     *
-     * This column type is appropriate for real|float|double numeric types.
-     * Parameters $m and $d don't have default values since MySQL determines limits permitted by hardware
-     *
-     * @param string $name
-     * @param int $m
-     * @param int $d
-     * @return Column
-     */
-    final protected function double(string $name, int $m, int $d) : Column
-    {
-        // Create double-precision floating-point numeric column
-        $this->columns[$name]   =   new Column;
-        $this->columns[$name]->type =   "double";
-        $this->columns[$name]->scalarType =   "double";
-        $this->columns[$name]->attributes["m"] =   $m;
-        $this->columns[$name]->attributes["d"] =   $d;
-
-        // Return Column object for further attribution
-        return  $this->columns[$name];
-    }
-
-    /**
-     * Defines a Decimal column
-     *
-     * @param string $name
-     * @param int $m
-     * @param int $d
-     * @return Column
-     */
-    final protected function decimal(string $name, int $m = 10, $d = 0) : Column
-    {
-        // Create Decimal column
-        $this->columns[$name]   =   new Column;
-        $this->columns[$name]->type =   "decimal";
-        $this->columns[$name]->scalarType =   "double";
-        $this->columns[$name]->attributes["m"] =   $m;
-        $this->columns[$name]->attributes["d"] =   $d;
-
-        // Return Column object for further attribution
-        return  $this->columns[$name];
-    }
-
 }
