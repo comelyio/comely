@@ -31,9 +31,9 @@ class Repository
         $className  =   substr(strrchr($class, "\\"), 1);
 
         // Check if object was instantiated
-        if(!array_key_exists($className, static::$instances)) {
+        if(!array_key_exists($className, self::$instances)) {
             // Create a new instance
-            static::createKey($className, new static());
+            self::createKey($className, new static());
         }
 
         // Return instance

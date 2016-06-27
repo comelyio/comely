@@ -23,6 +23,10 @@ class Database extends AbstractPdo
     const FETCH_COUNT_DEFAULT   =   1;
     /** Count resulting array using \count() for Fetch/select queries */
     const FETCH_COUNT_ARRAY =   2;
+    /** Used with query() method to FETCH results from query */
+    const QUERY_FETCH   =   4;
+    /** User with query() method to EXEC query only, without fetching rows */
+    const QUERY_EXEC    =   8;
 
     protected $pdo;
     protected $config;

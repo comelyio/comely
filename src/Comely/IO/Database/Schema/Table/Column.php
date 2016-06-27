@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Comely\IO\Database\Fluent;
-use Comely\IO\Database\Exception\FluentException;
+namespace Comely\IO\Database\Schema\Table;
+
+use Comely\IO\Database\Exception\SchemaException;
 
 /**
  * Class Column
@@ -33,13 +34,24 @@ class Column
     }
 
     /**
+     * @param string $name
+     * @throws SchemaException
+     */
+    public static function checkName(string $name)
+    {
+        if(!preg_match("#^[a-z0-9_]+$#", $name)) {
+            throw SchemaException::badColumnName($name);
+        }
+    }
+
+    /**
      * Sets default value for column
      * 
      * Booleans are converted to 1 (true) or 0 (false)
      *
      * @param $value
      * @return Column
-     * @throws FluentException
+     * @throws SchemaException
      */
     public function defaultValue($value) : self
     {
@@ -51,7 +63,7 @@ class Column
 
         // Cross check given value type with scalarType of column
         if(gettype($value)  !== $this->scalarType) {
-            throw FluentException::badDefaultValue(gettype($value), $this->scalarType);
+            throw SchemaException::badDefaultValue(gettype($value), $this->scalarType);
         }
 
         // Save default value
@@ -117,17 +129,6 @@ class Column
     }
 
     /**
-     * Sets "primary" attribute for PRIMARY KEY
-     *
-     * @return Column
-     */
-    public function primaryKey() : self
-    {
-        $this->attributes["primary"]    =   1;
-        return $this;
-    }
-
-    /**
      * Sets "ai" (auto-increment) attribute for column
      *
      * @return Column
@@ -162,4 +163,3 @@ class Column
         return $this;
     }
 }
-

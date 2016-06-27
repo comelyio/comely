@@ -169,10 +169,10 @@ abstract class AbstractPdo
      * @param string $method
      * @param string $query
      * @param array $data
-     * @param bool $fetch
+     * @param int $fetch Database::QUERY_* flag
      * @return bool
      */
-    protected function query(string $method, string $query, array $data, bool $fetch = false)
+    protected function pdoQuery(string $method, string $query, array $data, int $fetch = 8)
     {
         // Reset QueryBuilder and lastQuery
         $this->resetLastQuery();
@@ -196,7 +196,7 @@ abstract class AbstractPdo
             $exec   =   $stmnt->execute();
             if($exec    === true    &&  $stmnt->errorCode() === "00000") {
                 // Explicitly asked to fetch rows?
-                if($fetch   === true) {
+                if($fetch   === static::QUERY_FETCH) {
                     $rows   =   $stmnt->fetchAll(\PDO::FETCH_ASSOC);
                     if(is_array($rows)) {
                         // Set rows param of lastQuery

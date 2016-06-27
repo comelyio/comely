@@ -14,73 +14,81 @@ class FluentException extends DatabaseException
     protected static $componentId   =   "Comely\\IO\\Database\\Fluent";
 
     /**
+     * @param string $constant
+     * @param string $model
      * @return FluentException
      */
-    public static function badIntegerSize() : FluentException
+    public static function initConstant(string $constant, string $model)
     {
         return new self(
             self::$componentId,
-            "Integer column size must be defined with one of Fluent::INT_* flags",
+            sprintf(
+                'Fluent model "%1$s" must define "%2$s" constant',
+                $model,
+                $constant
+            ),
             1101
         );
     }
 
     /**
+     * @param string $model
+     * @param string $expected
+     * @param string $given
      * @return FluentException
      */
-    public static function badStringFlag() : FluentException
+    public static function tableModelMismatch(string $model, string $expected, string $given) : FluentException
     {
         return new self(
-            self::$componentId,
-            "String column size must be declared with one of the Fluent::STR_* flags",
+            $model,
+            sprintf(
+                'Fluent model "%1$s" is related to table "%2$s" not "%3$s"',
+                $model,
+                $expected,
+                $given
+            ),
             1102
         );
     }
 
     /**
-     * @param string $badType
-     * @param string $colType
+     * @param string $key
+     * @param string $model
      * @return FluentException
      */
-    public static function badDefaultValue(string $badType, string $colType) : FluentException
+    public static function missingColumn(string $key, string $model) : FluentException
     {
-        return new self(
-            self::$componentId,
-            sprintf(
-                'Default value data type "%1$s" must match with column\'s data type "%2$s"',
-                strtoupper($badType),
-                strtoupper($colType)
-            ),
-            1103
-        );
+        return new self($model, sprintf('Missing column "%1$s" in input row', $key), 1103);
     }
 
     /**
-     * @param string $colName
-     * @param string $colType
-     * @param string $dbDriver
+     * @param string $model
+     * @param string $column
+     * @param string $expected
+     * @param string $given
      * @return FluentException
      */
-    public static function unSupportedColumn(string $colName, string $colType, string $dbDriver) : FluentException
+    public static function badColumnValue(string $model, string $column, string $expected, string $given) : FluentException
     {
         return new self(
-            self::$componentId,
+            $model,
             sprintf(
-                'Database driver "%1$s" doesn\'t support column type "%2$s" for column "%3$s"',
-                strtoupper($dbDriver),
-                strtoupper($colType),
-                $colName
+                'Column "%1$s" expects value type "%2$s" but given type is "%3$s"',
+                $column,
+                $expected,
+                $given
             ),
             1104
         );
     }
 
     /**
+     * @param string $method
      * @param string $error
      * @return FluentException
      */
-    public static function columnParseError(string $error) : FluentException
+    public static function arQueryError(string $method, string $error) : FluentException
     {
-        return new self(self::$componentId, $error, 1105);
+        return new self($method, $error, 1105);
     }
 }

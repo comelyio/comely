@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace Comely\IO\Database\Traits;
+use Comely\IO\Database\DatabaseException;
 
 /**
  * Class DatabaseTrait
@@ -9,6 +10,17 @@ namespace Comely\IO\Database\Traits;
  */
 trait DatabaseTrait
 {
+    /**
+     * @param string $query
+     * @param array $data
+     * @param int $flag Database::QUERY_* flag
+     * @throws DatabaseException
+     */
+    public function query(string $query, array $data, int $flag = 8)
+    {
+        return parent::pdoQuery(__METHOD__, $query, $data, $flag);
+    }
+
     /**
      * Inserts a row
      *
@@ -43,7 +55,7 @@ trait DatabaseTrait
         );
 
         // Execute INSERT query
-        $insert =   $this->query(__METHOD__, $query, $row, false);
+        $insert =   $this->pdoQuery(__METHOD__, $query, $row, self::QUERY_EXEC);
 
         // Return last inserted row ID or 0
 		return ($insert === true) ? (int) $this->lastInsertId() : 0;
@@ -98,7 +110,7 @@ trait DatabaseTrait
         );
 
         // Execute UPDATE query
-        $update =   $this->query(__METHOD__, $query, $queryData, false);
+        $update =   $this->pdoQuery(__METHOD__, $query, $queryData, self::QUERY_EXEC);
 
         // Return number of rows affected or 0
         return ($update	===	true) ? $this->lastQuery->rows : 0;
@@ -126,7 +138,7 @@ trait DatabaseTrait
         );
 
         // Execute DELETE query
-        $delete =   $this->query(__METHOD__, $query, $this->queryBuilder->queryData, false);
+        $delete =   $this->pdoQuery(__METHOD__, $query, $this->queryBuilder->queryData, self::QUERY_EXEC);
 
         // Return number of rows deleted or 0
         return ($delete === true) ? $this->lastQuery->rows : 0;
@@ -164,7 +176,7 @@ trait DatabaseTrait
         );
 
         // Execute SELECT query
-        $fetch  =   $this->query(__METHOD__, $query, $this->queryBuilder->queryData, true);
+        $fetch  =   $this->pdoQuery(__METHOD__, $query, $this->queryBuilder->queryData, self::QUERY_FETCH);
 
         // Return fetched Array or Bool FALSE
         return is_array($fetch) ? $fetch : false;
