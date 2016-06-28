@@ -26,13 +26,19 @@ class SchemaException extends DatabaseException
     }
 
     /**
+     * @param string $column
+     * @param string $flagSet
      * @return SchemaException
      */
-    public static function badStringFlag() : SchemaException
+    public static function badFlag(string $column, string $flagSet) : SchemaException
     {
         return new self(
             self::$componentId,
-            "String column size must be declared with one of the AbstractTable::STR_* flags",
+            sprintf(
+                'Column "%1$s" must be defined with one of self::%2$s_* flags',
+                $column,
+                strtoupper($flagSet)
+            ),
             1102
         );
     }

@@ -13,18 +13,6 @@ use Comely\Kernel\Http\Session;
 trait ConfigTrait
 {
     /**
-     * Sets name of database table if storage engine is Comely\IO\Database\Database
-     *
-     * @param string $table
-     * @return Session
-     */
-    public function setDbTableName(string $table) : Session
-    {
-        $this->config->dbTableName  =   $table;
-        return $this;
-    }
-
-    /**
      * Sets probability of garbage collection
      *
      * Garbage collection method is called from the same registered shutdown (register_shutdown_function()) method
@@ -41,6 +29,18 @@ trait ConfigTrait
         }
 
         $this->config->gcProbability    =   $prob;
+        return $this;
+    }
+
+    /**
+     * Sets salt for hashing session payload
+     *
+     * @param string $salt
+     * @return Session
+     */
+    public function setHashSalt(string $salt) : Session
+    {
+        $this->config->hashSalt =   $salt;
         return $this;
     }
 }

@@ -2,6 +2,8 @@
 declare(strict_types=1);
 
 namespace Comely\Kernel\Http\Session;
+use Comely\Kernel\Exception\SessionException;
+use Comely\Kernel\Http\Session;
 
 /**
  * Class ComelySession
@@ -9,10 +11,11 @@ namespace Comely\Kernel\Http\Session;
  */
 class ComelySession
 {
-    public $id;
+    protected $id;
     public $data;
-    public $dataHash;
-    public $timeStamp;
+    protected $encoded;
+    protected $hash;
+    protected $timeStamp;
 
     /**
      * ComelySession constructor.
@@ -22,8 +25,12 @@ class ComelySession
     {
         $this->id   =   $id;
         $this->data =   [];
-        $this->dataHash =   "";
-        $this->timeStamp    =   (object) ["create" => time(), "last" => time()];
+        $this->encoded =   "";
+        $this->hash =   "";
+        $this->timeStamp    =   (object) [
+            "create" => microtime(true),
+            "last" => microtime(true)
+        ];
     }
 
     /**
@@ -37,28 +44,52 @@ class ComelySession
     }
 
     /**
-     * Get session data
+     * Encodes session data
+     * For security reasons, session data should be encoded in JSON prior to serialize
+     *
+     * @param string $salt
+     * @return string
+     * @throws SessionException
+     */
+    public function encodeData(string $salt) : string
+    {
+        // Update timeStamp
+        $this->timeStamp->last  =   microtime(true);
+
+        // Make sure property data is in good shape
+        if(!is_array($this->data)) {
+            throw new SessionException(__METHOD__, 'Property "data" is corrupt', 1201);
+        }
+
+        // Encode JSON data
+        $this->encoded =   json_encode($this->data);
+        $this->hash =   Session::saltedHash($this->encoded, $salt);
+    }
+
+    /**
+     * Prepare session for writing
      *
      * @return array
-     */
-    public function getData() : array
-    {
-        return $this->data;
-    }
-
-    /**
-     * @return string
-     */
-    public function calculateHash() : string
-    {
-        return hash("sha1", serialize($this->data));
-    }
-
-    /**
-     * @return array
+     * @throws SessionException
      */
     public function __sleep() : array
     {
-        return ["id","data","dataHash","timeStamp"];
+        return ["id","encoded","hash","timeStamp"];
+    }
+
+    /**
+     * Prepare session for resuming
+     */
+    public function __wakeup()
+    {
+        // Security feature, cross check preserved hash
+        if(!hash_equals($this->dataHash, hash("sha1", serialize($this->data)))) {
+            throw SessionException::readError("Hash mismatch");
+        }
+
+
+
+        // TODO: Check if its expired
+
     }
 }

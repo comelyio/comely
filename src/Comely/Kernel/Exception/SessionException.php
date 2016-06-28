@@ -38,4 +38,22 @@ class SessionException extends HttpException
     {
         return new self(self::$componentId, sprintf('Unacceptable setting for "%1$s": %2$s', $key, $error), 1103);
     }
+
+    /**
+     * @param string $message
+     * @return SessionException
+     */
+    public static function readError(string $message) : SessionException
+    {
+        return new self(self::$componentId, $message, 1104);
+    }
+
+    /**
+     * @param string $message
+     * @return SessionException
+     */
+    public static function writeError(string $message) : SessionException
+    {
+        return new self(self::$componentId, $message, 1105);
+    }
 }

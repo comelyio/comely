@@ -16,4 +16,7 @@ interface Constants
     const INT_BIG   =   16;
     const STR_FIXED =   32;
     const STR_VARIABLE  =   64;
+    const TEXT_DEFAULT  =   128;
+    const TEXT_MEDIUM   =   256;
+    const TEXT_LONG =   512;
 }

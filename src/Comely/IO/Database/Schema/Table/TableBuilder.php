@@ -117,7 +117,13 @@ class TableBuilder extends Repository implements Constants
                 // Data type TEXT
                 if($this->dbDriver  === "mysql") {
                     // MySQL
-                    $sqlTable   .=  "TEXT";
+                    $textTable  =   [
+                        self::TEXT_DEFAULT  =>   "TEXT",
+                        self::TEXT_MEDIUM   =>   "MEDIUMTEXT",
+                        self::TEXT_LONG =>   "LONGTEXT"
+                    ];
+
+                    $sqlTable   .=  $textTable[$column->flag];
                 } elseif($this->dbDriver    === "sqlite") {
                     // SQLite
                     $sqlTable   .=  "TEXT";

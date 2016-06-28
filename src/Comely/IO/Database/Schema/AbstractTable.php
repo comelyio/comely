@@ -341,7 +341,7 @@ abstract class AbstractTable implements Constants
         // Check variability flag
         if(!in_array($flag, [self::STR_FIXED, self::STR_VARIABLE])) {
             // String size must be declared Fixed (char) or Variable (varchar)
-            throw SchemaException::badStringFlag();
+            throw SchemaException::badFlag($name, "str");
         }
 
         // Create String column
@@ -360,18 +360,26 @@ abstract class AbstractTable implements Constants
      * Defines a TEXT column
      *
      * @param string $name
+     * @param int $flag 
      * @return Column
+     * @throws SchemaException
      */
-    final protected function text(string $name) : Column
+    final protected function text(string $name, int $flag = self::TEXT_DEFAULT) : Column
     {
         // Check column's name
         Column::checkName($name);
+
+        // Check variability flag
+        if(!in_array($flag, [self::TEXT_DEFAULT, self::TEXT_MEDIUM, self::TEXT_LONG])) {
+            throw SchemaException::badFlag($name, "text");
+        }
 
         // Create Text column
         $this->columnsKeys[]    =   $name;
         $this->columns[$name]   =   new Column;
         $this->columns[$name]->type =   "text";
         $this->columns[$name]->scalarType =   "string";
+        $this->columns[$name]->flag =   $flag;
 
         // Return Column object for further attribution
         return  $this->columns[$name];
