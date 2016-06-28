@@ -16,7 +16,8 @@ abstract class Fluent
 {
     private $modelName;
     private $schemaTable;
-    private $row;
+    private $public;
+    private $private;
 
     /**
      * Fluent constructor.
@@ -55,7 +56,8 @@ abstract class Fluent
         $this->schemaTable    =   Schema::table(static::SCHEMA_TABLE);
 
         // Bootstrap data mapping
-        $this->row  =   [];
+        $this->public  =   [];
+        $this->private  =   [];
 
         // Check if $row is Array
         if(is_array($row)) {
@@ -67,18 +69,36 @@ abstract class Fluent
                 }
             }
 
-            // TODO: Exclude keys
+            // Get all columns
+            $columns    =   $this->schemaTable->getColumns();
 
             // Data mapping
             foreach($row as $key => $value) {
-                // TODO: Exclude keys
+                // Get column
+                switch($columns[$key]->scalarType) {
+                    case "integer":
+                        $value  =   (int) $value;
+                        break;
 
-                // TODO: Type cast according to data types
+                    case "double":
+                        $d  =   $columns[$key]->attributes["d"];
+                        $value  =   round($value, ($d+1));
+                        break;
 
-                $this->row[$key]    =   $value;
+                    default:
+                        break;
+                }
+
+                // Sort this key as public or private?
+                $camelKey   =   Comely::camelCase($key);
+                if(property_exists($this->modelName, $camelKey)) {
+                    // Public property
+                    $this->public[$key]    =   $value;
+                } else {
+                    // Private variable
+                    $this->private[$key]    =   $value;
+                }
             }
-
-
         }
 
         // Check if callBack method is defined
@@ -89,7 +109,7 @@ abstract class Fluent
     }
 
     /**
-     * Sets value of a column
+     * Sets public column value
      * 
      * @param string $name
      * @param $value
@@ -116,20 +136,75 @@ abstract class Fluent
         }
 
         // Set value
-        $this->row[$snakeName]   =   $value;
+        $this->public[$snakeName]   =   $value;
     }
 
     /**
-     * Gets column value or NULL
+     * Gets public column value or NULL
      *
      * @param $name
      * @return mixed
      */
-    final public function __get($name)
+    final public function __get(string $name)
     {
-        // Convert $col name to snake_case
+        // Convert column $name to snake_case
         $snakeName  =   Comely::snakeCase($name);
-        return $this->row[$snakeName] ?? null;
+        return $this->public[$snakeName] ?? null;
+    }
+
+    /**
+     * Sets private column value
+     *
+     * @param string $name
+     * @param $value
+     * @throws FluentException
+     * @throws SchemaException
+     */
+    final public function setPrivate(string $name, $value)
+    {
+        // Convert column $name to snake_case
+        $snakeName  =   Comely::snakeCase($name);
+
+        // Get column
+        $column =   $this->schemaTable->getColumn($snakeName);
+
+        // Cross check value type with column's
+        if($column->scalarType  !== gettype($value)) {
+            // Check if value type is NULL and column is nullable
+            if(gettype($value)  === "NULL"  &&  array_key_exists("nullable", $column->attributes)) {
+                // Column is NULLable
+            } else {
+                // Data type of value doesn't match with column's
+                throw FluentException::badColumnValue($this->modelName, $name, $column->scalarType, gettype($value));
+            }
+        }
+
+        // Set value
+        $this->private[$snakeName]   =   $value;
+    }
+
+    /**
+     * Gets private column value or NULL
+     *
+     * @param string $name
+     * @return array
+     */
+    final public function getPrivate(string $name)
+    {
+        // Convert column $name to snake_case
+        $snakeName  =   Comely::snakeCase($name);
+        return $this->private[$snakeName] ?? null;
+    }
+
+    /**
+     * Get merged private and public key/value pairs
+     *
+     * @return array
+     */
+    final public function getRow() : array
+    {
+        // Private values have preference over public values
+        return array_replace($this->public, $this->private);
     }
 
     /**
@@ -152,7 +227,8 @@ abstract class Fluent
     {
         // Iterate through each column in row and prepare query
         $values =   [];
-        foreach($this->row as $key => $value) {
+        $row    =   $this->getRow();
+        foreach($row as $key => $value) {
             // Statement pieces
             $insertKeys[]   =   "`". $key ."`";
             $insertValues[] =   ":i_" . $key;
@@ -216,7 +292,8 @@ abstract class Fluent
     {
         // Iterate through each column in row and prepare query
         $values =   [];
-        foreach($this->row as $key => $value) {
+        $row    =   $this->getRow();
+        foreach($row as $key => $value) {
             // Statement pieces
             $insertKeys[]   =   "`". $key ."`";
             $insertValues[] =   ":" . $key;
@@ -279,11 +356,12 @@ abstract class Fluent
         $schemaDb   =   $schemaTable->getDb();
 
         // Check if primaryKey is set
+        $row    =   $this->getRow();
         $primaryKey =   $schemaTable->getPrimaryKey();
         if(empty($primaryKey)) {
             // primaryKey is not set in table
             throw FluentException::arQueryError(__METHOD__, "Primary key must be defined first");
-        } elseif(!array_key_exists($primaryKey, $this->row)) {
+        } elseif(!array_key_exists($primaryKey, $row)) {
             // primaryKey is not set in model
             throw FluentException::arQueryError(__METHOD__, sprintf(
                 'Value of primary key "%1$s" must be set',
@@ -293,7 +371,8 @@ abstract class Fluent
 
         // Iterate through each column in row and prepare query
         $values =   [];
-        foreach($this->row as $key => $value) {
+        $row    =   $this->getRow();
+        foreach($row as $key => $value) {
             // Statement pieces
             $updateKeys[]   =   sprintf('`%s`=:%s', $key, $key);
             $values[$key]   =   $value;
@@ -358,11 +437,12 @@ abstract class Fluent
         $schemaDb   =   $schemaTable->getDb();
 
         // Check if primaryKey is set
+        $row    =   $this->getRow();
         $primaryKey =   $schemaTable->getPrimaryKey();
         if(empty($primaryKey)) {
             // primaryKey is not set in table
             throw FluentException::arQueryError(__METHOD__, "Primary key must be defined first");
-        } elseif(!array_key_exists($primaryKey, $this->row)) {
+        } elseif(!array_key_exists($primaryKey, $row)) {
             // primaryKey is not set in model
             throw FluentException::arQueryError(__METHOD__, sprintf(
                 'Value of primary key "%1$s" must be set',
@@ -378,7 +458,8 @@ abstract class Fluent
         );
 
         // Execute query
-        $result   =   $schemaDb->query($query, [$this->row[$primaryKey]], Database::QUERY_EXEC);
+        $row    =   $this->getRow();
+        $result   =   $schemaDb->query($query, [$row[$primaryKey]], Database::QUERY_EXEC);
         if(!$result) {
             throw FluentException::arQueryError(__METHOD__, $schemaDb->lastQuery->error ?? "Failed");
         }

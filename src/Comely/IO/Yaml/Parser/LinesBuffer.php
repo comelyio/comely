@@ -6,7 +6,7 @@ namespace Comely\IO\Yaml\Parser;
 /**
  * Class Buffer
  * Buffers lines to be parsed in IO\Yaml\Parse::parseYaml() method
- * @package Comely\IO\Yaml\Parse
+ * @package Comely\IO\Yaml\Parser
  */
 class LinesBuffer
 {

@@ -11,10 +11,6 @@ use Comely\IO\Database\Traits\QueryBuilderTrait;
 
 /**
  * Class Database
- *
- * This IO component establishes connection with Database using PDO.
- * Database IO component is packed with QueryBuilder, Pagination tool and an Active Record ORM
- *
  * @package Comely\IO\Database
  */
 class Database extends AbstractPdo

@@ -23,6 +23,7 @@ class Table extends AbstractTable
      * Usually, this should be same as class name (but in lowercase)
      */
     const SCHEMA_TABLE  =   "table";
+    
     /**
      * Establish a relationship with "Fluent" model by providing class name (with namespaces) or NULL
      * If NULL, then magic ::findBy[col*] methods will return array instead of Model
@@ -32,7 +33,7 @@ class Table extends AbstractTable
     const SCHEMA_MODEL  =   "Comely\\IO\\Database\\Sample\\Model";
 
     /**
-     * This method is called automatically when a table a loaded.
+     * This method is called automatically when a table is loaded.
      * @throws \Comely\IO\Database\Exception\SchemaException
      */
     public function createTable()

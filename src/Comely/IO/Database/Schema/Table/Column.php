@@ -7,7 +7,7 @@ use Comely\IO\Database\Exception\SchemaException;
 
 /**
  * Class Column
- * @package Comely\IO\Database\Fluent
+ * @package Comely\IO\Database\Schema\Table
  */
 class Column
 {
