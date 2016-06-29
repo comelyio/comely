@@ -9,15 +9,31 @@ namespace Comely\Kernel\Http\Session;
  */
 class Config
 {
-    public $gcProbability;
     public $hashSalt;
+    public $hashCost;
+    public $cipher;
+    public $cookie;
+    public $cookieLife;
+    public $cookiePath;
+    public $cookieDomain;
+    public $cookieSecure;
+    public $cookieHttpOnly;
+    public $sessionLife;
 
     /**
      * Config constructor.
      */
     public function __construct()
     {
-        $this->gcProbability    =   10; // Should be within 1 and 100
         $this->hashSalt =   "";
+        $this->hashCost =   1;
+        $this->cipher   =   null;
+        $this->cookie   =   true;
+        $this->cookieLife   =   2592000;
+        $this->cookiePath   =   null;
+        $this->cookieDomain =   null;
+        $this->cookieHttpOnly   =   true;
+        $this->cookieSecure =   true;
+        $this->sessionLife   =   3600;
     }
 }

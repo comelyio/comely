@@ -56,4 +56,12 @@ class SessionException extends HttpException
     {
         return new self(self::$componentId, $message, 1105);
     }
+
+    /**
+     * @return SessionException
+     */
+    public static function badWakeUp() : SessionException
+    {
+        return new self(self::$componentId, "Read session data is corrupt", 1106);
+    }
 }

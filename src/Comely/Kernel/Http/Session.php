@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Comely\Kernel\Http;
 
 use ComelyException;
+use Comely\IO\Security\Cipher;
 use Comely\IO\Cache\CacheInterface;
 use Comely\IO\Database\Database;
 use Comely\IO\Database\Schema\AbstractTable;
@@ -74,6 +75,22 @@ class Session extends Repository
         if(!$this->session instanceof ComelySession) {
             $this->create();
         }
+
+        // Register shutdown handler
+        register_shutdown_function([$this,"write"]);
+
+        // Save cookie
+        $this->sessionCookie($this->session->getId());
+    }
+
+    /**
+     * Get reference to ComelySession instance
+     * 
+     * @return ComelySession
+     */
+    public function getSession() : ComelySession
+    {
+        return $this->session;
     }
 
     /**
@@ -90,38 +107,57 @@ class Session extends Repository
             } elseif($this->storage instanceof AbstractTable) {
                 // Read from database
                 $session    =   $this->storage->findById($id);
-                if(is_array($session)&& array_key_exists("payload", $session)) {
+                if(is_array($session)   &&  array_key_exists("payload", $session)) {
                     $session    =   $session["payload"];
                 }
             } elseif($this->storage instanceof CacheInterface) {
                 // Read from cache
             }
 
-
             // Expecting a String from read
-            if(isset($session)  &&  is_string($session)) {
-                try {
-                    // Un-serialize object
-                    $session    =   unserialize($session, [
-                        "allowed_classes"   =>    [
-                            "Comely\\Kernel\\Http\\Session\\ComelySession"
-                        ]
-                    ]);
-
-                    if($session instanceof ComelySession) {
-                        // Save ComelySession reference
-                        $this->session  =   $session;
-                    }
-                } catch(\Throwable $e) {
-                    // An error occurred while waking up
-                    // Do nothing...
-                }
-            } else {
+            if(!isset($session)||   !is_string($session)) {
                 throw SessionException::readError("Failed to read session from storage");
             }
-        } catch(ComelyException $e) {
-            // And error occurred while reading
-            // Do nothing...
+
+            // Cipher Encryption?
+            if($this->config->cipher instanceof Cipher) {
+                $session    =   $this->config->cipher->decrypt($session);
+            }
+
+            // Un-serialize object
+            $session    =   unserialize($session, [
+                "allowed_classes"   =>    [
+                    "Comely\\Kernel\\Http\\Session\\ComelySession"
+                ]
+            ]);
+
+            if($session instanceof ComelySession) {
+                try {
+                    $decode =   $session->decodeData(
+                        $this->config->sessionLife,
+                        $this->config->hashSalt,
+                        $this->config->hashCost
+                    );
+                } catch(SessionException $e) {
+                    throw $e;
+                }
+
+                // If session is expired, no exception is thrown, just boolean FALSE is returned
+                if(isset($decode)   &&  $decode  === true) {
+                    // Save ComelySession reference
+                    $this->session  =   $session;
+                } else {
+                    // Delete session from storage
+                    $this->delete($id, true);
+                }
+            }
+        } catch(\Throwable $t) {
+            // Session resume failed, trigger an error
+            $methodString    =   method_exists($t, "getMethod") ? sprintf("%s: ", $t->getMethod()) :  "";
+            trigger_error(
+                $methodString . $t->getMessage(),
+                E_USER_WARNING
+            );
         }
     }
 
@@ -140,52 +176,95 @@ class Session extends Repository
         }
 
         // Create new instance of ComelySession
-        $session    =   new ComelySession($sessionId);
+        $this->session    =   new ComelySession($sessionId);
     }
 
     /**
      * Save session in storage
      */
-    private function write()
+    public function write()
     {
-        // Make sure we have instance of ComelySession
-        if(!$this->session instanceof ComelySession) {
-            throw SessionException::writeError('Cannot find instance of ComelySession for writing');
-        }
-        
-        // Prepare it for writing
-        $this->session->encodeData($this->config->hashSalt);
-        $payload    =   serialize($this->session);
-
-        // Write in storage
-        if($this->storage instanceof Disk) {
-            // Write to Filesystem
-            $this->storage->write(
-                $this->session->getId() . ".sess",
-                $payload,
-                Disk::WRITE_FLOCK
-            );
-        } elseif($this->storage instanceof AbstractTable) {
-            // Write to Database
-            $db =   $this->storage->getDb();
-            $update =   $db->table($this->storage->getName())
-                ->find("id=:id", ["id" => $this->session->getId()])
-                ->update(
-                    [
-                        "payload"   =>  $payload,
-                        "time_stamp"    =>  time()
-                    ]
-                );
-
-            // Make sure an exception is thrown even if DB instance is in silent mode
-            if(!$update) {
-                throw SessionException::writeError(
-                    $db->lastQuery->error ?? "Failed to write changes in database"
-                );
+        try {
+            // Make sure we have instance of ComelySession
+            if(!$this->session instanceof ComelySession) {
+                throw SessionException::writeError('Cannot find instance of ComelySession for writing');
             }
-        } elseif($this->storage instanceof CacheInterface) {
-            // TODO: Write in cache
+
+            // Prepare it for writing
+            $this->session->encodeData($this->config->hashSalt, $this->config->hashCost);
+            $payload    =   serialize($this->session);
+
+            // Cipher Encryption?
+            if($this->config->cipher instanceof Cipher) {
+                $payload    =   $this->config->cipher->encrypt($payload);
+            }
+
+            // Write in storage
+            if($this->storage instanceof Disk) {
+                // Write to Filesystem
+                $this->storage->write(
+                    $this->session->getId() . ".sess",
+                    $payload,
+                    Disk::WRITE_FLOCK
+                );
+            } elseif($this->storage instanceof AbstractTable) {
+                // Write to Database
+                $db =   $this->storage->getDb();
+                $update =   $db->table($this->storage->getName())
+                    ->find("id=:id", ["id" => $this->session->getId()])
+                    ->update(
+                        [
+                            "payload"   =>  $payload,
+                            "time_stamp"    =>  time()
+                        ]
+                    );
+
+                // Make sure an exception is thrown even if DB instance is in silent mode
+                if(!$update) {
+                    throw SessionException::writeError(
+                        $db->lastQuery->error ?? "Failed to write changes in database"
+                    );
+                }
+            } elseif($this->storage instanceof CacheInterface) {
+                // TODO: Write in cache
+            }
+        } catch(\Throwable $t) {
+            /**
+             * Since this method would run at end of execution, its better to trigger an error alongside throwing
+             * exception (assuming that is is being logged by error handler)
+             */
+            $methodString    =   method_exists($t, "getMethod") ? sprintf("%s: ", $t->getMethod()) :  "";
+            trigger_error(
+                $methodString . $t->getMessage(),
+                E_USER_WARNING
+            );
+
+            // Re-throw
+            throw $t;
         }
+    }
+
+    /**
+     * Set COMELYSESSID cookie
+     *
+     * @param string $id
+     * @return bool
+     */
+    private function sessionCookie(string $id) : bool
+    {
+        if($this->config->cookie    === true) {
+            return setcookie(
+                "COMELYSESSID",
+                $id,
+                time() + $this->config->cookieLife,
+                $this->config->cookiePath,
+                $this->config->cookieDomain,
+                $this->config->cookieSecure,
+                $this->config->cookieHttpOnly
+            );
+        }
+
+        return false;
     }
 
     /**
@@ -217,7 +296,7 @@ class Session extends Repository
                 return $this->storage->isReadable($sessionId . ".sess") ? false : true;
             } elseif($this->storage instanceof AbstractTable) {
                 $db =   $this->storage->getDb();
-                $row    =   $db->table($this->storage->getName())->select("id")->find("id=?", $sessionId)->fetchFirst();
+                $row    =   $db->table($this->storage->getName())->select("id")->find("id=?", [$sessionId])->fetchFirst();
                 return is_array($row) ? false : true;
             } elseif($this->storage instanceof CacheInterface) {
                 // TODO: Implement cache
@@ -232,15 +311,50 @@ class Session extends Repository
     }
 
     /**
-     * Returns SHA1 salted hash
+     * Deletes session from storage
+     * No exception is thrown on failure
+     *
+     * @param string $sessionId
+     * @param bool $triggerError
+     */
+    private function delete(string $sessionId, bool $triggerError = false)
+    {
+        try {
+            if($this->storage instanceof Disk) {
+                $this->storage->delete($sessionId . ".sess");
+            } elseif($this->storage instanceof AbstractTable) {
+                $db =   $this->storage->getDb();
+                $delete    =   $db->table($this->storage->getName())->find("id=?", [$sessionId])->delete();
+
+                // Throw an error even if database is in silent mode
+                if(!$delete) {
+                    throw new SessionException(
+                        __METHOD__,
+                        $db->lastQuery->error ?? "Failed to delete session from database",
+                        1401
+                    );
+                }
+            } elseif($this->storage instanceof CacheInterface) {
+                // TODO: Implement cache
+            }
+        } catch(ComelyException $e) {
+             // Failed to delete session file
+            if($triggerError) {
+                trigger_error(sprintf('%s: %s', $e->getMethod(), $e->getMessage()), E_USER_WARNING);
+            }
+        }
+    }
+
+    /**
+     * Returns 160-bit PBKDF2 hash in hexadecimal representation
      *
      * @param string $str
      * @param string $salt
+     * @param int $cost
      * @return string
      */
-    public static function saltedHash(string $str, string $salt) : string
+    public static function saltedHash(string $str, string $salt, int $cost = 0) : string
     {
-        // Return a SHA1 salted hash
-        return hash("sha1", sprintf("%s*%s", $str, $salt));
+        return hash_pbkdf2("sha1", $str, $salt, $cost, 0, false);
     }
 }

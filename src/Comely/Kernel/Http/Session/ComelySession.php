@@ -11,11 +11,11 @@ use Comely\Kernel\Http\Session;
  */
 class ComelySession
 {
-    protected $id;
-    public $data;
-    protected $encoded;
-    protected $hash;
-    protected $timeStamp;
+    private $id;
+    private $data;
+    private $encoded;
+    private $hash;
+    private $timeStamp;
 
     /**
      * ComelySession constructor.
@@ -44,26 +44,42 @@ class ComelySession
     }
 
     /**
+     * Get all session data
+     *
+     * @return array
+     */
+    public function getData() : array
+    {
+        return $this->data;
+    }
+
+    /**
+     * Set session data
+     *
+     * @param array $data
+     * @return array
+     */
+    public function setData(array $data)
+    {
+        $this->data =   $data;
+    }
+
+    /**
      * Encodes session data
      * For security reasons, session data should be encoded in JSON prior to serialize
      *
      * @param string $salt
+     * @param int $cost
      * @return string
-     * @throws SessionException
      */
-    public function encodeData(string $salt) : string
+    public function encodeData(string $salt, int $cost) : string
     {
         // Update timeStamp
         $this->timeStamp->last  =   microtime(true);
 
-        // Make sure property data is in good shape
-        if(!is_array($this->data)) {
-            throw new SessionException(__METHOD__, 'Property "data" is corrupt', 1201);
-        }
-
         // Encode JSON data
         $this->encoded =   json_encode($this->data);
-        $this->hash =   Session::saltedHash($this->encoded, $salt);
+        $this->hash =   Session::saltedHash($this->encoded, $salt, $cost);
     }
 
     /**
@@ -82,14 +98,52 @@ class ComelySession
      */
     public function __wakeup()
     {
-        // Security feature, cross check preserved hash
-        if(!hash_equals($this->dataHash, hash("sha1", serialize($this->data)))) {
-            throw SessionException::readError("Hash mismatch");
+        // Check if all properties exist...
+        foreach(["id","encoded","hash","timeStamp"] as $property) {
+            if(!property_exists($this, $property)) {
+                throw SessionException::badWakeUp();
+            }
+        }
+    }
+
+    /**
+     * Prepares session after waking up
+     *
+     * @param int $expiry
+     * @param string $salt
+     * @param int $cost
+     * @return bool
+     * @throws SessionException
+     */
+    public function decodeData(int $expiry, string $salt, int $cost) : bool
+    {
+        // Check if this session needs decoding
+        if(is_array($this->data)    ||  empty($this->encoded)) {
+            throw new SessionException(__METHOD__, "Session is already decoded", 1502);
         }
 
+        // Check validity
+        $span   =   microtime(true) - $this->timeStamp->last;
+        if($span    >=  $expiry) {
+            // Session has expired
+            return false;
+        }
 
+        // Checksum
+        if(!hash_equals(Session::saltedHash($this->encoded, $salt, $cost), $this->hash)) {
+            throw new SessionException(__METHOD__, "Session checksum failed", 1503);
+        }
 
-        // TODO: Check if its expired
+        // Decode data
+        $this->data =   @json_decode($this->encoded, true);
+        if(!is_array($this->data)) {
+            throw new SessionException(__METHOD__, "Failed to decode JSON data", 1504);
+        }
 
+        // Release "encoded" property
+        $this->encoded  =   null;
+
+        // Successfully decoded
+        return true;
     }
 }

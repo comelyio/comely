@@ -205,7 +205,7 @@ class Cipher
             throw CipherException::badHashAlgo($algo);
         }
 
-        return hash_pbkdf2($algo, $data, $salt, $cost, false);
+        return hash_pbkdf2($algo, $data, $salt, $cost, 0, false);
     }
 
     /**
