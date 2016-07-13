@@ -89,7 +89,7 @@ class Database extends AbstractPdo
             $dbPort =   (isset($port)) ? sprintf(";port=%d", $port) : "";
 
             // Generate DSN
-            $dsn    =   sprintf("%s:host=%s%s;dbname=%s", $driver, $dbHost, $dbPort, $dbName);
+            $dsn    =   sprintf("%s:host=%s%s;dbname=%s;charset=utf8mb4", $driver, $dbHost, $dbPort, $dbName);
         }
 
         // PDO connection options

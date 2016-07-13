@@ -28,8 +28,8 @@ class Column
 
         // Default attributes
         if($defaultAttributes   === true) {
-            $this->attributes["charset"]    =   "utf8";
-            $this->attributes["collation"]  =   "utf8_unicode_ci";
+            $this->attributes["charset"]    =   "utf8mb4";
+            $this->attributes["collation"]  =   "utf8mb4_unicode_ci";
         }
     }
 

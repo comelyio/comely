@@ -21,7 +21,7 @@ class SchemaException extends DatabaseException
         return new self(
             self::$componentId,
             "Integer column size must be defined with one of AbstractTable::INT_* flags",
-            1101
+            1201
         );
     }
 
@@ -39,7 +39,7 @@ class SchemaException extends DatabaseException
                 $column,
                 strtoupper($flagSet)
             ),
-            1102
+            1202
         );
     }
 
@@ -57,7 +57,7 @@ class SchemaException extends DatabaseException
                 strtoupper($badType),
                 strtoupper($colType)
             ),
-            1103
+            1203
         );
     }
 
@@ -77,7 +77,7 @@ class SchemaException extends DatabaseException
                 strtoupper($colType),
                 $colName
             ),
-            1104
+            1204
         );
     }
 
@@ -87,7 +87,7 @@ class SchemaException extends DatabaseException
      */
     public static function columnParseError(string $error) : SchemaException
     {
-        return new self(self::$componentId, $error, 1105);
+        return new self(self::$componentId, $error, 1205);
     }
 
     /**
@@ -107,7 +107,7 @@ class SchemaException extends DatabaseException
                 $expected,
                 $given
             ),
-            1106
+            1206
         );
     }
 
@@ -117,7 +117,7 @@ class SchemaException extends DatabaseException
      */
     public static function tableNotFound(string $table) : SchemaException
     {
-        return new self(self::$componentId, sprintf('Table "%1$s" not found', $table), 1107);
+        return new self(self::$componentId, sprintf('Table "%1$s" not found', $table), 1207);
     }
 
     /**
@@ -126,7 +126,7 @@ class SchemaException extends DatabaseException
      */
     public static function tableInitConstant(string $const) : SchemaException
     {
-        return new self(self::$componentId, sprintf('Table must defined "%1$s" constant', $const), 1108);
+        return new self(self::$componentId, sprintf('Table must defined "%1$s" constant', $const), 1208);
     }
 
     /**
@@ -143,7 +143,7 @@ class SchemaException extends DatabaseException
                 $model,
                 $table
             ),
-            1109
+            1209
         );
     }
 
@@ -159,7 +159,7 @@ class SchemaException extends DatabaseException
                 'Column name "%1$s" is incompatible. Column names must use "snake_case" naming convention',
                 $name
             ),
-            1110
+            1210
         );
     }
 
@@ -169,7 +169,7 @@ class SchemaException extends DatabaseException
      */
     public static function undefinedMethod(string $method) : SchemaException
     {
-        return new self(self::$componentId, sprintf('Calling undefined method "%1$s"', $method), 1111);
+        return new self(self::$componentId, sprintf('Calling undefined method "%1$s"', $method), 1211);
     }
 
     /**
@@ -186,7 +186,7 @@ class SchemaException extends DatabaseException
                 $column,
                 $table
             ),
-            1112
+            1212
         );
     }
 }

@@ -14,6 +14,9 @@ class Yaml
 {
     const OUTPUT_ARRAY  =   0;
     const OUTPUT_JSON   =   1;
+    
+    private static $parser;
+    private static $composer;
 
     /**
      * Parse YAML files into PHP Array or JSON encoded string
@@ -25,7 +28,12 @@ class Yaml
      */
     public static function Parse(string $input, int $outputFlag = 0, int $jsonFlag = 0)
     {
-        $parsed =   (new Parser($input))->parse();
+        if(!isset(self::$parser)) {
+            self::$parser   =   new Parser();    
+        }
+        
+        $parser =   self::$parser;
+        $parsed =   $parser->readYaml($input)->parse();
         return ($outputFlag === self::OUTPUT_JSON) ? json_encode($parsed, $jsonFlag) : $parsed;
     }
 
@@ -39,6 +47,16 @@ class Yaml
      */
     public static function Compose(array $input, string $output, int $indent = 4) : bool
     {
-        return (new Composer($input, $indent))->save($output);
+        if(!isset(self::$composer)) {
+            self::$composer =   new Composer();
+        }
+
+        $composer   =   self::$composer;
+        return $composer->setInput($input, $indent)->save($output);
     }
+
+    /**
+     * Disabled Yaml constructor.
+     */
+    private function __construct() {}
 }

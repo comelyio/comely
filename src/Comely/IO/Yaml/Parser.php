@@ -17,12 +17,29 @@ class Parser
     private $file;
     private $input;
 
+    const EOL   =   "\n";
+
     /**
      * Parser constructor.
      * @param string $input path to YAML file
      * @throws ParseException
      */
-    public function __construct(string $input)
+    public function __construct(string $input = null)
+    {
+        // Check if $input param was provided with path to YAML file
+        if(is_string($input)) {
+            $this->readYaml($input);
+        }
+    }
+
+    /**
+     * Reads a YAML file for parsing
+     *
+     * @param string $input
+     * @return Parser
+     * @throws ParseException
+     */
+    public function readYaml(string $input) : self
     {
         // $input param must be provided with path to YAML (.yml|.yaml) file
         if(!preg_match("#^[\w\:\-\_\\\/\.]+\.(yml|yaml)$#", $input)) {
@@ -40,6 +57,9 @@ class Parser
         if(!preg_match("//u", $this->input)) {
             throw ParseException::badInputUnicode($this->file);
         }
+
+        // Return self
+        return $this;
     }
 
     /**
@@ -187,7 +207,7 @@ class Parser
 
         // String buffer...
         if(in_array($buffer->getType(), [">","|"])) {
-            $glue   =   ($buffer->getType() === ">") ? " " : "\n";
+            $glue   =   ($buffer->getType() === ">") ? " " : self::EOL;
             $parsed =   implode($glue, $parsed);
         }
 
@@ -285,6 +305,6 @@ class Parser
      */
     public function parse() : array
     {
-        return $this->parseYaml((new LinesBuffer())->bootstrap(explode("\n", $this->input)));
+        return $this->parseYaml((new LinesBuffer())->bootstrap(explode(self::EOL, $this->input)));
     }
 }

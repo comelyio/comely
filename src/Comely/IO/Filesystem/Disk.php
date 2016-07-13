@@ -108,16 +108,37 @@ class Disk
         // hasFile() and isReadable() methods will also check reading privilege of Disk
         if(!$this->hasFile($filename)) {
             // File not found, or it is not a file
-            $this->throwError(sprintf('File "%1$s" not found in "%2$s"', basename($filePath), dirname($filePath) . DIRECTORY_SEPARATOR), __METHOD__);
+            $this->throwError(
+                sprintf(
+                    'File "%1$s" not found in "%2$s"',
+                    basename($filePath),
+                    dirname($filePath) . DIRECTORY_SEPARATOR
+                ),
+                __METHOD__
+            );
         } elseif(!$this->isReadable($filename)) {
             // File is not readable
-            $this->throwError(sprintf('File "%1$s" found in "%2$s" but is not readable', basename($filePath), dirname($filePath) . DIRECTORY_SEPARATOR), __METHOD__);
+            $this->throwError(
+                sprintf(
+                    'File "%1$s" found in "%2$s" but is not readable',
+                    basename($filePath),
+                    dirname($filePath) . DIRECTORY_SEPARATOR
+                ),
+                __METHOD__
+            );
         }
 
         // Read file
         $contents   =   @file_get_contents($filePath);
         if(!$contents) {
-            $this->throwError(sprintf('Reading failed for file "%1$s" in "%2$s"', basename($filePath), dirname($filePath) . DIRECTORY_SEPARATOR), __METHOD__);
+            $this->throwError(
+                sprintf(
+                    'Reading failed for file "%1$s" in "%2$s"',
+                    basename($filePath),
+                    dirname($filePath) . DIRECTORY_SEPARATOR
+                ),
+                __METHOD__
+            );
         }
 
         return $contents;
@@ -146,7 +167,14 @@ class Disk
         if(@file_exists($filePath)) {
             // Make sure its a file and writable
             if(!$this->hasFile($filename)    ||  !$this->isWritable($filename)) {
-                $this->throwError(sprintf('File "%1$s" in "%2$s" exists but isn\' writable as file', basename($filePath), dirname($filePath) . DIRECTORY_SEPARATOR), __METHOD__);
+                $this->throwError(
+                    sprintf(
+                        'File "%1$s" in "%2$s" exists but isn\' writable as file',
+                        basename($filePath),
+                        dirname($filePath) . DIRECTORY_SEPARATOR
+                    ),
+                    __METHOD__
+                );
             }
         }
 
@@ -162,7 +190,14 @@ class Disk
         $written    =   file_put_contents($filePath, $write, $writeFlag);
         if($written === false   ||  !is_int($written)) {
             // Writing failed
-            $this->throwError(sprintf('Failed to write "%1$s" in "%2$s"', basename($filePath), dirname($filePath) . DIRECTORY_SEPARATOR), __METHOD__);
+            $this->throwError(
+                sprintf(
+                    'Failed to write "%1$s" in "%2$s"',
+                    basename($filePath),
+                    dirname($filePath) . DIRECTORY_SEPARATOR
+                ),
+                __METHOD__
+            );
         }
 
         return $written;
@@ -238,7 +273,10 @@ class Disk
 
         // Validate permissions argument
         if(!preg_match("/^0[0-9]{3}$/", (string) $permissions)) {
-            $this->throwError("Permissions argument must be a 4 digit octal number (starting with 0)", __METHOD__);
+            $this->throwError(
+                "Permissions argument must be a 4 digit octal number (starting with 0)",
+                __METHOD__
+            );
         }
 
         return chmod($path, $permissions);
@@ -338,7 +376,14 @@ class Disk
 
         // Check if file/directory exists
         if(!@file_exists($path)) {
-            $this->throwError(sprintf('Cannot find "%1$s" in "%2$s" for deleting', basename($path), dirname($path) . DIRECTORY_SEPARATOR), __METHOD__);
+            $this->throwError(
+                sprintf(
+                    'Cannot find "%1$s" in "%2$s" for deleting',
+                    basename($path),
+                    dirname($path) . DIRECTORY_SEPARATOR
+                ),
+                __METHOD__
+            );
         }
 
         if(@is_file($path)) {
@@ -346,7 +391,14 @@ class Disk
             $delete =   @unlink($path);
             if(!$delete) {
                 // Failed to delete regular file
-                $this->throwError(sprintf('Failed to delete file "%1$s" in "%2$s"', basename($path), dirname($path) . DIRECTORY_SEPARATOR), __METHOD__);
+                $this->throwError(
+                    sprintf(
+                        'Failed to delete file "%1$s" in "%2$s"',
+                        basename($path),
+                        dirname($path) . DIRECTORY_SEPARATOR
+                    ),
+                    __METHOD__
+                );
             }
         } elseif(@is_dir($path)) {
             // We cannot delete a non-empty directory
@@ -399,11 +451,22 @@ class Disk
         // Check if file upload was successful
         if(!is_int($_FILES[$param]["error"])    ||  $_FILES[$param]["error"] !== UPLOAD_ERR_OK) {
             // There was an error with upload
-            $this->throwError(sprintf('There was an error [%2$d] with "$1$s" file upload', $param, $_FILES[$param]["error"]), __METHOD__);
+            $this->throwError(
+                sprintf(
+                    'There was an error [%2$d] with "$1$s" file upload',
+                    $param,
+                    $_FILES[$param]["error"]
+                ),
+                __METHOD__
+            );
         }
 
         // Check integrity of temp. file name
-        if(!is_string($_FILES[$param]["tmp_name"])  ||  !@file_exists($_FILES[$param]["tmp_name"])   ||  !@is_uploaded_file($_FILES[$param]["tmp_name"])) {
+        if(
+            !is_string($_FILES[$param]["tmp_name"])  ||
+            !@file_exists($_FILES[$param]["tmp_name"])   ||
+            !@is_uploaded_file($_FILES[$param]["tmp_name"])
+        ) {
             $this->throwError(sprintf('Uploaded file couldn\'t be found', $param), __METHOD__);
         }
 
@@ -413,7 +476,15 @@ class Disk
         // Move uploaded file
         $move   =   @move_uploaded_file($_FILES[$param]["tmp_name"], $destination);
         if(!$move) {
-            $this->throwError(sprintf('Failed to move uploaded file from "$1$s" to "%2$s" in "%3$s"', $_FILES[$param]["tmp_name"], basename($destination), dirname($destination) . DIRECTORY_SEPARATOR), __METHOD__);
+            $this->throwError(
+                sprintf(
+                    'Failed to move uploaded file from "$1$s" to "%2$s" in "%3$s"',
+                    $_FILES[$param]["tmp_name"],
+                    basename($destination),
+                    dirname($destination) . DIRECTORY_SEPARATOR
+                ),
+                __METHOD__
+            );
         }
     }
 
@@ -496,7 +567,14 @@ class Disk
 
         // Check if destination's directory exists
         if(!@is_dir(dirname($toPath))) {
-            $this->throwError(sprintf('Destination directory "%1$s" doesn\'t exist to store "%2$s"', dirname($toPath) . DIRECTORY_SEPARATOR, basename($toPath)), $method);
+            $this->throwError(
+                sprintf(
+                    'Destination directory "%1$s" doesn\'t exist to store "%2$s"',
+                    dirname($toPath) . DIRECTORY_SEPARATOR,
+                    basename($toPath)
+                ),
+                $method
+            );
         }
     }
 
@@ -528,7 +606,13 @@ class Disk
         $start  =   preg_quote($whiteList, "#");
         $whiteList =   "/\_.-" . $whiteList;
         if(!preg_match(sprintf("#^[\w%s]+[\w%s]*$#", $start, preg_quote($whiteList, "#")), $path)) {
-            throw DiskException::invalidPath($method, sprintf("Given path/filename must start with alphanumeric digits, may contain %s characters", $whiteList));
+            throw DiskException::invalidPath(
+                $method,
+                sprintf(
+                    "Given path/filename must start with alphanumeric digits, may contain %s characters",
+                    $whiteList
+                )
+            );
         }
 
         // Check if its symbolic link
@@ -541,7 +625,14 @@ class Disk
         array_map(function($illegal) use ($path, $method) {
             if(strpos($path, $illegal)  !== false) {
                 // Illegal character was found
-                throw DiskException::invalidPath($method, sprintf('Given path/filename contains illegal "%1$s" on position %2$d', $illegal, strpos($path, $illegal)+1));
+                throw DiskException::invalidPath(
+                    $method,
+                    sprintf(
+                        'Given path/filename contains illegal "%1$s" on position %2$d',
+                        $illegal,
+                        strpos($path, $illegal)+1
+                    )
+                );
             }
         }, $illegals);
 

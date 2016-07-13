@@ -1,16 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace Comely\Kernel\Http\Session;
+namespace Comely\IO\Session;
 
-use Comely;
 use Comely\IO\Security\Cipher;
-use Comely\Kernel\Exception\SessionException;
-use Comely\Kernel\Http\Session;
 
 /**
  * Class ConfigTrait
- * @package Comely\Kernel\Http\Session
+ * @package Comely\IO\Session
  */
 trait ConfigTrait
 {

@@ -109,4 +109,13 @@ class Comely
     {
         return ($num    >=  $from   &&  $num    <=  $to) ? true : false;
     }
+
+    /**
+     * @param string $class
+     * @return string
+     */
+    public static function baseClassName(string $class) : string
+    {
+        return substr(strrchr($class, "\\"), 1);
+    }
 }

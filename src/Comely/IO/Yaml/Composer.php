@@ -23,7 +23,21 @@ class Composer
      * @param int $indent
      * @throws ComposeException
      */
-    public function __construct(array $input, int $indent = 4)
+    public function __construct(array $input = null, int $indent = 4)
+    {
+        // Check if $input param was provided with an Array to compose as YAML
+        if(is_array($input)) {
+            $this->setInput($input, $indent);
+        }
+    }
+
+    /**
+     * @param array $input
+     * @param int $indent
+     * @return Composer
+     * @throws ComposeException
+     */
+    public function setInput(array $input, int $indent = 4) : self
     {
         // Check if input is non-empty associative Array
         if(empty($input)    ||  is_int(key($input))) {
@@ -37,6 +51,9 @@ class Composer
 
         $this->input    =   $input;
         $this->indent   =   $indent;
+
+        // Return self
+        return $this;
     }
 
     /**

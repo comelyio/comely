@@ -1,9 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Comely\Kernel\Http\Session;
-use Comely\Kernel\Exception\SessionException;
-use Comely\Kernel\Http\Session;
+namespace Comely\IO\Session;
 
 /**
  * Class ComelySession

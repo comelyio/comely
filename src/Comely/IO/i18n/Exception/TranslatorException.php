@@ -18,7 +18,7 @@ class TranslatorException extends i18nException
      */
     public static function initError() : TranslatorException
     {
-        return new self(self::$componentId, "Global translator function couldn't be defined", 1101);
+        return new self(self::$componentId, "Global translator function couldn't be redefined", 1101);
     }
 
     /**
@@ -55,7 +55,14 @@ class TranslatorException extends i18nException
      */
     public static function languageBadFormat(string $file) : TranslatorException
     {
-        return new self(self::$componentId, sprintf('All translations must be of type String in "%1$s"', basename($file)), 1105);
+        return new self(
+            self::$componentId,
+            sprintf(
+                'All translations must be of type String in "%1$s"',
+                basename($file)
+            ),
+            1105
+        );
     }
 
     /**

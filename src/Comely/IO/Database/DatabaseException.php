@@ -17,7 +17,7 @@ class DatabaseException extends \ComelyException
      */
     public static function connectionError(string $message) : DatabaseException
     {
-        return new self(self::$componentId, $message, 1101);
+        return new self(self::$componentId, $message, 1001);
     }
 
     /**
@@ -27,7 +27,7 @@ class DatabaseException extends \ComelyException
      */
     public static function queryError(string $method, string $message) : DatabaseException
     {
-        return new self($method, $message, 1102);
+        return new self($method, $message, 1002);
     }
 
     /**
@@ -36,6 +36,6 @@ class DatabaseException extends \ComelyException
      */
     public static function pdoError(string $message) : DatabaseException
     {
-        return new self(self::$componentId, $message, 1103);
+        return new self(self::$componentId, $message, 1003);
     }
 }

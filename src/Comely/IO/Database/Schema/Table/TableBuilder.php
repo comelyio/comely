@@ -4,20 +4,38 @@ declare(strict_types=1);
 namespace Comely\IO\Database\Schema\Table;
 
 use Comely\IO\Database\Schema\AbstractTable;
-use Comely\Kernel\Repository;
 use Comely\IO\Database\Exception\SchemaException;
 
 /**
  * Class Builder
  * @package Comely\IO\Database\Schema\Table
  */
-class TableBuilder extends Repository implements Constants
+class TableBuilder implements Constants
 {
+    private static $instance;
+
     private $dbDriver;
     private $columns;
     private $constraints;
     private $tableName;
     private $tableEngine;
+
+    /**
+     * Disabled TableBuilder constructor.
+     */
+    private function __construct() {}
+
+    /**
+     * @return TableBuilder
+     */
+    public static function getInstance() : self
+    {
+        if(!isset(self::$instance)) {
+            self::$instance =   new self();
+        }
+
+        return self::$instance;
+    }
 
     /**
      * @param AbstractTable $table

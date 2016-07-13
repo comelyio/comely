@@ -5,8 +5,6 @@ namespace Comely\IO\Yaml\Parser;
 
 /**
  * Class Line
- * This is a reusable object,
- * It should be instantiated once per IO\Yaml\Parse::parseYaml() method call
  * @package Comely\IO\Yaml\Parser
  */
 class Line {

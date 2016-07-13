@@ -25,7 +25,15 @@ class ParseException extends YamlException
      */
     public static function fileNotFound(string $file) : ParseException
     {
-        return new self(self::$componentId, sprintf('YAML file "%1$s" not found in "%2$s"', basename($file), dirname($file) . DIRECTORY_SEPARATOR), 1102);
+        return new self(
+            self::$componentId,
+            sprintf(
+                'YAML file "%1$s" not found in "%2$s"',
+                basename($file),
+                dirname($file) . DIRECTORY_SEPARATOR
+            ),
+            1102
+        );
     }
 
     /**
@@ -43,7 +51,7 @@ class ParseException extends YamlException
      */
     public static function badYamlFile(string $file) : ParseException
     {
-        return new self(self::$componentId, sprintf('An error occured while parsing "%1$s"', $file), 1104);
+        return new self(self::$componentId, sprintf('An error occurred while parsing "%1$s"', $file), 1104);
     }
 
     /**

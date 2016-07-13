@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Comely\Kernel\Http\Session;
+namespace Comely\IO\Session;
 
 /**
  * Class Config
- * @package Comely\Kernel\Http\Session
+ * @package Comely\IO\Session
  */
 class Config
 {

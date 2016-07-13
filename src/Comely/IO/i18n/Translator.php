@@ -4,36 +4,49 @@ declare(strict_types=1);
 namespace Comely\IO\i18n;
 
 // Defined global translate functions
-require __DIR__ . DIRECTORY_SEPARATOR . "Translator" . DIRECTORY_SEPARATOR . "globalTranslateFunctions.php";
+require_once __DIR__ . DIRECTORY_SEPARATOR . "Translator" . DIRECTORY_SEPARATOR . "globalTranslateFunctions.php";
 
 use Comely\IO\i18n\Exception\TranslatorException;
 use Comely\IO\i18n\Translator\Language;
 use Comely\IO\i18n\Translator\TranslatorInterface;
 use Comely\IO\Yaml\Yaml;
-use Comely\Kernel\Repository;
 
 /**
  * Class Translator
  * @package Comely\IO\i18n
  */
-class Translator extends Repository implements TranslatorInterface
+class Translator implements TranslatorInterface
 {
+    private static $instance;
+    
     private $languagesPath;
     private $boundLanguage;
     private $boundFallback;
 
     /**
-     * Translator constructor.
+     * Disabled Translator constructor.
      */
-    public function __construct()
+    private function __construct() {}
+
+    /**
+     * @return Translator
+     * @throws TranslatorException
+     */
+    public static function getInstance() : Translator
     {
-        // Check if Translator has already been instantiated
-        if(!function_exists("__")) {
-            throw TranslatorException::initError();
+        if(!isset(self::$instance)) {
+            // Check if global translate functions has already been instanced
+            if(!function_exists("__")) {
+                throw TranslatorException::initError();
+            }
+
+            // Bootstrap translator
+            self::$instance =   new self();
+            $translator =   self::$instance;
+            $translator->languagesPath  =   "./";
         }
 
-        // Set languages path to current directory
-        $this->languagesPath    =   "./";
+        return self::$instance;
     }
 
     /**

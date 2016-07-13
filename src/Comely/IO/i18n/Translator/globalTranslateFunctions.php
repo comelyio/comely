@@ -4,8 +4,7 @@ declare(strict_types=1);
 // Global Namespace
 namespace
 {
-    // Use Repository
-    use Comely\Kernel\Repository;
+    use Comely\IO\i18n\Translator;
 
     /**
      * Global translate function # 1
@@ -16,7 +15,7 @@ namespace
      */
     function __(string $key)
     {
-        return Repository::Translator()->translate($key);
+        return Translator::getInstance()->translate($key);
     }
 
     /**
@@ -30,7 +29,7 @@ namespace
      */
     function __f(string $key, array $args)
     {
-        $translated =   Repository::Translator()->translate($key);
+        $translated =   Translator::getInstance()->translate($key);
         if(is_string($translated)   &&  is_array($args)) {
             return vsprintf($translated, $args);
         }
@@ -47,7 +46,7 @@ namespace
      */
     function __p(string $key, array $args = null)
     {
-        $translated =   Repository::Translator()->translate($key);
+        $translated =   Translator::getInstance()->translate($key);
         if(is_string($translated)) {
             if(is_array($args)) {
                 vprintf($translated, $args);

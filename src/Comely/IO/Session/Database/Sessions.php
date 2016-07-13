@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace Comely\Kernel\Http\Session\Database;
+namespace Comely\IO\Session\Database;
 
 use Comely\IO\Database\Schema\AbstractTable;
 
 /**
  * Class Sessions
- * @package Comely\Kernel\Http\Session\Database
+ * @package Comely\IO\Session\Database
  */
 class Sessions extends AbstractTable
 {
@@ -19,8 +19,8 @@ class Sessions extends AbstractTable
      */
     public function createTable()
     {
-        $this->string("id", 64, self::STR_FIXED)->unique()->charSet("ASCII")->collation("utf8_unicode_ci");
-        $this->text("payload", self::TEXT_MEDIUM)->charSet("utf8")->collation("utf8_unicode_ci");
+        $this->string("id", 64, self::STR_FIXED)->unique()->charSet("ASCII")->collation("utf8mb4_unicode_ci");
+        $this->text("payload", self::TEXT_MEDIUM)->charSet("utf8mb4")->collation("utf8mb4_unicode_ci");
         $this->int("time_stamp")->unSigned();
         $this->primaryKey("id");
     }
