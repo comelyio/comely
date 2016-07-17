@@ -28,13 +28,22 @@ class Yaml
      */
     public static function Parse(string $input, int $outputFlag = 0, int $jsonFlag = 0)
     {
-        if(!isset(self::$parser)) {
-            self::$parser   =   new Parser();    
-        }
-        
-        $parser =   self::$parser;
-        $parsed =   $parser->readYaml($input)->parse();
+        $parser =   self::getParser();
+        $parsed =   $parser->parse($input);
         return ($outputFlag === self::OUTPUT_JSON) ? json_encode($parsed, $jsonFlag) : $parsed;
+    }
+
+    /**
+     * Get instance of Yaml parser
+     * @return Parser
+     */
+    public static function getParser()
+    {
+        if(!isset(self::$parser)) {
+            self::$parser   =   new Parser();
+        }
+
+        return self::$parser;
     }
 
     /**

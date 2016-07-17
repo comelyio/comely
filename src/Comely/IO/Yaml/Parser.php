@@ -14,72 +14,47 @@ use Comely\IO\Yaml\Parser\Line;
  */
 class Parser
 {
-    private $file;
-    private $input;
+    private $baseDir;
 
     const EOL   =   "\n";
 
     /**
-     * Parser constructor.
-     * @param string $input path to YAML file
-     * @throws ParseException
+     * @param string $dir
      */
-    public function __construct(string $input = null)
+    public function setBaseDir(string $dir)
     {
-        // Check if $input param was provided with path to YAML file
-        if(is_string($input)) {
-            $this->readYaml($input);
-        }
+        $this->baseDir  =   rtrim($dir, DIRECTORY_SEPARATOR);
     }
 
     /**
-     * Reads a YAML file for parsing
-     *
-     * @param string $input
-     * @return Parser
-     * @throws ParseException
+     * @param string $file
+     * @return string
      */
-    public function readYaml(string $input) : self
+    private function importPath(string $file)
     {
-        // $input param must be provided with path to YAML (.yml|.yaml) file
-        if(!preg_match("#^[\w\:\-\_\\\/\.]+\.(yml|yaml)$#", $input)) {
-            throw ParseException::badInput();
-        }
-
-        // Store YAML file path and content
-        $this->file =   $input;
-        $this->input    =   @file_get_contents($this->file);
-        if(!is_string($this->input)) {
-            throw ParseException::fileNotFound($this->file);
-        }
-
-        // YAML files are expected in UTF-8 encoding
-        if(!preg_match("//u", $this->input)) {
-            throw ParseException::badInputUnicode($this->file);
-        }
-
-        // Return self
-        return $this;
+        return $this->baseDir . DIRECTORY_SEPARATOR . $file;
     }
 
     /**
      * @param string $message
+     * @param string $file
      * @param int $line
      * @throws ParseException
      */
-    private function parseError(string $message, int $line)
+    private function parseError(string $message, string $file, int $line)
     {
-        throw ParseException::parseError($this->file, $line, $message);
+        throw ParseException::parseError($file, $line, $message);
     }
-
 
     /**
      * @param LinesBuffer $buffer
+     * @param string $filePath
      * @return array|string
      * @throws ParseException
      */
-    private function parseYaml(LinesBuffer $buffer)
+    private function parseYaml(LinesBuffer $buffer, string $filePath)
     {
+        $dirPath    =   dirname($filePath);
         $bufferLines  =   $buffer->getBufferedData();
         $line   =   new Line($buffer->getLinesOffset());
         $parsed =   [];
@@ -98,7 +73,7 @@ class Parser
                     $buffer->addToBuffer($line->value);
                     continue;
                 } else {
-                    $parsed[$subBuffer->getKey()]   =   $this->parseYaml($subBuffer);
+                    $parsed[$subBuffer->getKey()]   =   $this->parseYaml($subBuffer, $filePath);
                 }
 
                 $buffer->clearSubBuffer();
@@ -111,7 +86,7 @@ class Parser
 
             // Lines must not be indented by tabs
             if($line->value[0]  ===  "\t") {
-                $this->parseError("Line must not be indented by tabs", $line->number);
+                $this->parseError("Line must not be indented by tabs", $filePath, $line->number);
             }
 
             // Full-line comment
@@ -138,7 +113,7 @@ class Parser
                     try {
                         $value   =   $this->parseValue($value);
                     } catch(ParseException $e) {
-                        $this->parseError(sprintf('%s for "%s"', $e->getMessage(), $key), $line->number);
+                        $this->parseError(sprintf('%s for "%s"', $e->getMessage(), $key), $filePath, $line->number);
                     }
 
                     if(is_string($value)    &&  in_array($value, [">","|"])) {
@@ -170,7 +145,7 @@ class Parser
                         try {
                             $value   =   $this->parseValue(trim(substr($line->value, 1)));
                         } catch(ParseException $e) {
-                            $this->parseError($e->getMessage(), $line->number);
+                            $this->parseError($e->getMessage(), $filePath, $line->number);
                         }
 
                         // Check for special cases
@@ -178,12 +153,23 @@ class Parser
                             // Yaml imports
                             if(is_string($value)) {
                                 try {
-                                    $value  =   Yaml::Parse($value);
+                                    $value  =   Yaml::Parse($this->importPath($value));
                                 } catch(YamlException $e) {
-                                    $this->parseError(sprintf("%s imported", $e->getMessage()), $line->number);
+                                    $this->parseError(
+                                        sprintf(
+                                            "%s imported",
+                                            $e->getMessage()
+                                        ),
+                                        $filePath,
+                                        $line->number
+                                    );
                                 }
                             } else {
-                                $this->parseError('Variable "imports" must be sequence of Yaml files', $line->number);
+                                $this->parseError(
+                                    'Variable "imports" must be sequence of Yaml files',
+                                    $filePath,
+                                    $line->number
+                                );
                             }
                         }
 
@@ -200,7 +186,7 @@ class Parser
         // Check for any sub buffer at end of lines
         if($buffer->isBuffering()) {
             $subBuffer  =   $buffer->getSubBuffer();
-            $parsed[$subBuffer->getKey()]  =   $this->parseYaml($subBuffer);
+            $parsed[$subBuffer->getKey()]  =   $this->parseYaml($subBuffer, $filePath);
         }
 
         // Final touches, where applicable
@@ -218,7 +204,7 @@ class Parser
 
         // Result cannot be Empty on no-key buffer
         if(empty($parsed)   &&  empty($buffer->getKey())) {
-            throw ParseException::badYamlFile($this->file);
+            throw ParseException::badYamlFile($filePath);
         }
 
         // Imports should be merged with final result
@@ -301,10 +287,33 @@ class Parser
     }
 
     /**
+     * @param string $input
      * @return array
+     * @throws ParseException
      */
-    public function parse() : array
+    public function parse(string $input) : array
     {
-        return $this->parseYaml((new LinesBuffer())->bootstrap(explode(self::EOL, $this->input)));
+        // $input param must be provided with path to YAML (.yml|.yaml) file
+        if(!preg_match("#^[\w\:\-\_\\\/\.]+\.(yml|yaml)$#", $input)) {
+            throw ParseException::badInput();
+        }
+
+        // Store YAML file path and content
+        $filePath   =   $input;
+        $input    =   @file_get_contents($filePath);
+        if(!is_string($input)) {
+            throw ParseException::fileNotFound($filePath);
+        }
+
+        // YAML files are expected in UTF-8 encoding
+        if(!preg_match("//u", $input)) {
+            throw ParseException::badInputUnicode($filePath);
+        }
+
+        // Return self
+        return $this->parseYaml(
+            (new LinesBuffer())->bootstrap(explode(self::EOL, $input)),
+            $filePath
+        );
     }
 }
