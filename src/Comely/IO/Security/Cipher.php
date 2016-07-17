@@ -35,7 +35,7 @@ class Cipher
         }
 
         // Cipher Method
-        if(!array_key_exists($cipherMethod, openssl_get_cipher_methods())) {
+        if(!in_array($cipherMethod, openssl_get_cipher_methods())) {
             throw CipherException::badCipherMethod($cipherMethod);
         }
 

@@ -15,8 +15,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Comely\\IO\\": "src/Comely/IO",
-      "Comely\\Kernel\\": "src/Comely/Kernel"
+      "Comely\\IO\\": "src/Comely/IO"
     },
     "files": ["src/Comely.php", "src/ComelyException.php"]
   }
