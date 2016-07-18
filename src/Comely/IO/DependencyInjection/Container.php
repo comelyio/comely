@@ -59,7 +59,9 @@ class Container extends AbstractDI
             // Save path to class, new instance will be created and returned on retrieve
             $this->services[$key]   =   new Service($obj);
             // Callback with reference to service
-            call_user_func_array($callback, [$this]);
+            if(isset($callback)) {
+                call_user_func_array($callback, [$this]);
+            }
         } else {
             // Bad service
             throw ContainerException::badService(__METHOD__, gettype($obj));

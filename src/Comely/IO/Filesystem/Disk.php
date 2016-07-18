@@ -58,13 +58,13 @@ class Disk
 
         // Set path variable for this instance
         // Disk path must have a trailing DIRECTORY_SEPARATOR
-        $this->path  =    rtrim($path, "DIRECTORY_SEPARATOR") . DIRECTORY_SEPARATOR;
+        $this->path  =    rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
         // Check and set privileges
         $this->privilegeRead    =   (@is_readable($this->path)) ? true : false;
         $this->privilegeWrite    =   (@is_writable($this->path)) ? true : false;
 
-        if(!$this->privilegeRead    ||  !$this->privilegeWrite) {
+        if(!$this->privilegeRead    &&  !$this->privilegeWrite) {
             // Doesn't have both read/write privileges
             throw DiskException::diskInit("Disk doesn't have read and write privileges");
         }

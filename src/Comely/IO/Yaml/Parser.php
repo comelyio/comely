@@ -212,7 +212,7 @@ class Parser
             if(array_key_exists("imports", $parsed) &&  is_array($parsed["imports"])) {
                 $imported   =   $parsed["imports"];
                 unset($parsed["imports"]);
-                array_unshift($imported, $parsed);
+                array_push($imported, $parsed);
                 $parsed =   call_user_func_array("array_replace_recursive", $imported);
             }
         }
