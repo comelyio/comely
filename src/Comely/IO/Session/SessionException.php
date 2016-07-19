@@ -64,4 +64,12 @@ class SessionException extends \ComelyException
     {
         return new self(self::$componentId, "Read session data is corrupt", 1006);
     }
+
+    /**
+     * @return SessionException
+     */
+    public static function sessionAlreadyStarted() : SessionException
+    {
+        return new self(self::$componentId, "Session was already started", 1007);
+    }
 }

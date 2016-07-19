@@ -71,11 +71,11 @@ class Service
      * Creates new instance of service
      *
      * @param Container $container
-     * @param array ...$args
+     * @param array $args
      * @return mixed
      * @throws ContainerException
      */
-    public function createInstance(Container $container, ...$args)
+    public function createInstance(Container $container, array $args)
     {
         // Prepare arguments for constructor
         $constructorArgs    =   [];
@@ -84,11 +84,13 @@ class Service
         }
 
         // Merge arguments
-        $constructorArgs    =   $constructorArgs+$args;
+        foreach($args as $arg) {
+            array_push($constructorArgs, $arg);
+        }
 
         // Construct
         $class  =   $this->className;
-        $instance   =   new $class($constructorArgs);
+        $instance   =   new $class(...$constructorArgs);
 
         // Call setter methods
         foreach($this->methods as $method => $di) {

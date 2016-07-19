@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Comely\IO\Session;
 
+use Comely\IO\Session\ComelySession\Bag;
+
 /**
  * Class ComelySession
  * @package Comely\Kernel\Http\Session
@@ -22,7 +24,7 @@ class ComelySession
     public function __construct(string $id)
     {
         $this->id   =   $id;
-        $this->data =   [];
+        $this->data =   new Bag();
         $this->encoded =   "";
         $this->hash =   "";
         $this->timeStamp    =   (object) [
@@ -42,24 +44,33 @@ class ComelySession
     }
 
     /**
-     * Get all session data
+     * Get primary session bag
      *
-     * @return array
+     * @return Bag
      */
-    public function getData() : array
+    public function getData() : Bag
     {
         return $this->data;
     }
 
     /**
-     * Set session data
+     * Alias for getData
      *
-     * @param array $data
-     * @return array
+     * @return Bag
      */
-    public function setData(array $data)
+    public function getBags() : Bag
     {
-        $this->data =   $data;
+        return $this->getData();
+    }
+
+    /**
+     * @param Bag $bag
+     * @return ComelySession
+     */
+    public function setData(Bag $bag) : self
+    {
+        $this->data =   $bag;
+        return $this;
     }
 
     /**
@@ -68,15 +79,15 @@ class ComelySession
      *
      * @param string $salt
      * @param int $cost
-     * @return string
      */
-    public function encodeData(string $salt, int $cost) : string
+    public function encodeData(string $salt, int $cost)
     {
         // Update timeStamp
         $this->timeStamp->last  =   microtime(true);
 
         // Encode JSON data
-        $this->encoded =   json_encode($this->data);
+        $this->timeStamp    =   json_encode($this->timeStamp);
+        $this->encoded =   serialize($this->data);
         $this->hash =   Session::saltedHash($this->encoded, $salt, $cost);
     }
 
@@ -120,6 +131,9 @@ class ComelySession
             throw new SessionException(__METHOD__, "Session is already decoded", 1502);
         }
 
+        // Decode timeStamp
+        $this->timeStamp    =   json_decode($this->timeStamp);
+
         // Check validity
         $span   =   microtime(true) - $this->timeStamp->last;
         if($span    >=  $expiry) {
@@ -133,9 +147,13 @@ class ComelySession
         }
 
         // Decode data
-        $this->data =   @json_decode($this->encoded, true);
-        if(!is_array($this->data)) {
-            throw new SessionException(__METHOD__, "Failed to decode JSON data", 1504);
+        $this->data =   unserialize($this->encoded, [
+            "allowed_classes" => [
+                "Comely\\IO\\Session\\ComelySession\\Bag"
+            ]
+        ]);
+        if(!$this->data instanceof Bag) {
+            throw new SessionException(__METHOD__, "Failed to un-serialize data bags", 1504);
         }
 
         // Release "encoded" property

@@ -30,8 +30,8 @@ class Config
         $this->cipher   =   null;
         $this->cookie   =   true;
         $this->cookieLife   =   2592000;
-        $this->cookiePath   =   null;
-        $this->cookieDomain =   null;
+        $this->cookiePath   =   "";
+        $this->cookieDomain =   "";
         $this->cookieHttpOnly   =   true;
         $this->cookieSecure =   true;
         $this->sessionLife   =   3600;

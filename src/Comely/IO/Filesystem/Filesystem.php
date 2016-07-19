@@ -28,4 +28,22 @@ class Filesystem
     {
         clearstatcache(true);
     }
+
+    /**
+     * @param string $content
+     * @return string
+     */
+    public static function prependUtf8Bom(string $content) : string
+    {
+        return pack("CCC", 0xef, 0xbb, 0xbf) . $content;
+    }
+
+    /**
+     * @param string $content
+     * @return string
+     */
+    public static function removeUtf8Bom(string $content) : string
+    {
+        return preg_replace("/^" . pack("H*", "EFBBBF") . "/", "", $content);
+    }
 }

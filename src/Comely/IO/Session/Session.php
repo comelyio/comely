@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace Comely\IO\Session;
 
+use Comely\IO\Session\ComelySession\Proxy;
 use ComelyException;
 use Comely\IO\Cache\CacheInterface;
 use Comely\IO\Database\Database;
 use Comely\IO\Database\Schema;
 use Comely\IO\Database\Schema\AbstractTable;
-use Comely\IO\DependencyInjection\Repository;
 use Comely\IO\Filesystem\Disk;
 use Comely\IO\Security\Cipher;
 
@@ -16,7 +16,7 @@ use Comely\IO\Security\Cipher;
  * Class Session
  * @package Comely\IO\Session
  */
-class Session extends Repository
+class Session
 {
     private $storage;
     private $session;
@@ -27,10 +27,9 @@ class Session extends Repository
     /**
      * Session constructor.
      * @param $storage
-     * @param string|null $id
      * @throws SessionException;
      */
-    public function __construct($storage, string $id = null)
+    public function __construct($storage)
     {
         // Determine Storage
         if($storage instanceof Disk) {
@@ -53,11 +52,22 @@ class Session extends Repository
         }
 
         // Set Storage
-        $this->storage  =   $storage;
-
-        // Setup Session Configuration
         $this->config   =   new Config();
+        $this->storage  =   $storage;
+    }
 
+    /**
+     * @param string|null $id
+     * @return string
+     * @throws SessionException
+     */
+    public function start(string $id = null) : string
+    {
+        // Check if session has already been started
+        if($this->session instanceof Proxy) {
+            throw SessionException::sessionAlreadyStarted();
+        }
+        
         // Read Session
         $sessionId  =   $id ?? $_COOKIE["COMELYSESSID"] ?? null;
         if(isset($sessionId)) {
@@ -66,7 +76,7 @@ class Session extends Repository
         }
 
         // Check if we got ComelySession from read
-        if(!$this->session instanceof ComelySession) {
+        if(!$this->session instanceof Proxy) {
             $this->create();
         }
 
@@ -75,14 +85,17 @@ class Session extends Repository
 
         // Save cookie
         $this->sessionCookie($this->session->getId());
+
+        // Return session Id
+        return $this->session->getId();
     }
 
     /**
      * Get reference to ComelySession instance
      * 
-     * @return ComelySession
+     * @return Proxy
      */
-    public function getSession() : ComelySession
+    public function getSession() : Proxy
     {
         return $this->session;
     }
@@ -97,7 +110,7 @@ class Session extends Repository
         try {
             if($this->storage instanceof Disk) {
                 // Read session file from Disk
-                $session   =   $this->storage->read($id . ".sess");
+                $session    =   $this->storage->read($id . ".sess");
             } elseif($this->storage instanceof AbstractTable) {
                 // Read from database
                 $session    =   $this->storage->findById($id);
@@ -121,11 +134,13 @@ class Session extends Repository
             // Un-serialize object
             $session    =   unserialize($session, [
                 "allowed_classes"   =>    [
-                    "Comely\\IO\\Session\\ComelySession"
+                    "Comely\\IO\\Session\\ComelySession",
+                    "Comely\\IO\\Session\\ComelySession\\Bag",
+                    "Comely\\IO\\Session\\ComelySession\\Proxy"
                 ]
             ]);
 
-            if($session instanceof ComelySession) {
+            if($session instanceof Proxy) {
                 try {
                     $decode =   $session->decodeData(
                         $this->config->sessionLife,
@@ -158,10 +173,9 @@ class Session extends Repository
     /**
      * Create a ComelySession
      *
-     * @return bool
      * @throws SessionException
      */
-    private function create() : bool
+    private function create()
     {
         // Create secure session ID
         $sessionId  =   $this->generateId();
@@ -170,7 +184,29 @@ class Session extends Repository
         }
 
         // Create new instance of ComelySession
-        $this->session    =   new ComelySession($sessionId);
+        $this->session    =   new Proxy(new ComelySession($sessionId));
+    }
+
+    /**
+     * @return mixed
+     * @throws SessionException
+     */
+    public function refactorId() : self
+    {
+        $newSessionId  =   $this->generateId();
+        if(!$this->isUniqueId($newSessionId)) {
+            return $this->refactorId();
+        }
+        
+        $current    =   $this->session->getInstance();
+        $this->session->setInstance(
+            (new ComelySession($newSessionId))->setData($current->getData())
+        );
+
+        $this->delete($current->getId(), true);
+        $this->sessionCookie($this->session->getId());
+
+        return $this;
     }
 
     /**
@@ -180,7 +216,7 @@ class Session extends Repository
     {
         try {
             // Make sure we have instance of ComelySession
-            if(!$this->session instanceof ComelySession) {
+            if(!$this->session instanceof Proxy) {
                 throw SessionException::writeError('Cannot find instance of ComelySession for writing');
             }
 
