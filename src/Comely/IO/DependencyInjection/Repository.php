@@ -60,7 +60,7 @@ class Repository extends AbstractDI
                 throw RepositoryException::instanceNotFound($key);
             }
 
-            call_user_func_array($callback, [$this]);
+            return call_user_func_array($callback, [$this,$key]);
         }
         
         return $this->instances[$key];

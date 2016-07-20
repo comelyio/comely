@@ -111,4 +111,20 @@ class Bag
         unset($this->bags[$bag]);
         return $this;
     }
+
+    /**
+     * Get data of this bag and all child bags as Array
+     * Caution: Child bags will override key/value pairs if keys conflict
+     *
+     * @return array
+     */
+    public function getArray() : array
+    {
+        $array  =   $this->data;
+        foreach($this->bags as $key => $bag) {
+            $array[$key]    =   $bag->getArray();
+        }
+
+        return $array;
+    }
 }

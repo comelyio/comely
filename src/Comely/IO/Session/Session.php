@@ -132,7 +132,7 @@ class Session
             }
 
             // Un-serialize object
-            $session    =   unserialize($session, [
+            $session    =   @unserialize($session, [
                 "allowed_classes"   =>    [
                     "Comely\\IO\\Session\\ComelySession",
                     "Comely\\IO\\Session\\ComelySession\\Bag",
