@@ -95,38 +95,15 @@ class Disk
     /**
      * Read a file from Disk
      *
-     * @param string $filename
+     * @param string $fileName
      * @return string
      * @throws DiskException
      */
-    public function read(string $filename) : string
+    public function read(string $fileName) : string
     {
         // Validate and build filePath
-        $filePath   =   $this->validatePath($filename, __METHOD__);
-
-        // Check files integrity
-        // hasFile() and isReadable() methods will also check reading privilege of Disk
-        if(!$this->hasFile($filename)) {
-            // File not found, or it is not a file
-            $this->throwError(
-                sprintf(
-                    'File "%1$s" not found in "%2$s"',
-                    basename($filePath),
-                    dirname($filePath) . DIRECTORY_SEPARATOR
-                ),
-                __METHOD__
-            );
-        } elseif(!$this->isReadable($filename)) {
-            // File is not readable
-            $this->throwError(
-                sprintf(
-                    'File "%1$s" found in "%2$s" but is not readable',
-                    basename($filePath),
-                    dirname($filePath) . DIRECTORY_SEPARATOR
-                ),
-                __METHOD__
-            );
-        }
+        $filePath   =   $this->validatePath($fileName, __METHOD__);
+        $this->checkReadableFile($fileName, $filePath);
 
         // Read file
         $contents   =   @file_get_contents($filePath);
@@ -142,6 +119,33 @@ class Disk
         }
 
         return $contents;
+    }
+
+    /**
+     * Gets last modified timestamp for file
+     * 
+     * @param string $fileName
+     * @return int
+     */
+    public function fileLastModified(string $fileName) : int
+    {
+        // Validate and build filePath
+        $filePath   =   $this->validatePath($fileName, __METHOD__);
+        $this->checkReadableFile($fileName, $filePath);
+
+        $mTime  =   @filemtime($filePath);
+        if(!$mTime) {
+            $this->throwError(
+                sprintf(
+                    'Failed to retrieve last modification time for file "%1$s" in "%2$s"',
+                    basename($filePath),
+                    dirname($filePath) . DIRECTORY_SEPARATOR
+                ),
+                __METHOD__
+            );
+        }
+
+        return $mTime;
     }
 
     /**
@@ -530,6 +534,39 @@ class Disk
 
         // Move
         return rename($fromPath, $toPath);
+    }
+
+    /**
+     * Check files integrity
+     * hasFile() and isReadable() methods will also check reading privilege of Disk
+     *
+     * @param string $name
+     * @param string $path
+     * @throws DiskException
+     */
+    private function checkReadableFile(string $name, string $path)
+    {
+        if(!$this->hasFile($name)) {
+            // File not found, or it is not a file
+            $this->throwError(
+                sprintf(
+                    'File "%1$s" not found in "%2$s"',
+                    basename($path),
+                    dirname($path) . DIRECTORY_SEPARATOR
+                ),
+                __METHOD__
+            );
+        } elseif(!$this->isReadable($name)) {
+            // File is not readable
+            $this->throwError(
+                sprintf(
+                    'File "%1$s" found in "%2$s" but is not readable',
+                    basename($path),
+                    dirname($path) . DIRECTORY_SEPARATOR
+                ),
+                __METHOD__
+            );
+        }
     }
 
     /**
