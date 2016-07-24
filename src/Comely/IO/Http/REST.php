@@ -5,6 +5,7 @@ namespace Comely\IO\Http;
 
 use Comely\IO\Http\Exception\RestException;
 use Comely\IO\Http\Request\Input;
+use Comely\IO\Toolkit\String\Strings;
 
 /**
  * Class REST
@@ -84,7 +85,24 @@ class REST
             $inputData  =   array_merge($inputData, $inputMerge);
         }
 
-        return $inputData;
+        return self::filterData($inputData);
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    public static function filterData(array $data)
+    {
+        foreach($data as $key => $value) {
+            if(is_string($value)) {
+                $data[$key] =   Strings::filter($value, "adsq", true);
+            } elseif(is_array($value)) {
+                $data[$key] =   self::filterData($value);
+            }
+        }
+
+        return $data;
     }
 
     /**

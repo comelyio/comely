@@ -10,6 +10,8 @@ namespace Comely\IO\Toolkit\String;
 class Strings
 {
     /**
+     * Filters a String
+     *
      * @param string $str
      * @param string $filters
      * @param bool $spaces
@@ -52,5 +54,22 @@ class Strings
         if($spaces) $pattern    .=  " ";
 
         return trim(preg_replace(sprintf('#[^%s]*#', $pattern), "", $str));
+    }
+
+    /**
+     * Evaluates a String as Boolean
+     *
+     * @param string $str
+     * @param \string[] ...$extras
+     * @return bool
+     */
+    public static function evaluate(string $str, string ...$extras) : bool
+    {
+        $trues  =   array_merge(
+            ["true","1","on","yes","enable","enabled"],
+            $extras
+        );
+
+        return in_array(strtolower($str), $trues);
     }
 }

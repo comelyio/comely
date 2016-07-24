@@ -76,41 +76,6 @@ class Comely
     }
 
     /**
-     * Check if $array has all $keys
-     *
-     * @param array $array
-     * @param array $keys
-     * @return bool
-     */
-    public static function arrayHasKeys(array $array, array $keys) : bool
-    {
-        // Iterate through keys
-        foreach($keys as $key) {
-            // Check if key exists in input Array
-            if(!array_key_exists($key, $array)) {
-                // Return FALSE is key doesn't exist in input Array
-                return false;
-            }
-        }
-
-        // Array is comprised of all keys, return TRUE
-        return true;
-    }
-
-    /**
-     * Checks if an integer is within specified range
-     *
-     * @param int $num
-     * @param int $from
-     * @param int $to
-     * @return bool
-     */
-	public static function intRange(int $num, int $from, int $to) : bool
-    {
-        return ($num    >=  $from   &&  $num    <=  $to) ? true : false;
-    }
-
-    /**
      * @param string $class
      * @return string
      */
