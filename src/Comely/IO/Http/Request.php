@@ -42,7 +42,7 @@ class Request
         $this->response =   new Response($this);
 
         // Call init method of Controller
-        call_user_func([$controller,"init"]);
+        call_user_func_array([$controller,"init"], [$this,$this->response]);
 
         // Callback
         if(isset($callback)) {

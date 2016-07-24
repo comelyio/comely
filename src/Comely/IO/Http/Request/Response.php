@@ -10,8 +10,9 @@ use Comely\IO\Http\Request;
  * Class Response
  * @package Comely\IO\Http\Request
  */
-class Response
+class Response implements \Countable
 {
+    private $count;
     private $data;
     private $format;
     private $request;
@@ -22,8 +23,17 @@ class Response
      */
     public function __construct(Request $request)
     {
+        $this->count    =   0;
         $this->data =   [];
         $this->request  =   $request;
+    }
+
+    /**
+     * @return int
+     */
+    public function count() : int
+    {
+        return $this->count;
     }
 
     /**
@@ -81,6 +91,7 @@ class Response
         }
 
         $key    =   strtolower($key);
+        $this->count++;
         $this->data[$key]   =   $value;
         return $this;
     }
@@ -92,6 +103,7 @@ class Response
     public function delete(string $key) : self
     {
         $key    =   strtolower($key);
+        $this->count--;
         unset($this->data[$key]);
         return $this;
     }

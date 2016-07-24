@@ -19,6 +19,7 @@ interface ControllerInterface
      * Response instance and send output to browser.
      *
      * @param Request $request
+     * @param Response $response
      */
-    public function init(Request $request);
+    public function init(Request $request, Response $response);
 }

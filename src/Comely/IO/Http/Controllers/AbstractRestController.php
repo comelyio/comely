@@ -35,16 +35,23 @@ abstract class AbstractRestController implements ControllerInterface
         $params  =   $this->input->getData();
 
         try {
-            // Check if we have necessary param to build method name
-            if(!array_key_exists(self::REST_METHOD_PARAM, $params)) {
-                throw new \Exception(
-                    sprintf('Http requests must have required parameter "%s"', self::REST_METHOD_PARAM)
-                );
+            if($this->method    === "GET") {
+                // Single method for all get requests
+                $callMethod =   "getView";
+            } else {
+                // Check if we have necessary param to build method name
+                if(!array_key_exists(self::REST_METHOD_PARAM, $params)) {
+                    throw new \Exception(
+                        sprintf('Http requests must have required parameter "%s"', self::REST_METHOD_PARAM)
+                    );
+                }
+
+                // Method name
+                $callMethod =   $this->method . "_" . $params[self::REST_METHOD_PARAM];
+                $callMethod =   \Comely::camelCase($callMethod);
             }
 
-            // Method name
-            $callMethod =   $this->method . "_" . $params[self::REST_METHOD_PARAM];
-            $callMethod =   \Comely::camelCase($callMethod);
+            // Check if method exists
             if(!method_exists($this, $callMethod)) {
                 throw new \Exception('Request method not found');
             }
