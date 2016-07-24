@@ -18,6 +18,7 @@ class REST
         // HTTP Request Information
         $httpMethod =   $_SERVER["REQUEST_METHOD"] ?? "";
         $httpUri    =   $_SERVER["REQUEST_URI"] ?? "";
+        $httpUri    =   explode("?", $httpUri)[0];
 
         // Create request
         $request    =   new Request(
