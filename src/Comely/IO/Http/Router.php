@@ -5,7 +5,7 @@ namespace Comely\IO\Http;
 
 use Comely\IO\Http\Controllers\ControllerInterface;
 use Comely\IO\Http\Exception\RouterException;
-use Comely\IO\Toolkit\String\Strings;
+use Comely\IO\Toolkit\Strings;
 
 /**
  * Class Router
@@ -18,6 +18,7 @@ class Router
     private $controllersPath;
     private $controllersNamespace;
     private $controllersArgs;
+    private $defaultController;
     private $routes;
 
     /**
@@ -47,7 +48,7 @@ class Router
      * @return Router
      * @throws RouterException
      */
-    public function setDefaultControllers(string $path, string $namespace) : self
+    public function setControllersBase(string $path, string $namespace) : self
     {
         // Path must have trailing separator
         $path   =   rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
@@ -71,9 +72,19 @@ class Router
      * @param array ...$args
      * @return Router
      */
-    public function setControllerArgs(...$args) : self
+    public function setControllersArgs(...$args) : self
     {
         $this->controllersArgs   =   $args;
+        return $this;
+    }
+
+    /**
+     * @param string $controller
+     * @return Router
+     */
+    public function setDefaultController(string $controller) : self
+    {
+        $this->defaultController    =   $controller;
         return $this;
     }
 
@@ -107,7 +118,15 @@ class Router
     {
         $controllerClass    =   $this->resolvePath($path);
         if(!class_exists($controllerClass, true)) {
-            throw RouterException::controllerNotFound($controllerClass);
+            // Try default controller if set
+            if(!isset($this->defaultController)) {
+                throw RouterException::controllerNotFound($controllerClass);
+            }
+
+            $controllerClass    =   $this->defaultController;
+            if(!class_exists($controllerClass, true)) {
+                throw RouterException::controllerNotFound($controllerClass);
+            }
         }
 
         // Init controller in try/catch block
@@ -153,7 +172,7 @@ class Router
             );
 
             // Join PascalCased class name with default namespace preset
-            $controllerClass    =   $this->controllersNamespace . implode("\\", $controllerClass);
+            $controllerClass    =   $this->controllersNamespace . trim(implode("\\", $controllerClass), "\\");
         }
 
         // Return name of class
@@ -167,6 +186,7 @@ class Router
     private function filterPath(string $path) : string
     {
         // Filter path
-        return trim(Strings::filter(strtolower($path), "ad", false, "/-_+"));
+        $path   =   explode("?", strtolower($path))[0];
+        return trim(Strings::filter($path, "ad", false, "/-_+"));
     }
 }

@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Comely\IO\Toolkit\String;
+namespace Comely\IO\Toolkit;
 
 /**
  * Class Strings
- * @package Comely\IO\Toolkit\String
+ * @package Comely\IO\Toolkit
  */
 class Strings
 {

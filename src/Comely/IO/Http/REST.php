@@ -5,7 +5,7 @@ namespace Comely\IO\Http;
 
 use Comely\IO\Http\Exception\RestException;
 use Comely\IO\Http\Request\Input;
-use Comely\IO\Toolkit\String\Strings;
+use Comely\IO\Toolkit\Strings;
 
 /**
  * Class REST
