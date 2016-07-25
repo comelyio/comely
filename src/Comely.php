@@ -8,7 +8,7 @@ declare(strict_types=1);
 class Comely
 {
     /** Comely version and build */
-    const VERSION   =   "0.1.0-alpha";
+    const VERSION   =   "0.1.5-alpha";
 
     /**
      * Converts given string (i.e. snake_case) to PascalCase
