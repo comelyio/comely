@@ -27,6 +27,13 @@ class REST
             new Input(self::getInputData($httpMethod), self::getHttpHeaders()),
             $callback
         );
+
+        // Set response format based on HTTP_ACCEPT cookie
+        if(isset($_SERVER["HTTP_ACCEPT"])) {
+            $httpAccept =   str_getcsv($_SERVER["HTTP_ACCEPT"])[0];
+            $httpAccept =   explode("/", $httpAccept)[1];
+            $request->getResponse()->setFormat(trim($httpAccept));
+        }
         
         return $request;
     }

@@ -19,6 +19,7 @@ class Router
     private $controllersNamespace;
     private $controllersArgs;
     private $defaultController;
+    private $ignorePathIndexes;
     private $routes;
 
     /**
@@ -40,6 +41,7 @@ class Router
     {
         $this->routes   =   [];
         $this->controllersArgs   =   [];
+        $this->ignorePathIndexes    =   [];
     }
 
     /**
@@ -89,6 +91,16 @@ class Router
     }
 
     /**
+     * @param \int[] ...$indexes
+     * @return Router
+     */
+    public function ignorePathIndex(int ...$indexes) : self
+    {
+        $this->ignorePathIndexes    =   $indexes;
+        return $this;
+    }
+
+    /**
      * @param string $path
      * @param string $controller
      * @return Router
@@ -97,7 +109,7 @@ class Router
     public function addRoute(string $path, string $controller) : self
     {
         // Filter path
-        $path   =   $this->filterPath($path);
+        $path   =   $this->filterPath($path, "[]+.-_\\*");
         if(!$path) {
             throw RouterException::badRoutingPath(__METHOD__, $path);
         }
@@ -153,27 +165,41 @@ class Router
      */
     private function resolvePath(string $path) : string
     {
+        // Filter path
         $pathKey    =   $this->filterPath($path);
-        if(array_key_exists($pathKey, $this->routes)) {
-            // Predefined routes
-            $controllerClass    =   $this->routes[$pathKey];
-        } else {
-            // Make sure default controllers base directory path is set
-            if(!$this->controllersPath) {
-                throw RouterException::controllersPathNull();
+
+        // Check in predefined routes
+        foreach($this->routes as $route => $controller) {
+            if(preg_match(sprintf("~^%s$~", $route), $pathKey)) {
+                // Match found
+                return $controller;
             }
-
-            // Dynamically convert path to class name
-            $controllerClass    =   array_map(
-                function($piece) {
-                    return \Comely::pascalCase($piece);
-                },
-                explode("/", trim(Strings::filter(strtolower($path), "an", false, "/")))
-            );
-
-            // Join PascalCased class name with default namespace preset
-            $controllerClass    =   $this->controllersNamespace . trim(implode("\\", $controllerClass), "\\");
         }
+
+        // Make sure default controllers base directory path is set
+        if(!$this->controllersPath) {
+            throw RouterException::controllersPathNull();
+        }
+
+        // Dynamically convert path to class name
+        $pathIndex  =   -1;
+        $controllerClass    =   array_map(
+            function($piece) use(&$pathIndex) : string {
+                $pathIndex++;
+                if($piece   &&  !in_array($pathIndex, $this->ignorePathIndexes)) {
+                    return \Comely::pascalCase($piece);
+                }
+
+                return "";
+            },
+            explode("/", trim(Strings::filter(strtolower($path), "an", false, "/_"), "/"))
+        );
+
+        $controllerClass    =   trim(implode("\\", $controllerClass), "\\");
+        $controllerClass    =   preg_replace("/\\\{2,}/", "\\", $controllerClass);
+
+        // Join PascalCased class name with default namespace preset
+        $controllerClass    =   $this->controllersNamespace . $controllerClass;
 
         // Return name of class
         return $controllerClass;
@@ -181,12 +207,14 @@ class Router
 
     /**
      * @param string $path
+     * @param string $extra
      * @return string
      */
-    private function filterPath(string $path) : string
+    private function filterPath(string $path, string $extra = "") : string
     {
         // Filter path
         $path   =   explode("?", strtolower($path))[0];
-        return trim(Strings::filter($path, "ad", false, "/-_+"));
+        $path   =   trim(Strings::filter($path, "ad", false, "/-_" . $extra), "\\/");
+        return ($path) ?  $path : "/";
     }
 }
