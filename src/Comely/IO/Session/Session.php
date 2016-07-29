@@ -283,6 +283,10 @@ class Session
     private function sessionCookie(string $id) : bool
     {
         if($this->config->cookie    === true) {
+            if(isset($_COOKIE["COMELYSESSID"])) {
+                $_COOKIE["COMELYSESSID"]    =   $id;
+            }
+
             return setcookie(
                 "COMELYSESSID",
                 $id,

@@ -49,4 +49,12 @@ class Proxy
     {
         return call_user_func_array([$this->instance,$name], $arguments);
     }
+
+    /**
+     * @return Bag
+     */
+    public function getBags() : Bag
+    {
+        return $this->instance->getBags();
+    }
 }

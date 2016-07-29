@@ -17,10 +17,17 @@ class Request
     private $controller;
     private $input;
     private $method;
-    private $path;
     private $response;
+    private $uri;
 
-    public function __construct(string $method, string $path, Input $input, callable $callback = null)
+    /**
+     * Request constructor.
+     * @param string $method
+     * @param string $uri
+     * @param Input $input
+     * @param callable|null $callback
+     */
+    public function __construct(string $method, string $uri, Input $input, callable $callback = null)
     {
         // Get Router instance
         $router =   Router::getInstance();
@@ -31,14 +38,14 @@ class Request
             RequestException::badMethod($method);
         }
 
-        // Resolve $path to controller's instance
-        $controller =   $router->route($path);
+        // Resolve $uri to controller's instance
+        $controller =   $router->route($uri);
 
         // Save request information
         $this->controller   =   $controller;
         $this->input    =   $input;
         $this->method   =   $method;
-        $this->path =   $path;
+        $this->uri =   explode("/", $uri);
         $this->response =   new Response($this);
 
         // Call init method of Controller
@@ -72,6 +79,31 @@ class Request
     public function getMethod() : string
     {
         return $this->method;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUri() : string
+    {
+        return implode("/", $this->uri);
+    }
+
+    /**
+     * @param int $index
+     * @return null
+     */
+    public function getUriIndex(int $index)
+    {
+        return $this->uri[$index] ?? null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUriRoot() : string
+    {
+        return str_repeat("../", count($this->uri));
     }
 
     /**
