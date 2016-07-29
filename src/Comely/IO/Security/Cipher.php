@@ -250,21 +250,4 @@ class Cipher
     {
         return self::KEY_SIZE;
     }
-
-    /**
-     * Returns securely generated key of variable length in hexadecimal representation
-     *
-     * @param int $bits
-     * @return string
-     * @throws CipherException
-     */
-    public static function randomKey(int $bits = 256) : string
-    {
-        // $bits must be divisible by 8
-        if($bits % 8 != 0) {
-            throw new CipherException(__METHOD__, "Input bits must be divisible by 8", 1301);
-        }
-
-        return bin2hex(random_bytes(intval(($bits/8))));
-    }
 }

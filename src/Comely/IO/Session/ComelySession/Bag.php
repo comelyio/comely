@@ -113,6 +113,18 @@ class Bag
     }
 
     /**
+     * Deletes all data and child bags
+     * @return Bag
+     */
+    public function flush() : self
+    {
+        $this->data =   [];
+        $this->bags =   [];
+        
+        return $this;
+    }
+
+    /**
      * Get data of this bag and all child bags as Array
      * Caution: Child bags will override key/value pairs if keys conflict
      *
