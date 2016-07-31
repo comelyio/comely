@@ -70,7 +70,8 @@ class Response implements \Countable
         }
 
         // Send raw header
-        header(sprintf('%1$s: %2$s'));
+        header(sprintf('%1$s: %2$s', $name, $value));
+        return $this;
     }
 
     /**

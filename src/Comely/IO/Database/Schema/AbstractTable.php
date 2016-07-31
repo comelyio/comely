@@ -6,7 +6,6 @@ namespace Comely\IO\Database\Schema;
 use Comely;
 use Comely\IO\Database\Database;
 use Comely\IO\Database\Exception\SchemaException;
-use Comely\IO\Database\Fluent;
 use Comely\IO\Database\Schema;
 use Comely\IO\Database\Schema\Table\Column;
 use Comely\IO\Database\Schema\Table\Constants;
@@ -169,6 +168,10 @@ abstract class AbstractTable implements Constants
 
     /**
      * Using OOP magic to create magical findBy* methods
+     * Arguments:
+     * First = (mixed) Value to search in database with
+     * Second = (int) Number of rows to return
+     * Third = (bool) Throw exception on no rows found or return false?
      *
      * @param $name
      * @param $arguments
@@ -230,16 +233,29 @@ abstract class AbstractTable implements Constants
             }
 
             // Check if SCHEMA_MODEL constant is set
-            $model  =   static::SCHEMA_MODEL;
-            if(!is_null($model)) {
+            $modelClass  =   static::SCHEMA_MODEL;
+            $callbackArgs  =   Schema::getCallbackArgs();
+            if(!is_null($modelClass)) {
                 if($findLimit   === 1) {
                     // Return single model instance
-                    return new $model($tableName, $rows[0]);
+                    $model  =   new $modelClass($tableName, $rows[0]);
+                    // Arguments injection
+                    if(method_exists($model, "callBack")) {
+                        $model->callBack(...$callbackArgs);
+                    }
+                    
+                    return $model;
                 } else {
                     $models =   [];
                     // Iterate through rows
                     foreach($rows as $row) {
-                        $models[]   =   new $model($tableName, $row);
+                        $model   =   new $modelClass($tableName, $row);
+                        // Arguments injection
+                        if(method_exists($model, "callBack")) {
+                            $model->callBack(...$callbackArgs);
+                        }
+
+                        $models[]   =   $model;
                     }
 
                     // return indexed Array containing Model's instances

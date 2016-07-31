@@ -7,11 +7,12 @@ namespace Comely\IO\Security\Forms;
  * Class Retriever
  * @package Comely\IO\Security\Forms
  */
-class Retriever
+class Retriever implements \Countable
 {
     private $input;
     private $name;
     private $obfuscated;
+    private $count;
 
     /**
      * Retriever constructor.
@@ -22,7 +23,16 @@ class Retriever
     {
         $this->name =   $name;
         $this->obfuscated   =   $obfuscated;
+        $this->count    =   count($obfuscated);
         $this->input    =   [];
+    }
+
+    /**
+     * @return int
+     */
+    public function count() : int
+    {
+        return $this->count;
     }
 
     /**
@@ -32,7 +42,7 @@ class Retriever
     public function checkHash(string $userProvided) : bool
     {
         return hash_equals(
-            hash("sha1", array_keys($this->obfuscated)),
+            hash("sha1", implode(":", array_keys($this->obfuscated))),
             $userProvided
         );
     }
@@ -51,10 +61,33 @@ class Retriever
      * @param string $key
      * @return mixed|null
      */
+    public function get(string $key)
+    {
+        if(array_key_exists($key, $this->obfuscated)) {
+            // null coalesce operator here suppresses E_NOTICE if $key is not found in input array
+            return $this->input[$this->obfuscated[$key]] ?? null;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $key
+     * @return mixed|null
+     */
     public function getValue(string $key)
     {
+        return $this->get($key);
+    }
+
+    /**
+     * @param string $key
+     * @return mixed|null
+     */
+    public function key(string $key)
+    {
         // null coalesce operator here suppresses E_NOTICE if $key is not found in input array
-        return $this->input[$key] ?? null;
+        return $this->obfuscated[$key] ?? null;
     }
 
     /**

@@ -13,6 +13,7 @@ use Comely\IO\Database\Schema\AbstractTable;
 abstract class Schema
 {
     protected static $tables    =   [];
+    protected static $modelsCallbackArgs   =   [];
 
     /**
      * Save an AbstractTable in Schema
@@ -22,7 +23,7 @@ abstract class Schema
      */
     public static function createTable(string $name, AbstractTable $table)
     {
-        static::$tables[$name]  =   $table;
+        self::$tables[$name]  =   $table;
     }
 
     /**
@@ -40,7 +41,7 @@ abstract class Schema
             throw SchemaException::tableNotFound($name);
         }
 
-        return static::$tables[$name];
+        return self::$tables[$name];
     }
 
     /**
@@ -68,10 +69,31 @@ abstract class Schema
             $table  =   new $class($db);
             
             // Save instance in Schema
-            static::$tables[$class] =   $table;
+            self::$tables[$class] =   $table;
         } else {
             // Not found
             throw SchemaException::tableNotFound($class);
         }
+    }
+
+    /**
+     * Set arguments for callBack method
+     *
+     * If model class has "callBack" method, all arguments passed to this method will be saved and passed to
+     * all models that are constructed by Schema component.
+     *
+     * @param array ...$args
+     */
+    public static function setCallbackArgs(...$args)
+    {
+        self::$modelsCallbackArgs =   $args;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getCallbackArgs() : array
+    {
+        return self::$modelsCallbackArgs;
     }
 }

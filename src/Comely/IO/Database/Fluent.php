@@ -16,7 +16,6 @@ abstract class Fluent
 {
     private $modelName;
     private $schemaTable;
-    private $public;
     private $private;
 
     /**
@@ -56,7 +55,6 @@ abstract class Fluent
         $this->schemaTable    =   Schema::table(static::SCHEMA_TABLE);
 
         // Bootstrap data mapping
-        $this->public  =   [];
         $this->private  =   [];
 
         // Check if $row is Array
@@ -93,18 +91,12 @@ abstract class Fluent
                 $camelKey   =   Comely::camelCase($key);
                 if(property_exists($this->modelName, $camelKey)) {
                     // Public property
-                    $this->public[$key]    =   $value;
+                    $this->$camelKey    =   $value;
                 } else {
                     // Private variable
-                    $this->private[$key]    =   $value;
+                    $this->private[$camelKey]    =   $value;
                 }
             }
-        }
-
-        // Check if callBack method is defined
-        // callBack() method is used for customizing mapping done by Fluent or perform other actions
-        if(method_exists($this, "callBack")) {
-            call_user_func([$this,"callBack"]);
         }
     }
 
@@ -118,38 +110,35 @@ abstract class Fluent
      */
     final public function __set(string $name, $value)
     {
+        if(!preg_match('/^[a-zA-Z0-9]+$/', $name)) {
+            throw FluentException::setPropCase(__METHOD__, $name);
+        }
+
         // Convert $name to snake_case
         $snakeName  =   Comely::snakeCase($name);
 
         // Get column
-        $column =   $this->schemaTable->getColumn($snakeName);
+        try {
+            $column =   $this->schemaTable->getColumn($snakeName);
+        } catch(SchemaException $e) {
+        }
 
-        // Cross check value type with column's
-        if($column->scalarType  !== gettype($value)) {
-            // Check if value type is NULL and column is nullable
-            if(gettype($value)  === "NULL"  &&  array_key_exists("nullable", $column->attributes)) {
-                // Column is NULLable
-            } else {
-                // Data type of value doesn't match with column's
-                throw FluentException::badColumnValue($this->modelName, $name, $column->scalarType, gettype($value));
+        if(isset($column)) {
+            printf('Column "%s" scalar "%s"<br>\n', $snakeName, $column->scalarType);
+            // Cross check value type with column's
+            if($column->scalarType  !== gettype($value)) {echo "NP";
+                // Check if value type is NULL and column is nullable
+                if(gettype($value)  === "NULL"  &&  array_key_exists("nullable", $column->attributes)) {
+                    // Column is NULLable
+                } else {
+                    // Data type of value doesn't match with column's
+                    throw FluentException::badColumnValue($this->modelName, $name, $column->scalarType, gettype($value));
+                }
             }
         }
 
         // Set value
-        $this->public[$snakeName]   =   $value;
-    }
-
-    /**
-     * Gets public column value or NULL
-     *
-     * @param $name
-     * @return mixed
-     */
-    final public function __get(string $name)
-    {
-        // Convert column $name to snake_case
-        $snakeName  =   Comely::snakeCase($name);
-        return $this->public[$snakeName] ?? null;
+        $this->$name    =   $value;
     }
 
     /**
@@ -159,28 +148,39 @@ abstract class Fluent
      * @param $value
      * @throws FluentException
      * @throws SchemaException
+     * @return Fluent
      */
-    final public function setPrivate(string $name, $value)
+    final public function setPrivate(string $name, $value) : self
     {
+        if(!preg_match('/^[a-zA-Z0-9]+$/', $name)) {
+            throw FluentException::setPropCase(__METHOD__, $name);
+        }
+
         // Convert column $name to snake_case
         $snakeName  =   Comely::snakeCase($name);
 
         // Get column
-        $column =   $this->schemaTable->getColumn($snakeName);
+        try {
+            $column =   $this->schemaTable->getColumn($snakeName);
+        } catch(SchemaException $e) {
+        }
 
-        // Cross check value type with column's
-        if($column->scalarType  !== gettype($value)) {
-            // Check if value type is NULL and column is nullable
-            if(gettype($value)  === "NULL"  &&  array_key_exists("nullable", $column->attributes)) {
-                // Column is NULLable
-            } else {
-                // Data type of value doesn't match with column's
-                throw FluentException::badColumnValue($this->modelName, $name, $column->scalarType, gettype($value));
+        if(isset($column)) {
+            // Cross check value type with column's
+            if($column->scalarType  !== gettype($value)) {
+                // Check if value type is NULL and column is nullable
+                if(gettype($value)  === "NULL"  &&  array_key_exists("nullable", $column->attributes)) {
+                    // Column is NULLable
+                } else {
+                    // Data type of value doesn't match with column's
+                    throw FluentException::badColumnValue($this->modelName, $name, $column->scalarType, gettype($value));
+                }
             }
         }
 
         // Set value
-        $this->private[$snakeName]   =   $value;
+        $this->private[$name]   =   $value;
+        return $this;
     }
 
     /**
@@ -191,20 +191,90 @@ abstract class Fluent
      */
     final public function getPrivate(string $name)
     {
-        // Convert column $name to snake_case
-        $snakeName  =   Comely::snakeCase($name);
-        return $this->private[$snakeName] ?? null;
+        return $this->private[$name] ?? null;
     }
 
     /**
-     * Get merged private and public key/value pairs
-     *
+     * @param string $name
+     * @return bool
+     */
+    final public function hasPrivate(string $name)
+    {
+        return array_key_exists($name, $this->private);
+    }
+
+    /**
+     * @param string $name
+     * @return Fluent
+     */
+    final public function removePrivate(string $name) : self
+    {
+        unset($this->private[$name]);
+        return $this;
+    }
+
+    /**
+     * @param bool $camelCase
+     * @return array
+     * @throws FluentException
+     * @throws SchemaException
+     */
+    private function getProps(bool $camelCase) : array
+    {
+        $props  =   [];
+        $columnKeys =   $this->schemaTable->getColumnsKeys();
+        foreach($columnKeys as $column) {
+            $columnKey  =   $column;
+            $camelKey   =   Comely::camelCase($columnKey);
+            $propKey    =   $camelCase ? $camelKey : $columnKey;
+            $column =   $this->schemaTable->getColumn($column);
+
+            // Look for prop's value
+            if(array_key_exists($camelKey, $this->private)) {
+                $value  =   $this->private[$camelKey]; // Private
+            } elseif(property_exists($this, $camelKey)) {
+                $value  =   $this->$camelKey; // Public
+            }
+
+            // Do we have value?
+            if(isset($value)) {
+                // Cross check value type with column's
+                if($column->scalarType  !== gettype($value)) {
+                    // Check if value type is NULL and column is nullable
+                    if(gettype($value)  === "NULL"  &&  array_key_exists("nullable", $column->attributes)) {
+                        // Column is NULLable
+                    } else {
+                        // Data type of value doesn't match with column's
+                        throw FluentException::badColumnValue($this->modelName, $columnKey, $column->scalarType, gettype($value));
+                    }
+                }
+
+                // Save prop
+                $props[$propKey]    =   $value;
+                unset($value);
+            }
+        }
+
+        // Private values have preference over public values
+        return $props;
+    }
+
+    /**
+     * Get merged private and public props in snake_case
      * @return array
      */
     final public function getRow() : array
     {
-        // Private values have preference over public values
-        return array_replace($this->public, $this->private);
+        return $this->getProps(false);
+    }
+
+    /**
+     * Get merged private and public props in camelCase
+     * @return array
+     */
+    final public function getArray() : array
+    {
+        return $this->getProps(true);
     }
 
     /**
@@ -247,6 +317,15 @@ abstract class Fluent
         // Prepare query
         $schemaTable    =   $this->schemaTable;
         $schemaDb   =   $schemaTable->getDb();
+
+        // Check database driver for compatibility
+        if(!in_array($schemaDb->driver(), ["mysql"])) {
+            throw FluentException::arQueryError(
+                __METHOD__,
+                sprintf('Database driver "%1$s" not compatible for this method', $schemaDb->driver())
+            );
+        }
+
         $query  =   sprintf(
             'INSERT INTO `%1$s` (%2$s) VALUES (%3$s) ON DUPLICATE KEY UPDATE %4$s',
             $schemaTable::SCHEMA_TABLE,
@@ -319,10 +398,7 @@ abstract class Fluent
         $insertId   =   $schemaDb->lastInsertId($schemaTable->getPrimaryKey());
         if(!$insert) {
             throw FluentException::arQueryError(__METHOD__, $schemaDb->lastQuery->error ?? "Failed");
-        }
-
-        // lastInsertId?
-        if(!$insertId) {
+        } elseif(!$insertId) {
             throw FluentException::arQueryError(__METHOD__, "Failed to retrieve lastInsertId()");
         }
 
@@ -332,7 +408,7 @@ abstract class Fluent
         }
 
         // Return $insertId
-        return $insertId;
+        return (int) $insertId;
     }
 
     /**

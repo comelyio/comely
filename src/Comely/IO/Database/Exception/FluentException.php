@@ -91,4 +91,14 @@ class FluentException extends DatabaseException
     {
         return new self($method, $error, 1105);
     }
+
+    /**
+     * @param string $method
+     * @param string $prop
+     * @return FluentException
+     */
+    public static function setPropCase(string $method, string $prop) : FluentException
+    {
+        return new self($method, sprintf('Property names must be in "camelCase", found "%1$s"', $prop), 1106);
+    }
 }

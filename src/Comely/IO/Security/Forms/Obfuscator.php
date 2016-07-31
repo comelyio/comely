@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Comely\IO\Security\Forms;
 
 use Comely\IO\Security\Security;
+use Comely\IO\Session\ComelySession\Bag;
 
 /**
  * Class Obfuscator
@@ -13,18 +14,21 @@ class Obfuscator
 {
     const OBFUSCATE_KEY_SIZE    =   12;
 
+    private $hash;
     private $name;
     private $obfuscated;
-    private $hash;
+    private $sessionBag;
 
     /**
      * Obfuscator constructor.
      * @param string $name
+     * @param Bag|null $bag
      */
-    public function __construct(string $name)
+    public function __construct(string $name, Bag $bag = null)
     {
         $this->name =   $name;
         $this->obfuscated   =   [];
+        $this->sessionBag   =   $bag;
     }
 
     /**
@@ -54,7 +58,14 @@ class Obfuscator
         }
 
         // Save hash
-        $this->hash =   hash("sha1", array_keys($this->obfuscated));
+        $this->hash =   hash("sha1", implode(":", array_keys($this->obfuscated)));
+
+        // Save to session?
+        if(isset($this->sessionBag)) {
+            $this->sessionBag->getBag($this->name)
+                ->set("hash", $this->hash)
+                ->set("fields", $this->obfuscated);
+        }
 
         // Chain
         return $this;
@@ -74,5 +85,16 @@ class Obfuscator
     public function getHash() : string
     {
         return $this->hash;
+    }
+
+    /**
+     * @return array
+     */
+    public function getArray() : array
+    {
+        return [
+            "hash"  =>  $this->hash,
+            "fields"    =>  $this->obfuscated
+        ];
     }
 }
