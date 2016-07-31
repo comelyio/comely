@@ -45,7 +45,7 @@ class Request
         $this->controller   =   $controller;
         $this->input    =   $input;
         $this->method   =   $method;
-        $this->uri =   explode("/", $uri);
+        $this->uri =   explode("/", trim($uri, "/"));
         $this->response =   new Response($this);
 
         // Call init method of Controller

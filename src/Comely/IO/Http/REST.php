@@ -24,8 +24,7 @@ class REST
         $request    =   new Request(
             $httpMethod,
             $httpUri,
-            new Input(self::getInputData($httpMethod), self::getHttpHeaders()),
-            $callback
+            new Input(self::getInputData($httpMethod), self::getHttpHeaders())
         );
 
         // Set response format based on HTTP_ACCEPT cookie
@@ -33,6 +32,10 @@ class REST
             $httpAccept =   str_getcsv($_SERVER["HTTP_ACCEPT"])[0];
             $httpAccept =   explode("/", $httpAccept)[1];
             $request->getResponse()->setFormat(trim($httpAccept));
+        }
+
+        if(isset($callback)) {
+            call_user_func_array($callback, [$request, $request->getResponse()]);
         }
         
         return $request;

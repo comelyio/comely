@@ -27,7 +27,7 @@ class ComelySession
         $this->data =   new Bag();
         $this->encoded =   "";
         $this->hash =   "";
-        $this->timeStamp    =   (object) [
+        $this->timeStamp    =   [
             "create" => microtime(true),
             "last" => microtime(true)
         ];
@@ -83,10 +83,9 @@ class ComelySession
     public function encodeData(string $salt, int $cost)
     {
         // Update timeStamp
-        $this->timeStamp->last  =   microtime(true);
+        $this->timeStamp["last"]  =   microtime(true);
 
         // Encode JSON data
-        $this->timeStamp    =   json_encode($this->timeStamp);
         $this->encoded =   serialize($this->data);
         $this->hash =   Session::saltedHash($this->encoded, $salt, $cost);
     }
@@ -131,11 +130,8 @@ class ComelySession
             throw new SessionException(__METHOD__, "Session is already decoded", 1502);
         }
 
-        // Decode timeStamp
-        $this->timeStamp    =   json_decode($this->timeStamp);
-
         // Check validity
-        $span   =   microtime(true) - $this->timeStamp->last;
+        $span   =   microtime(true) - $this->timeStamp["last"];
         if($span    >=  $expiry) {
             // Session has expired
             return false;

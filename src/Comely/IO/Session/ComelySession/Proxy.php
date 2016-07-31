@@ -11,6 +11,9 @@ use Comely\IO\Session\ComelySession;
  */
 class Proxy
 {
+    /**
+     * @var ComelySession
+     */
     private $instance;
 
     /**
@@ -51,10 +54,47 @@ class Proxy
     }
 
     /**
+     * @param $name
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->instance->$name;
+    }
+
+    /**
      * @return Bag
      */
     public function getBags() : Bag
     {
         return $this->instance->getBags();
+    }
+
+    /**
+     * @return string
+     */
+    public function getId() : string
+    {
+        return $this->instance->getId();
+    }
+
+    /**
+     * @param string $salt
+     * @param int $cost
+     */
+    public function encodeData(string $salt, int $cost)
+    {
+        $this->instance->encodeData($salt, $cost);
+    }
+
+    /**
+     * @param int $expiry
+     * @param string $salt
+     * @param int $cost
+     * @return bool
+     */
+    public function decodeData(int $expiry, string $salt, int $cost) : bool
+    {
+        return $this->instance->decodeData($expiry, $salt, $cost);
     }
 }

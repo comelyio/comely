@@ -46,7 +46,7 @@ class Forms
             // Retrieve from session
             $obfuscated =   $this->sessionBag->getBag($name)
                 ->get("fields");
-
+            
             // Make sure $obfuscated is an Array
             if(!is_array($obfuscated)) {
                 $obfuscated =   [];

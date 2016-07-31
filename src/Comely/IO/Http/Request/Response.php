@@ -91,7 +91,6 @@ class Response implements \Countable
             throw RequestException::setBadData(__METHOD__, $key, gettype($value));
         }
 
-        $key    =   strtolower($key);
         $this->count++;
         $this->data[$key]   =   $value;
         return $this;
@@ -103,7 +102,6 @@ class Response implements \Countable
      */
     public function delete(string $key) : self
     {
-        $key    =   strtolower($key);
         $this->count--;
         unset($this->data[$key]);
         return $this;

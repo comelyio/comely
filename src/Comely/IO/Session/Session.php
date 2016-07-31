@@ -67,7 +67,7 @@ class Session
         if($this->session instanceof Proxy) {
             throw SessionException::sessionAlreadyStarted();
         }
-        
+
         // Read Session
         $sessionId  =   $id ?? $_COOKIE["COMELYSESSID"] ?? null;
         if(isset($sessionId)) {
@@ -150,7 +150,7 @@ class Session
                 } catch(SessionException $e) {
                     throw $e;
                 }
-
+                
                 // If session is expired, no exception is thrown, just boolean FALSE is returned
                 if(isset($decode)   &&  $decode  === true) {
                     // Save ComelySession reference
