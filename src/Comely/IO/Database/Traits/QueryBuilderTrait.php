@@ -84,10 +84,10 @@ trait QueryBuilderTrait
     public function orderAsc(string ...$cols) : Database
     {
         $cols   =   array_map(function($col) {
-            return sprintf('`%1$s`,', trim($col));
+            return sprintf('`%1$s`', trim($col));
         }, $cols);
 
-        $this->queryBuilder->selectOrder    =   sprintf(" ORDER BY %s ASC", trim($cols, ","));
+        $this->queryBuilder->selectOrder    =   sprintf(" ORDER BY %s ASC", trim(implode(",", $cols), ", "));
         return $this;
     }
 
@@ -100,10 +100,10 @@ trait QueryBuilderTrait
     public function orderDesc(string ...$cols) : Database
     {
         $cols   =   array_map(function($col) {
-            return sprintf('`%1$s`,', trim($col));
+            return sprintf('`%1$s`', trim($col));
         }, $cols);
 
-        $this->queryBuilder->selectOrder    =   sprintf(" ORDER BY %s DESC", trim($cols, ","));
+        $this->queryBuilder->selectOrder    =   sprintf(" ORDER BY %s DESC", trim(implode(",", $cols), ", "));
         return $this;
     }
 
