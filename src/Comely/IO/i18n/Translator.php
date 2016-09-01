@@ -20,6 +20,7 @@ class Translator implements TranslatorInterface
     private static $instance;
     
     private $languagesPath;
+    /** @var null|Language */
     private $boundLanguage;
     private $boundFallback;
 
@@ -106,19 +107,41 @@ class Translator implements TranslatorInterface
             $language   =   new Language($name);
 
             // Compile all translations in Comely\IO\i18n\Translator\Language object
-            foreach($translations as $key => $translation) {
+            try {
+                $this->populateTranslations($language, $translations);
+            } catch (TranslatorException $e) {
                 // Language files must not have anything else but translations
-                if(is_string($translation)) {
-                    // Save into Language object
-                    $language->set($key, $translation);
-                } else {
-                    throw TranslatorException::languageBadFormat($yamlFile);
-                }
+                throw TranslatorException::languageBadFormat($yamlFile);
             }
-
             return $language;
         } else {
             throw TranslatorException::languageNotFound($name, $this->languagesPath);
+        }
+    }
+
+    /**
+     * Compile all translations in Comely\IO\i18n\Translator\Language object
+     *
+     * @param Language $language
+     * @param array $translations
+     * @param string $prefix
+     * @return mixed
+     * @throws TranslatorException
+     */
+    private function populateTranslations(Language $language, array $translations, string $prefix = "")
+    {
+        foreach($translations as $key => $translation) {
+            // Save into Language object
+            $key    =   trim(sprintf("%s.%s", $prefix, $key), ".");
+
+            if(is_string($translation)) {
+                $language->set($key, $translation);
+            } elseif(is_array($translation)) {
+                $this->populateTranslations($language, $translation, $key);
+            } else {
+                // Language files must not have anything else but translations
+                throw new TranslatorException("Unacceptable translated type");
+            }
         }
     }
 

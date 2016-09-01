@@ -43,7 +43,7 @@ class Line {
      */
     public function hasKey() : bool
     {
-        return (preg_match("/^(\s+)?[\w\_]+\:(.*)$/", $this->value)) ? true : false;
+        return (preg_match("/^(\s+)?[\w\_\-\.]+\:(.*)$/", $this->value)) ? true : false;
     }
 
     /**
