@@ -218,13 +218,11 @@ class Message
             $body[] =   $this->bodyHtml;
         }
 
-        $body[] =   $boundaries[0];
-
         // Attachments
         foreach($this->attachments as $attachment) {
             /** @var $attachment Attachment */
-            $body[] =   implode(self::EOL, $attachment->getMime());
             $body[] =   $boundaries[0];
+            $body[] =   implode(self::EOL, $attachment->getMime());
         }
 
         // Compile

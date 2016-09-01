@@ -89,6 +89,14 @@ class Attachment
     }
 
     /**
+     * @return string
+     */
+    public function getDisposition() : string
+    {
+        return $this->disposition;
+    }
+
+    /**
      * @return array
      * @throws MessageException
      */
