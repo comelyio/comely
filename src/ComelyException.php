@@ -31,6 +31,14 @@ class ComelyException extends \Exception
     }
 
     /**
+     * @return string
+     */
+    public function getHtmlEncoded() : string
+    {
+        return htmlentities($this->message);
+    }
+
+    /**
      * @param string|null $pattern
      * @return string
      */
@@ -38,9 +46,16 @@ class ComelyException extends \Exception
     {
         if(empty($pattern)) {
             // Set default pattern
-            $pattern    =   "{classMethod}: [#{code}] {message} in {basename(file)}:{line}";
+            $pattern    =   "%classMethod%: [#%code%] %message% in %file|basename%:%line%";
         }
 
-        return false;
+        $parser =   \Comely\IO\Toolkit\Parser::getInstance();
+        return $parser->parse($pattern, [
+            "classMethod"   =>  $this->method,
+            "code"  =>  $this->code,
+            "message"   =>  $this->getHtmlEncoded(),
+            "file"  =>   $this->file,
+            "line"  =>  $this->line
+        ]);
     }
 }

@@ -124,9 +124,8 @@ abstract class Fluent
         }
 
         if(isset($column)) {
-            printf('Column "%s" scalar "%s"<br>\n', $snakeName, $column->scalarType);
             // Cross check value type with column's
-            if($column->scalarType  !== gettype($value)) {echo "NP";
+            if($column->scalarType  !== gettype($value)) {
                 // Check if value type is NULL and column is nullable
                 if(gettype($value)  === "NULL"  &&  array_key_exists("nullable", $column->attributes)) {
                     // Column is NULLable
@@ -187,7 +186,7 @@ abstract class Fluent
      * Gets private column value or NULL
      *
      * @param string $name
-     * @return array
+     * @return mixed
      */
     final public function getPrivate(string $name)
     {

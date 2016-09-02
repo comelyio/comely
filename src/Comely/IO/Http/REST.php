@@ -96,20 +96,25 @@ class REST
             $inputData  =   array_merge($inputData, $inputMerge);
         }
 
-        return self::filterData($inputData);
+        return self::filterData($inputData, "utf8");
     }
 
     /**
      * @param array $data
+     * @param string $encoding
      * @return array
      */
-    public static function filterData(array $data)
+    public static function filterData(array $data, string $encoding = "ascii")
     {
         foreach($data as $key => $value) {
             if(is_string($value)) {
-                $data[$key] =   Strings::filter($value, "adsq", true);
+                if($encoding    === "ascii") {
+                    $data[$key] =   Strings::filter($value, "adsq", true);
+                } else {
+                    $data[$key] =   filter_var($value, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+                }
             } elseif(is_array($value)) {
-                $data[$key] =   self::filterData($value);
+                $data[$key] =   self::filterData($value, $encoding);
             }
         }
 
