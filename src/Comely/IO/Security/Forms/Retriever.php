@@ -36,13 +36,21 @@ class Retriever implements \Countable
     }
 
     /**
+     * @return string
+     */
+    public function getHash() : string
+    {
+        return hash("sha1", implode(":", array_keys($this->obfuscated)));
+    }
+
+    /**
      * @param string $userProvided
      * @return bool
      */
     public function checkHash(string $userProvided) : bool
     {
         return hash_equals(
-            hash("sha1", implode(":", array_keys($this->obfuscated))),
+            $this->getHash(),
             $userProvided
         );
     }

@@ -36,6 +36,27 @@ class Forms
 
     /**
      * @param string $name
+     * @return bool
+     */
+    public function has(string $name) : bool
+    {
+        // Check if we have form in session bag
+        if($this->sessionBag->hasBag($name)) {
+            // Get all fields
+            $obfuscated =   $this->sessionBag->getBag($name)
+                ->get("fields");
+
+            // Form must have at least 1 field
+            if(is_array($obfuscated)    &&  count($obfuscated)  >   0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $name
      * @return Retriever
      */
     public function retrieve(string $name) : Retriever
