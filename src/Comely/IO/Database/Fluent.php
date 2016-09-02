@@ -401,6 +401,8 @@ abstract class Fluent
             throw FluentException::arQueryError(__METHOD__, "Failed to retrieve lastInsertId()");
         }
 
+        $insertId   =   intval($insertId);
+
         // If callback function is callable
         if(is_callable($callback)) {
             $callback($insertId, $schemaDb);
@@ -488,8 +490,6 @@ abstract class Fluent
         // Return $result
         return $result;
     }
-
-
 
     /**
      * Delete Row

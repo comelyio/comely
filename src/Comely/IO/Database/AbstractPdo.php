@@ -64,13 +64,13 @@ abstract class AbstractPdo
      * Grab last inserted Id
      *
      * @param string|null $name
-     * @return string
+     * @return int
      * @throws DatabaseException
      */
-    public function lastInsertId(string $name = null)
+    public function lastInsertId(string $name = null) : int
     {
         try {
-            return $this->pdo->lastInsertId($name);
+            return (int) $this->pdo->lastInsertId($name);
         } catch(\PDOException $e) {
             throw DatabaseException::pdoError($e->getMessage());
         }
