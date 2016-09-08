@@ -340,7 +340,7 @@ abstract class Fluent
         }
 
         // Table was affected?
-        if($schemaDb->lastQuery->rows   !== 1) {
+        if(!in_array($schemaDb->lastQuery->rows, [1,2])) {
             throw FluentException::arQueryError(__METHOD__, 'Row wasn\'t inserted or updated');
         }
 
