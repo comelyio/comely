@@ -17,14 +17,23 @@ use Comely\IO\Database\Schema\Table\TableBuilder;
  */
 abstract class AbstractTable implements Constants
 {
-    private $db;
-    private $dbDriver;
+    /** @var Database */
+    protected $db;
+    /** @var string */
+    protected $dbDriver;
+    /** @var array */
     private $columns;
+    /** @var array */
     private $columnsKeys;
+    /** @var array */
     private $constraints;
+    /** @var string */
     private $tableId;
+    /** @var string */
     private $tableName;
+    /** @var string */
     private $tableEngine;
+    /** @var null|string */
     private $primaryKey;
 
     /**
