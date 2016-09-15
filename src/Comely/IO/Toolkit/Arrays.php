@@ -82,7 +82,7 @@ class Arrays
                 if($search  === $value) {
                     // Positive match
                     $matches++;
-                    $matches[]  =   $entry;
+                    $matched[]  =   $entry;
 
                     if($limit   >   0   &&  $limit  >=  $matches) {
                         break;
