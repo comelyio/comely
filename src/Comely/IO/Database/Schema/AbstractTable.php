@@ -478,7 +478,7 @@ abstract class AbstractTable implements Constants
         $this->columnsKeys[]    =   $name;
         $this->columns[$name]   =   new Column;
         $this->columns[$name]->type =   "decimal";
-        $this->columns[$name]->scalarType =   "double";
+        $this->columns[$name]->scalarType =   "string";
         $this->columns[$name]->attributes["m"] =   $m;
         $this->columns[$name]->attributes["d"] =   $d;
 
