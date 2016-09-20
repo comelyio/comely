@@ -164,7 +164,7 @@ class TableBuilder implements Constants
                     }, $options));
                     $sqlTable   .=  "))";
                 }
-            } elseif($column->scalarType    === "double") {
+            } elseif(in_array($column->type, ["double", "decimal"])) {
                 // Double and decimals
                 if($this->dbDriver  === "mysql") {
                     // MySQL
@@ -186,7 +186,7 @@ class TableBuilder implements Constants
             // Unsigned Number?
             if(array_key_exists("signed", $column->attributes)  &&  $column->attributes["signed"]   === 0) {
                 // Is this attribute appropriate for this column type?
-                if(in_array($column->scalarType, ["integer","double"])) {
+                if(in_array($column->type, ["int", "double", "decimal"])) {
                     if($this->dbDriver  === "sqlite"    &&  array_key_exists("ai", $column->attributes)) {
                         // SQLite AI columns cannot have UNSIGNED declaration
                     } else {
@@ -231,7 +231,7 @@ class TableBuilder implements Constants
             // Special attributes
             // MySQL charset and collation
             if($this->dbDriver  === "mysql") {
-                if($column->scalarType  === "string") {
+                if(in_array($column->type, ["string", "text", "enum"])) {
                     $sqlTable   .=  " CHARACTER SET " . $column->attributes["charset"];
                     $sqlTable   .=  " COLLATE " . $column->attributes["collation"];
                 }
