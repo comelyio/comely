@@ -9,6 +9,7 @@ namespace Comely\IO\Security;
  */
 class SecurityException extends \ComelyException
 {
+    /** @var string */
     protected static $componentId   =   __NAMESPACE__;
 
     /**

@@ -11,6 +11,7 @@ use Comely\IO\Security\SecurityException;
  */
 class CipherException extends SecurityException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\Security\\Cipher";
 
     /**

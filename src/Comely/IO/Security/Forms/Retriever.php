@@ -9,9 +9,13 @@ namespace Comely\IO\Security\Forms;
  */
 class Retriever implements \Countable
 {
+    /** @var array */
     private $input;
+    /** @var string */
     private $name;
+    /** @var array */
     private $obfuscated;
+    /** @var int */
     private $count;
 
     /**

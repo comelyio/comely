@@ -14,9 +14,13 @@ class Obfuscator
 {
     const OBFUSCATE_KEY_SIZE    =   12;
 
+    /** @var null|string */
     private $hash;
+    /** @var string */
     private $name;
+    /** @var array */
     private $obfuscated;
+    /** @var Bag|null */
     private $sessionBag;
 
     /**
@@ -47,7 +51,7 @@ class Obfuscator
         // Make sure there are no duplicates some how
         if(count($bytes)    !== count(array_unique($bytes))) {
             // Repeating key detected, retry
-            return $this->setFields(...$keys);
+            return call_user_func_array([$this, "setFields"], $keys);
         }
 
         // Iterate through keys

@@ -11,6 +11,7 @@ use Comely\IO\Session\ComelySession\Bag;
  */
 class CSRF
 {
+    /** @var Bag */
     private $sessionBag;
 
     /**

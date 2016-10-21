@@ -17,9 +17,13 @@ class Cipher
     const PBKDF2_COST   =   64000;
     const KEY_SIZE  =   256;
 
+    /** @var string */
     private $cipherMethod;
+    /** @var string */
     private $defaultSecret;
+    /** @var Cipher */
     private $defaultHashAlgo;
+    /** @var int */
     private $ivSize;
 
     /**

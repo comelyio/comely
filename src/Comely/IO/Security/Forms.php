@@ -13,6 +13,7 @@ use Comely\IO\Session\ComelySession\Bag;
  */
 class Forms
 {
+    /** @var Bag */
     private $sessionBag;
 
     /**
