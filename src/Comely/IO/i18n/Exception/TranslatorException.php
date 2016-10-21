@@ -11,12 +11,13 @@ use Comely\IO\i18n\i18nException;
  */
 class TranslatorException extends i18nException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\i18n\\Translator";
 
     /**
      * @return TranslatorException
      */
-    public static function initError() : TranslatorException
+    public static function initError() : self
     {
         return new self(self::$componentId, "Global translator function couldn't be redefined", 1101);
     }
@@ -25,7 +26,7 @@ class TranslatorException extends i18nException
      * @param string $path
      * @return TranslatorException
      */
-    public static function badLanguagesPath(string $path) : TranslatorException
+    public static function badLanguagesPath(string $path) : self
     {
         return new self(self::$componentId, sprintf('Languages path "%1$s" does not exist', $path), 1102);
     }
@@ -34,7 +35,7 @@ class TranslatorException extends i18nException
      * @param string $path
      * @return TranslatorException
      */
-    public static function noLanguageFiles(string $path) : TranslatorException
+    public static function noLanguageFiles(string $path) : self
     {
         return new self(self::$componentId, sprintf('No YAML language files were found in "%1$s"', $path), 1103);
     }
@@ -44,7 +45,7 @@ class TranslatorException extends i18nException
      * @param string $dir
      * @return TranslatorException
      */
-    public static function languageNotFound(string $lang, string $dir) : TranslatorException
+    public static function languageNotFound(string $lang, string $dir) : self
     {
         return new self(self::$componentId, sprintf('Language file "%1$s" not found in "%2$s"', $lang, $dir), 1104);
     }
@@ -53,7 +54,7 @@ class TranslatorException extends i18nException
      * @param string $file
      * @return TranslatorException
      */
-    public static function languageBadFormat(string $file) : TranslatorException
+    public static function languageBadFormat(string $file) : self
     {
         return new self(
             self::$componentId,
@@ -68,7 +69,7 @@ class TranslatorException extends i18nException
     /**
      * @return TranslatorException
      */
-    public static function translateNoLanguage() :TranslatorException
+    public static function translateNoLanguage() :self
     {
         return new self(self::$componentId, "No language was object passed by reference or bound as default", 1106);
     }

@@ -9,5 +9,6 @@ namespace Comely\IO\i18n;
  */
 class i18nException extends \ComelyException
 {
+    /** @var string */
     protected static $componentId  =   __NAMESPACE__;
 }

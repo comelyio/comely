@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Comely\IO\i18n;
 
 // Defined global translate functions
-require_once __DIR__ . DIRECTORY_SEPARATOR . "Translator" . DIRECTORY_SEPARATOR . "globalTranslateFunctions.php";
+require_once __DIR__ . "/Translator/globalTranslateFunctions.php";
 
 use Comely\IO\i18n\Exception\TranslatorException;
 use Comely\IO\i18n\Translator\Language;
@@ -17,11 +17,14 @@ use Comely\IO\Yaml\Yaml;
  */
 class Translator implements TranslatorInterface
 {
+    /** @var self */
     private static $instance;
-    
+
+    /** @var string */
     private $languagesPath;
     /** @var null|Language */
     private $boundLanguage;
+    /** @var null|Language */
     private $boundFallback;
 
     /**
@@ -33,7 +36,7 @@ class Translator implements TranslatorInterface
      * @return Translator
      * @throws TranslatorException
      */
-    public static function getInstance() : Translator
+    public static function getInstance() : self
     {
         if(!isset(self::$instance)) {
             // Check if global translate functions has already been instanced
@@ -125,7 +128,6 @@ class Translator implements TranslatorInterface
      * @param Language $language
      * @param array $translations
      * @param string $prefix
-     * @return mixed
      * @throws TranslatorException
      */
     private function populateTranslations(Language $language, array $translations, string $prefix = "")

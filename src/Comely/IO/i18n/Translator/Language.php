@@ -9,7 +9,9 @@ namespace Comely\IO\i18n\Translator;
  */
 class Language implements LanguageInterface
 {
+    /** @var string */
     private $name;
+    /** @var array */
     private $translations;
 
     /**
