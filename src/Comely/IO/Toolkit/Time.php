@@ -16,7 +16,7 @@ class Time
    public static function unitsToSeconds(string $units) : int
    {
        // Remove all whitespaces
-      $units   =  preg_replace("\s", "", $units);
+      $units   =  preg_replace("/\s/", "", $units);
 
       $seconds =  0;
       $matches =  [];
