@@ -11,6 +11,7 @@ use Comely\IO\Session\SessionException;
  */
 class ComelySessionException extends SessionException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\Session\\ComelySession";
 
     /**

@@ -19,8 +19,12 @@ class Sessions extends AbstractTable
      */
     public function createTable()
     {
-        $this->string("id", 64, self::STR_FIXED)->unique()->charSet("ASCII")->collation("utf8mb4_unicode_ci");
-        $this->text("payload", self::TEXT_MEDIUM)->charSet("utf8mb4")->collation("utf8mb4_unicode_ci");
+        $this->string("id", 64, self::STR_FIXED)->unique()
+            ->charSet("ascii")
+            ->collation("ascii_general_ci");
+        $this->text("payload", self::TEXT_MEDIUM)
+            ->charSet("utf8mb4")
+            ->collation("utf8mb4_unicode_ci");
         $this->int("time_stamp")->unSigned();
         $this->primaryKey("id");
     }

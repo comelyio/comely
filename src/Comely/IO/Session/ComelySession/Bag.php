@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace Comely\IO\Session\ComelySession;
+
 use Comely\IO\Session\Exception\ComelySessionException;
 
 /**
@@ -10,7 +11,9 @@ use Comely\IO\Session\Exception\ComelySessionException;
  */
 class Bag
 {
+    /** @var array */
     private $data;
+    /** @var array */
     private $bags;
 
     /**

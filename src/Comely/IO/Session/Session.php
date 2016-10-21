@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Comely\IO\Session;
 
-use Comely\IO\Session\ComelySession\Proxy;
 use ComelyException;
 use Comely\IO\Cache\CacheInterface;
 use Comely\IO\Database\Database;
@@ -18,11 +17,12 @@ use Comely\IO\Security\Cipher;
  */
 class Session
 {
+    /** @var CacheInterface|AbstractTable|Disk */
     private $storage;
+    /** @var ComelySession */
     private $session;
+    /** @var Config */
     private $config;
-
-    use ConfigTrait;
 
     /**
      * Session constructor.
@@ -64,7 +64,7 @@ class Session
     public function start(string $id = null) : string
     {
         // Check if session has already been started
-        if($this->session instanceof Proxy) {
+        if($this->session instanceof ComelySession) {
             throw SessionException::sessionAlreadyStarted();
         }
 
@@ -76,7 +76,7 @@ class Session
         }
 
         // Check if we got ComelySession from read
-        if(!$this->session instanceof Proxy) {
+        if(!$this->session instanceof ComelySession) {
             $this->create();
         }
 
@@ -93,9 +93,9 @@ class Session
     /**
      * Get reference to ComelySession instance
      * 
-     * @return Proxy
+     * @return ComelySession
      */
-    public function getSession() : Proxy
+    public function getSession() : ComelySession
     {
         return $this->session;
     }
@@ -113,12 +113,12 @@ class Session
                 $session    =   $this->storage->read($id . ".sess");
             } elseif($this->storage instanceof AbstractTable) {
                 // Read from database
-                $session    =   $this->storage->findById($id);
+                $session    =   call_user_func([$this->storage, "findById"], $id);
                 if(is_array($session)   &&  array_key_exists("payload", $session)) {
                     $session    =   $session["payload"];
                 }
             } elseif($this->storage instanceof CacheInterface) {
-                // Read from cache
+                // Todo: Read from cache
             }
 
             // Expecting a String from read
@@ -135,12 +135,11 @@ class Session
             $session    =   @unserialize($session, [
                 "allowed_classes"   =>    [
                     "Comely\\IO\\Session\\ComelySession",
-                    "Comely\\IO\\Session\\ComelySession\\Bag",
-                    "Comely\\IO\\Session\\ComelySession\\Proxy"
+                    "Comely\\IO\\Session\\ComelySession\\Bag"
                 ]
             ]);
 
-            if($session instanceof Proxy) {
+            if($session instanceof ComelySession) {
                 try {
                     $decode =   $session->decodeData(
                         $this->config->sessionLife,
@@ -180,11 +179,12 @@ class Session
         // Create secure session ID
         $sessionId  =   $this->generateId();
         if(!$this->isUniqueId($sessionId)) {
-            return $this->create();
+            $this->create();
+            return;
         }
 
         // Create new instance of ComelySession
-        $this->session    =   new Proxy(new ComelySession($sessionId));
+        $this->session    =   new ComelySession($sessionId);
     }
 
     /**
@@ -198,13 +198,11 @@ class Session
             return $this->refactorId();
         }
         
-        $current    =   $this->session->getInstance();
-        $this->session->setInstance(
-            (new ComelySession($newSessionId))->setData($current->getData())
-        );
+        $currentId  =   $this->session->getId();
+        $this->session->setId($newSessionId);
 
-        $this->delete($current->getId(), true);
-        $this->sessionCookie($this->session->getId());
+        $this->delete($currentId, true);
+        $this->sessionCookie($newSessionId);
 
         return $this;
     }
@@ -216,7 +214,7 @@ class Session
     {
         try {
             // Make sure we have instance of ComelySession
-            if(!$this->session instanceof Proxy) {
+            if(!$this->session instanceof ComelySession) {
                 throw SessionException::writeError('Cannot find instance of ComelySession for writing');
             }
 
@@ -390,5 +388,98 @@ class Session
     public static function saltedHash(string $str, string $salt, int $cost = 0) : string
     {
         return hash_pbkdf2("sha1", $str, $salt, $cost, 0, false);
+    }
+
+    /**
+     * Configuration
+     */
+
+    /**
+     * Sets salt for PBKDF2 payload hashing
+     *
+     * @param string $salt
+     * @return Session
+     */
+    public function setHashSalt(string $salt) : self
+    {
+        $this->config->hashSalt =   $salt;
+        return $this;
+    }
+
+    /**
+     * Sets cost for PBKDF2 payload hashing
+     *
+     * @param int $cost
+     * @return Session
+     * @throws SessionException
+     */
+    public function setHashCost(int $cost) : self
+    {
+        if($cost    <=   0) {
+            throw SessionException::configError("hashCost", "Cost must be a positive integer");
+        }
+
+        $this->config->hashCost =   $cost;
+        return $this;
+    }
+
+    /**
+     * Encrypt session payload with Cipher component
+     *
+     * @param Cipher $cipher
+     * @return Session
+     */
+    public function useCipher(Cipher $cipher) : self
+    {
+        $this->config->cipher   =   $cipher;
+        return $this;
+    }
+
+    /**
+     * Set preference for COMELYSESSID cookie
+     *
+     * @param bool $set
+     * @param int $life
+     * @param string $path
+     * @param string $domain
+     * @param bool $secure
+     * @param bool $httpOnly
+     * @throws SessionException
+     */
+    public function setCookie(
+        bool $set = false,
+        int $life = 0,
+        string $path = "",
+        string $domain = "",
+        bool $secure = true,
+        bool $httpOnly = true
+    ) {
+        if($life    <=   0) {
+            throw SessionException::configError("cookieLife", "Expiry in seconds must be a positive integer");
+        }
+
+        $this->config->cookie   =   $set;
+        $this->config->cookieLife   =   $life;
+        $this->config->cookiePath   =   $path;
+        $this->config->cookieDomain   =   $domain;
+        $this->config->cookieSecure   =   $secure;
+        $this->config->cookieHttpOnly   =   $httpOnly;
+    }
+
+    /**
+     * Session will expire after given number of seconds of inactivity
+     *
+     * @param int $secs
+     * @return Session
+     * @throws SessionException
+     */
+    public function setSessionLife(int $secs) : self
+    {
+        if($secs    <=   0) {
+            throw SessionException::configError("sessionLife", "Expiry in seconds must be a positive integer");
+        }
+
+        $this->config->sessionLife  =   $secs;
+        return $this;
     }
 }

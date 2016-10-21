@@ -11,10 +11,15 @@ use Comely\IO\Session\ComelySession\Bag;
  */
 class ComelySession
 {
+    /** @var string */
     private $id;
+    /** @var Bag */
     private $data;
+    /** @var string */
     private $encoded;
+    /** @var string */
     private $hash;
+    /** @var array */
     private $timeStamp;
 
     /**
@@ -61,6 +66,16 @@ class ComelySession
     public function getBags() : Bag
     {
         return $this->getData();
+    }
+
+    /**
+     * @param string $id
+     * @return ComelySession
+     */
+    public function setId(string $id) : self
+    {
+        $this->id   =   $id;
+        return $this;
     }
 
     /**
