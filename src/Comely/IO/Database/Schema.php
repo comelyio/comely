@@ -12,7 +12,9 @@ use Comely\IO\Database\Schema\AbstractTable;
  */
 abstract class Schema
 {
+    /** @var array */
     protected static $tables    =   [];
+    /** @var array */
     protected static $modelsCallbackArgs   =   [];
 
     /**

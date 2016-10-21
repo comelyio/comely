@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 
-namespace Comely\IO\Database\Sample;
+namespace Comely\IO\Database\Prototype;
 
+use Comely\IO\Database\Exception\SchemaException;
 use Comely\IO\Database\Schema\AbstractTable;
 
 /**
@@ -11,7 +13,7 @@ use Comely\IO\Database\Schema\AbstractTable;
  * Schema::loadTable($db, "Comely\IO\Database\Sample\Table");
  * where $db is reference to Comely\IO\Database\Database instance
  *
- * @package Comely\IO\Database\Sample
+ * @package Comely\IO\Database\Prototype
  */
 class Table extends AbstractTable
 {
@@ -34,7 +36,7 @@ class Table extends AbstractTable
 
     /**
      * This method is called automatically when a table is loaded.
-     * @throws \Comely\IO\Database\Exception\SchemaException
+     * @throws SchemaException
      */
     public function createTable()
     {

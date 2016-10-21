@@ -11,6 +11,7 @@ use Comely\IO\Database\DatabaseException;
  */
 class FluentException extends DatabaseException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\Database\\Fluent";
 
     /**
@@ -18,7 +19,7 @@ class FluentException extends DatabaseException
      * @param string $model
      * @return FluentException
      */
-    public static function initConstant(string $constant, string $model)
+    public static function initConstant(string $constant, string $model) : self
     {
         return new self(
             self::$componentId,
@@ -37,7 +38,7 @@ class FluentException extends DatabaseException
      * @param string $given
      * @return FluentException
      */
-    public static function tableModelMismatch(string $model, string $expected, string $given) : FluentException
+    public static function tableModelMismatch(string $model, string $expected, string $given) : self
     {
         return new self(
             $model,
@@ -56,7 +57,7 @@ class FluentException extends DatabaseException
      * @param string $model
      * @return FluentException
      */
-    public static function missingColumn(string $key, string $model) : FluentException
+    public static function missingColumn(string $key, string $model) : self
     {
         return new self($model, sprintf('Missing column "%1$s" in input row', $key), 1103);
     }
@@ -68,7 +69,7 @@ class FluentException extends DatabaseException
      * @param string $given
      * @return FluentException
      */
-    public static function badColumnValue(string $model, string $column, string $expected, string $given) : FluentException
+    public static function badColumnValue(string $model, string $column, string $expected, string $given) : self
     {
         return new self(
             $model,
@@ -87,7 +88,7 @@ class FluentException extends DatabaseException
      * @param string $error
      * @return FluentException
      */
-    public static function arQueryError(string $method, string $error) : FluentException
+    public static function arQueryError(string $method, string $error) : self
     {
         return new self($method, $error, 1105);
     }
@@ -97,7 +98,7 @@ class FluentException extends DatabaseException
      * @param string $prop
      * @return FluentException
      */
-    public static function setPropCase(string $method, string $prop) : FluentException
+    public static function setPropCase(string $method, string $prop) : self
     {
         return new self($method, sprintf('Property names must be in "camelCase", found "%1$s"', $prop), 1106);
     }

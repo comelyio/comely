@@ -9,6 +9,9 @@ namespace Comely\IO\Database;
  */
 abstract class AbstractPdo
 {
+    /** @var \PDO */
+    protected $pdo;
+
     /**
      * AbstractPdo constructor.
      *
@@ -171,12 +174,14 @@ abstract class AbstractPdo
      * @param array $data
      * @param int $fetch Database::QUERY_* flag
      * @return bool
+     * @throws DatabaseException
      */
     protected function pdoQuery(string $method, string $query, array $data, int $fetch = 8)
     {
+        /** @var $this Database */
         // Reset QueryBuilder and lastQuery
         $this->resetLastQuery();
-        $this->queryBuilder->resetQuery();
+        $this->queryBuilder->reset();
 
         try {
             // Prepare a PDOStatement
@@ -196,11 +201,11 @@ abstract class AbstractPdo
             $exec   =   $stmnt->execute();
             if($exec    === true    &&  $stmnt->errorCode() === "00000") {
                 // Explicitly asked to fetch rows?
-                if($fetch   === static::QUERY_FETCH) {
+                if($fetch   === Database::QUERY_FETCH) {
                     $rows   =   $stmnt->fetchAll(\PDO::FETCH_ASSOC);
                     if(is_array($rows)) {
                         // Set rows param of lastQuery
-                        if($this->config->fetchCount    === static::FETCH_COUNT_ARRAY) {
+                        if($this->config->fetchCount    === Database::FETCH_COUNT_ARRAY) {
                             // Count returned array
                             $this->lastQuery->rows  =   count($rows);
                         } else {

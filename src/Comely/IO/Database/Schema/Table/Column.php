@@ -11,10 +11,15 @@ use Comely\IO\Database\Exception\SchemaException;
  */
 class Column
 {
+    /** @var null|string */
     public $type;
+    /** @var null|string */
     public $scalarType;
+    /** @var null|string|int */
     public $flag;
+    /** @var null|string|int|double|float */
     public $default;
+    /** @var array */
     public $attributes;
 
     /**

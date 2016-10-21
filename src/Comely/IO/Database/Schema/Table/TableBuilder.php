@@ -12,12 +12,18 @@ use Comely\IO\Database\Exception\SchemaException;
  */
 class TableBuilder implements Constants
 {
+    /** @var self */
     private static $instance;
 
+    /** @var string */
     private $dbDriver;
+    /** @var array */
     private $columns;
+    /** @var array */
     private $constraints;
+    /** @var string */
     private $tableName;
+    /** @var string */
     private $tableEngine;
 
     /**

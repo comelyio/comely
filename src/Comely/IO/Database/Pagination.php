@@ -9,12 +9,19 @@ namespace Comely\IO\Database;
  */
 class Pagination implements \Countable
 {
+    /** @var int */
     public $totalRows;
+    /** @var int */
     public $totalPages;
+    /** @var int */
     public $start;
+    /** @var int */
     public $limit;
+    /** @var array */
     public $rows;
+    /** @var array */
     public $pages;
+    /** @var int */
     public $count;
 
     /**

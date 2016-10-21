@@ -9,13 +9,14 @@ namespace Comely\IO\Database;
  */
 class DatabaseException extends \ComelyException
 {
+    /** @var string */
     protected static $componentId   =   __NAMESPACE__;
 
     /**
      * @param string $message
      * @return DatabaseException
      */
-    public static function connectionError(string $message) : DatabaseException
+    public static function connectionError(string $message) : self
     {
         return new self(self::$componentId, $message, 1001);
     }
@@ -25,7 +26,7 @@ class DatabaseException extends \ComelyException
      * @param string $message
      * @return DatabaseException
      */
-    public static function queryError(string $method, string $message) : DatabaseException
+    public static function queryError(string $method, string $message) : self
     {
         return new self($method, $message, 1002);
     }
@@ -34,7 +35,7 @@ class DatabaseException extends \ComelyException
      * @param string $message
      * @return DatabaseException
      */
-    public static function pdoError(string $message) : DatabaseException
+    public static function pdoError(string $message) : self
     {
         return new self(self::$componentId, $message, 1003);
     }

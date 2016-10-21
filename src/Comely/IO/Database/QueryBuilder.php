@@ -9,13 +9,21 @@ namespace Comely\IO\Database;
  */
 class QueryBuilder
 {
+    /** @var string */
     public $tableName;
+    /** @var string */
     public $whereClause;
+    /** @var string */
     public $selectColumns;
+    /** @var bool */
     public $selectLock;
+    /** @var string */
     public $selectOrder;
+    /** @var int|null */
     public $selectStart;
+    /** @var int|null */
     public $selectLimit;
+    /** @var array */
     public $queryData;
 
     /**
@@ -23,14 +31,13 @@ class QueryBuilder
      */
     public function __construct()
     {
-        // Bootstrap
-        $this->resetQuery();
+        $this->reset();
     }
 
     /**
      * Reset QueryBuilder
      */
-    public function resetQuery()
+    public function reset()
     {
         $this->tableName	=	"";
         $this->whereClause	=	"1";

@@ -1,12 +1,13 @@
 <?php
+declare(strict_types=1);
 
-namespace Comely\IO\Database\Sample;
+namespace Comely\IO\Database\Prototype;
 
 use Comely\IO\Database\Fluent;
 
 /**
- * Sample Fluent Model
- * @package Comely\IO\Database\Sample
+ * Class Model
+ * @package Comely\IO\Database\Prototype
  */
 class Model extends Fluent
 {
@@ -26,7 +27,9 @@ class Model extends Fluent
      * NOTE: Properties must be defined in camelCase, since Fluent automatically converts snake_case column names to
      * camelCase
      */
-    public $var1, $var2, $var3;
+    public $var1;
+    public $var2;
+    public $var3;
 
     /**
      * This method is called automatically after a model is populated by AbstractTable::findBy[col*] methods.

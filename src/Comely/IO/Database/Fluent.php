@@ -14,8 +14,11 @@ use Comely\IO\Database\Schema\AbstractTable;
  */
 abstract class Fluent
 {
+    /** @var string */
     private $modelName;
+    /** @var AbstractTable */
     private $schemaTable;
+    /** @var array */
     private $private;
 
     /**
@@ -38,21 +41,23 @@ abstract class Fluent
             throw FluentException::initConstant("SCHEMA_TABLE", $this->modelName);
         }
 
+        $modelSchemaTable   =   constant("static::SCHEMA_TABLE");
+
         // Check if $table is provided for cross-checking
         if(!is_null($table)) {
             // Cross-check $table with model's SCHEMA_TABLE
-            if($table   !== static::SCHEMA_TABLE) {
+            if($table   !== $modelSchemaTable) {
                 // On fail, Cross-check if $table has SCHEMA_TABLE constant and that matches
                 $tableConstant  =   sprintf("%s::SCHEMA_TABLE", $table);
-                if(!defined($tableConstant) ||  constant($tableConstant)    !==    static::SCHEMA_TABLE) {
+                if(!defined($tableConstant) ||  constant($tableConstant)    !== $modelSchemaTable) {
                     // Model and table are NOT related
-                    throw FluentException::tableModelMismatch($this->modelName, static::SCHEMA_TABLE, $table);
+                    throw FluentException::tableModelMismatch($this->modelName, $modelSchemaTable, $table);
                 }
             }
         }
 
         // Save AbstractTable instance
-        $this->schemaTable    =   Schema::table(static::SCHEMA_TABLE);
+        $this->schemaTable    =   Schema::table($modelSchemaTable);
 
         // Bootstrap data mapping
         $this->private  =   [];
@@ -128,7 +133,7 @@ abstract class Fluent
             if($column->scalarType  !== gettype($value)) {
                 // Check if value type is NULL and column is nullable
                 if(gettype($value)  === "NULL"  &&  array_key_exists("nullable", $column->attributes)) {
-                    // Column is NULLable
+                    // Column is nullable
                 } else {
                     // Data type of value doesn't match with column's
                     throw FluentException::badColumnValue($this->modelName, $name, $column->scalarType, gettype($value));
@@ -169,7 +174,7 @@ abstract class Fluent
             if($column->scalarType  !== gettype($value)) {
                 // Check if value type is NULL and column is nullable
                 if(gettype($value)  === "NULL"  &&  array_key_exists("nullable", $column->attributes)) {
-                    // Column is NULLable
+                    // Column is nullable
                 } else {
                     // Data type of value doesn't match with column's
                     throw FluentException::badColumnValue($this->modelName, $name, $column->scalarType, gettype($value));
@@ -197,7 +202,7 @@ abstract class Fluent
      * @param string $name
      * @return bool
      */
-    final public function hasPrivate(string $name)
+    final public function hasPrivate(string $name) : bool
     {
         return array_key_exists($name, $this->private);
     }
@@ -241,7 +246,7 @@ abstract class Fluent
                 if($column->scalarType  !== gettype($value)) {
                     // Check if value type is NULL and column is nullable
                     if(gettype($value)  === "NULL"  &&  array_key_exists("nullable", $column->attributes)) {
-                        // Column is NULLable
+                        // Column is nullable
                     } else {
                         // Data type of value doesn't match with column's
                         throw FluentException::badColumnValue($this->modelName, $columnKey, $column->scalarType, gettype($value));
@@ -287,7 +292,7 @@ abstract class Fluent
      * This method will not check if any UNIQUE KEYs were defined. If a table does not have any UNIQUE KEY defined,
      * this method will insert a new row each time. If no rows were affected/inserted but query was successful, this
      * method will throw exception.
-     * 
+     *
      * @param callable|null $callback
      * @return bool
      * @throws FluentException
@@ -296,6 +301,9 @@ abstract class Fluent
     {
         // Iterate through each column in row and prepare query
         $values =   [];
+        $insertKeys =   [];
+        $insertValues   =   [];
+        $updateKeys =   [];
         $row    =   $this->getRow();
         foreach($row as $key => $value) {
             // Statement pieces
@@ -314,6 +322,7 @@ abstract class Fluent
         $updateKeys =   implode(", ", $updateKeys);
 
         // Prepare query
+        /** @var $schemaTable Prototype\Table */
         $schemaTable    =   $this->schemaTable;
         $schemaDb   =   $schemaTable->getDb();
 
@@ -341,7 +350,7 @@ abstract class Fluent
 
         // Table was affected?
         if(!in_array($schemaDb->lastQuery->rows, [1,2])) {
-            throw FluentException::arQueryError(__METHOD__, 'Row wasn\'t inserted or updated');
+            throw FluentException::arQueryError(__METHOD__, 'Row was not inserted or updated');
         }
 
         // If callback function is callable
@@ -370,6 +379,8 @@ abstract class Fluent
     {
         // Iterate through each column in row and prepare query
         $values =   [];
+        $insertKeys =   [];
+        $insertValues   =   [];
         $row    =   $this->getRow();
         foreach($row as $key => $value) {
             // Statement pieces
@@ -383,6 +394,7 @@ abstract class Fluent
         $insertValues =   implode(", ", $insertValues);
 
         // Prepare query
+        /** @var $schemaTable Prototype\Table */
         $schemaTable    =   $this->schemaTable;
         $schemaDb   =   $schemaTable->getDb();
         $query  =   sprintf(
@@ -415,7 +427,7 @@ abstract class Fluent
     /**
      * Update Row
      *
-     * Row in table is identified with primaryKey set for AbstractTable. If table hasn't defined primaryKey, or
+     * Row in table is identified with primaryKey set for AbstractTable. If table has not defined primaryKey, or
      * primaryKey value is not set in model then an exception will be thrown. If query was successful but no rows were
      * affected then exception will be thrown as well.
      *
@@ -429,6 +441,7 @@ abstract class Fluent
      */
     final public function update(callable $callback = null) : bool
     {
+        /** @var $schemaTable Prototype\Table */
         $schemaTable    =   $this->schemaTable;
         $schemaDb   =   $schemaTable->getDb();
 
@@ -448,6 +461,7 @@ abstract class Fluent
 
         // Iterate through each column in row and prepare query
         $values =   [];
+        $updateKeys =   [];
         $row    =   $this->getRow();
         foreach($row as $key => $value) {
             // Statement pieces
@@ -494,7 +508,7 @@ abstract class Fluent
     /**
      * Delete Row
      *
-     * Row in table is identified with primaryKey set for AbstractTable. If table hasn't defined primaryKey, or
+     * Row in table is identified with primaryKey set for AbstractTable. If table has not defined primaryKey, or
      * primaryKey value is not set in model then an exception will be thrown. If query was successful but no rows were
      * affected then exception will be thrown as well.
      *
@@ -508,6 +522,7 @@ abstract class Fluent
      */
     final public function delete(callable $callback = null) : bool
     {
+        /** @var $schemaTable Prototype\Table */
         $schemaTable    =   $this->schemaTable;
         $schemaDb   =   $schemaTable->getDb();
 

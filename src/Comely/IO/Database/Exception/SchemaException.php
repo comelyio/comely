@@ -11,12 +11,13 @@ use Comely\IO\Database\DatabaseException;
  */
 class SchemaException extends DatabaseException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\Database\\Schema";
 
     /**
      * @return SchemaException
      */
-    public static function badIntegerSize() : SchemaException
+    public static function badIntegerSize() : self
     {
         return new self(
             self::$componentId,
@@ -30,7 +31,7 @@ class SchemaException extends DatabaseException
      * @param string $flagSet
      * @return SchemaException
      */
-    public static function badFlag(string $column, string $flagSet) : SchemaException
+    public static function badFlag(string $column, string $flagSet) : self
     {
         return new self(
             self::$componentId,
@@ -48,7 +49,7 @@ class SchemaException extends DatabaseException
      * @param string $colType
      * @return SchemaException
      */
-    public static function badDefaultValue(string $badType, string $colType) : SchemaException
+    public static function badDefaultValue(string $badType, string $colType) : self
     {
         return new self(
             self::$componentId,
@@ -67,12 +68,12 @@ class SchemaException extends DatabaseException
      * @param string $dbDriver
      * @return SchemaException
      */
-    public static function unSupportedColumn(string $colName, string $colType, string $dbDriver) : SchemaException
+    public static function unSupportedColumn(string $colName, string $colType, string $dbDriver) : self
     {
         return new self(
             self::$componentId,
             sprintf(
-                'Database driver "%1$s" doesn\'t support column type "%2$s" for column "%3$s"',
+                'Database driver "%1$s" does not support column type "%2$s" for column "%3$s"',
                 strtoupper($dbDriver),
                 strtoupper($colType),
                 $colName
@@ -85,7 +86,7 @@ class SchemaException extends DatabaseException
      * @param string $error
      * @return SchemaException
      */
-    public static function columnParseError(string $error) : SchemaException
+    public static function columnParseError(string $error) : self
     {
         return new self(self::$componentId, $error, 1205);
     }
@@ -97,7 +98,7 @@ class SchemaException extends DatabaseException
      * @param string $given
      * @return SchemaException
      */
-    public static function badArgType(string $method, int $index, string $expected, string $given) : SchemaException
+    public static function badArgType(string $method, int $index, string $expected, string $given) : self
     {
         return new self(
             $method,
@@ -115,7 +116,7 @@ class SchemaException extends DatabaseException
      * @param string $table
      * @return SchemaException
      */
-    public static function tableNotFound(string $table) : SchemaException
+    public static function tableNotFound(string $table) : self
     {
         return new self(self::$componentId, sprintf('Table "%1$s" not found', $table), 1207);
     }
@@ -124,7 +125,7 @@ class SchemaException extends DatabaseException
      * @param string $const
      * @return SchemaException
      */
-    public static function tableInitConstant(string $const) : SchemaException
+    public static function tableInitConstant(string $const) : self
     {
         return new self(self::$componentId, sprintf('Table must defined "%1$s" constant', $const), 1208);
     }
@@ -134,7 +135,7 @@ class SchemaException extends DatabaseException
      * @param string $model
      * @return SchemaException
      */
-    public static function badModel(string $table, string $model) : SchemaException
+    public static function badModel(string $table, string $model) : self
     {
         return new self(
             self::$componentId,
@@ -151,7 +152,7 @@ class SchemaException extends DatabaseException
      * @param string $name
      * @return SchemaException
      */
-    public static function badColumnName(string $name) : SchemaException
+    public static function badColumnName(string $name) : self
     {
         return new self(
             self::$componentId,
@@ -167,7 +168,7 @@ class SchemaException extends DatabaseException
      * @param string $method
      * @return SchemaException
      */
-    public static function undefinedMethod(string $method) : SchemaException
+    public static function undefinedMethod(string $method) : self
     {
         return new self(self::$componentId, sprintf('Calling undefined method "%1$s"', $method), 1211);
     }
@@ -177,7 +178,7 @@ class SchemaException extends DatabaseException
      * @param string $table
      * @return SchemaException
      */
-    public static function undefinedColumn(string $column, string $table) : SchemaException
+    public static function undefinedColumn(string $column, string $table) : self
     {
         return new self(
             self::$componentId,

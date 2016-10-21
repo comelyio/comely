@@ -60,14 +60,14 @@ abstract class AbstractTable implements Constants
 
         // Set table's name
         $this->tableId  =   get_called_class();
-        $this->tableName    =   static::SCHEMA_TABLE;
+        $this->tableName    =   constant("static::SCHEMA_TABLE");
         $this->tableEngine  =   "InnoDB";
 
         // Check if SCHEMA_MODEL is not NULL and it is an existing class
-        if(!is_null(static::SCHEMA_MODEL)) {
-            $modelClass =   strval(static::SCHEMA_MODEL);
-            if(!class_exists($modelClass)) {
-                throw SchemaException::badModel($this->tableId, $modelClass);
+        $fluentModel    =   constant("static::SCHEMA_MODEL");
+        if(is_string($fluentModel)) {
+            if(!class_exists($fluentModel)) {
+                throw SchemaException::badModel($this->tableId, $fluentModel);
             }
         }
 
@@ -96,7 +96,7 @@ abstract class AbstractTable implements Constants
         $builder    =   TableBuilder::getInstance();
 
         // Set schemaTable and return buildQuery
-        return $builder->setTable($this)->buildQuery();
+        return $builder->setTable($this)->buildQuery($dropExisting);
     }
 
     /**
@@ -185,10 +185,20 @@ abstract class AbstractTable implements Constants
      * @param $name
      * @param $arguments
      * @throws SchemaException
-     * @return object
+     * @return object|bool|array
      */
     final public static function __callStatic($name, $arguments)
     {
+        // Check if necessary constants are defined
+        if(!defined("static::SCHEMA_TABLE")) {
+            throw SchemaException::tableInitConstant("SCHEMA_TABLE");
+        } elseif(!defined("static::SCHEMA_MODEL")) {
+            throw SchemaException::tableInitConstant("SCHEMA_MODEL");
+        }
+
+        $tableNameConstant  =   constant("static::SCHEMA_TABLE");
+        $modelNameConstant  =   constant("static::SCHEMA_MODEL");
+
         // Check if calling findBy* method
         if(substr($name, 0, 6)  === "findBy") {
             $findBy =   substr($name, 6);
@@ -217,7 +227,7 @@ abstract class AbstractTable implements Constants
             // SELECT query
             $findQuery  =   sprintf(
                 'SELECT * FROM `%1$s` WHERE `%2$s`=? LIMIT %3$s',
-                static::SCHEMA_TABLE,
+                $tableNameConstant,
                 $findBy,
                 $findLimit
             );
@@ -242,7 +252,7 @@ abstract class AbstractTable implements Constants
             }
 
             // Check if SCHEMA_MODEL constant is set
-            $modelClass  =   static::SCHEMA_MODEL;
+            $modelClass  =   $modelNameConstant;
             $callbackArgs  =   Schema::getCallbackArgs();
             if(!is_null($modelClass)) {
                 if($findLimit   === 1) {
@@ -278,6 +288,7 @@ abstract class AbstractTable implements Constants
 
         // Throw undefined method exception
         throw SchemaException::undefinedMethod($name);
+
     }
 
     /**
