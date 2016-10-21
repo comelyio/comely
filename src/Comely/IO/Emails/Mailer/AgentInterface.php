@@ -11,5 +11,10 @@ use Comely\IO\Emails\Message;
  */
 interface AgentInterface
 {
+    /**
+     * @param Message $message
+     * @param array $emails
+     * @return int
+     */
     public function send(Message $message, array $emails) : int;
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Comely\IO\Emails;
 
 use Comely\IO\Emails\Mailer\AgentInterface;
-use Comely\IO\Emails\Exception\MailerException;
 use Comely\IO\Emails\Mailer\Sendmail;
 
 /**

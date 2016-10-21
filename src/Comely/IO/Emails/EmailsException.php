@@ -9,6 +9,7 @@ namespace Comely\IO\Emails;
  */
 class EmailsException extends \ComelyException
 {
+    /** @var string */
     protected static $componentId   =   __NAMESPACE__;
 
     /**

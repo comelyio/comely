@@ -5,7 +5,6 @@ namespace Comely\IO\Emails\Message;
 
 use Comely\IO\Emails\Exception\MessageException;
 
-
 /**
  * Class Attachment
  * @package Comely\IO\Emails\Message

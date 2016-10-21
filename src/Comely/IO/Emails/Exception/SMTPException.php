@@ -9,6 +9,7 @@ namespace Comely\IO\Emails\Exception;
  */
 class SMTPException extends MailerException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\Emails\\Mailer\\SMTP";
 
     /**

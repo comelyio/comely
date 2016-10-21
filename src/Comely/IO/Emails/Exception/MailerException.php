@@ -11,5 +11,6 @@ use Comely\IO\Emails\EmailsException;
  */
 class MailerException extends EmailsException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\Emails\\Mailer";
 }

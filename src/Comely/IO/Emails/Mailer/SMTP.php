@@ -200,7 +200,8 @@ class SMTP implements AgentInterface
                 $this->command("NOOP", null, 250);
             } catch(SMTPException $e) {
                 $this->stream   =   null;
-                return $this->connect();
+                $this->connect();
+                return;
             }
         }
     }
