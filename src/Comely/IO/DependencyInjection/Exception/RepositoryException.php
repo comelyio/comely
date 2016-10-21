@@ -11,6 +11,7 @@ use Comely\IO\DependencyInjection\DependencyInjectionException;
  */
 class RepositoryException extends DependencyInjectionException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\DependencyInjection\\Repository";
 
     /**

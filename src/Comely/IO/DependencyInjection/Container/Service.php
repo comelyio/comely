@@ -12,9 +12,13 @@ use Comely\IO\DependencyInjection\Exception\ContainerException;
  */
 class Service
 {
+    /** @var string */
     private $className;
+    /** @var array */
     private $args;
+    /** @var array */
     private $methods;
+    /** @var array */
     private $properties;
 
     /**
@@ -90,11 +94,12 @@ class Service
 
         // Construct
         $class  =   $this->className;
+        /** @var $instance object */
         $instance   =   new $class(...$constructorArgs);
 
         // Call setter methods
         foreach($this->methods as $method => $di) {
-            if(!is_callable($instance, $method)) {
+            if(!is_callable([$instance, $method])) {
                 // Setter method doesn't exist or isn't publicly callable
                 throw ContainerException::injectMethodNotFound(__METHOD__, $class, $method, $di);
             }

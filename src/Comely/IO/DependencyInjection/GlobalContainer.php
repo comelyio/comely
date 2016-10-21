@@ -11,17 +11,24 @@ namespace Comely\IO\DependencyInjection;
  */
 class GlobalContainer
 {
+    /** @var Container */
     private static $instance;
 
+    /**
+     * @return Container
+     */
     public static function getInstance() : Container
     {
         if(!isset(self::$instance)) {
             self::$instance =   new Container();
         }
 
-        self::$instance;
+        return self::$instance;
     }
 
+    /**
+     * GlobalContainer constructor.
+     */
     private function __construct()
     {
     }

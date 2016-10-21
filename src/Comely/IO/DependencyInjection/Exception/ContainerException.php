@@ -7,10 +7,11 @@ use Comely\IO\DependencyInjection\DependencyInjectionException;
 
 /**
  * Class ContainerException
- * @package Comely\IO\DependencyInjection\Exception.
+ * @package Comely\IO\DependencyInjection\Exception
  */
 class ContainerException extends DependencyInjectionException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\DependencyInjection\\Container";
 
     /**

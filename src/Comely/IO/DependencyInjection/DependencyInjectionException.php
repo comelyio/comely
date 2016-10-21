@@ -9,6 +9,7 @@ namespace Comely\IO\DependencyInjection;
  */
 class DependencyInjectionException extends \ComelyException
 {
+    /** @var string */
     protected static $componentId   =   __NAMESPACE__;
 
     /**
@@ -16,7 +17,7 @@ class DependencyInjectionException extends \ComelyException
      */
     public static function serializeContainer() : self
     {
-        return new self(self::$componentId, "DI containers cannot be Unserialized", 1001);
+        return new self(self::$componentId, "DI containers cannot be Un-serialized", 1001);
     }
 
     /**

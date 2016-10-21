@@ -12,7 +12,9 @@ use Comely\IO\DependencyInjection\Container\Service;
  */
 class Container extends AbstractDI
 {
+    /** @var array */
     private $services;
+    /** @var Repository */
     private $repo;
 
     /**

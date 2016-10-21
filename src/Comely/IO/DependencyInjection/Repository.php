@@ -11,6 +11,7 @@ use Comely\IO\DependencyInjection\Exception\RepositoryException;
  */
 class Repository extends AbstractDI
 {
+    /** @var array */
     private $instances  =   [];
 
     /**
