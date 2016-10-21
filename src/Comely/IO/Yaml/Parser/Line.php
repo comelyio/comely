@@ -8,8 +8,11 @@ namespace Comely\IO\Yaml\Parser;
  * @package Comely\IO\Yaml\Parser
  */
 class Line {
+    /** @var int */
     public $indent;
+    /** @var int */
     public $number;
+    /** @var string */
     public $value;
 
     /**

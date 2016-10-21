@@ -9,5 +9,6 @@ namespace Comely\IO\Yaml;
  */
 class YamlException extends \ComelyException
 {
+    /** @var string */
     protected static $componentId  =   __NAMESPACE__;
 }

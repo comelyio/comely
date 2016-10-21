@@ -14,7 +14,7 @@ class ParseException extends YamlException
     /**
      * @return ParseException
      */
-    public static function badInput() : ParseException
+    public static function badInput() : self
     {
         return new self(self::$componentId, "First argument must be path to a YAML file", 1101);
     }
@@ -23,7 +23,7 @@ class ParseException extends YamlException
      * @param string $file
      * @return ParseException
      */
-    public static function fileNotFound(string $file) : ParseException
+    public static function fileNotFound(string $file) : self
     {
         return new self(
             self::$componentId,
@@ -40,7 +40,7 @@ class ParseException extends YamlException
      * @param string $file
      * @return ParseException
      */
-    public static function badInputUnicode(string $file) : ParseException
+    public static function badInputUnicode(string $file) : self
     {
         return new self(self::$componentId, sprintf('YAML input must be valid UTF-8 in "%1$s"', $file), 1103);
     }
@@ -49,7 +49,7 @@ class ParseException extends YamlException
      * @param string $file
      * @return ParseException
      */
-    public static function badYamlFile(string $file) : ParseException
+    public static function badYamlFile(string $file) : self
     {
         return new self(self::$componentId, sprintf('An error occurred while parsing "%1$s"', $file), 1104);
     }
@@ -60,7 +60,7 @@ class ParseException extends YamlException
      * @param string $error
      * @return ParseException
      */
-    public static function parseError(string $file, int $line, string $error) : ParseException
+    public static function parseError(string $file, int $line, string $error) : self
     {
         return new self(self::$componentId, sprintf('%1$s in "%2$s" on line %3$d', $error, $file, $line), 1105);
     }

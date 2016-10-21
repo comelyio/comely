@@ -14,8 +14,10 @@ class Yaml
 {
     const OUTPUT_ARRAY  =   0;
     const OUTPUT_JSON   =   1;
-    
+
+    /** @var null|Parser */
     private static $parser;
+    /** @var null|Composer */
     private static $composer;
 
     /**
@@ -37,7 +39,7 @@ class Yaml
      * Get instance of Yaml parser
      * @return Parser
      */
-    public static function getParser()
+    public static function getParser() : Parser
     {
         if(!isset(self::$parser)) {
             self::$parser   =   new Parser();

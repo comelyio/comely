@@ -14,7 +14,7 @@ class ComposeException extends YamlException
     /**
      * @return ComposeException
      */
-    public static function badInput() : ComposeException
+    public static function badInput() : self
     {
         return new self(self::$componentId, "First argument must be an input associative Array", 1201);
     }
@@ -22,7 +22,7 @@ class ComposeException extends YamlException
     /**
      * @return ComposeException
      */
-    public static function badOutputFile() : ComposeException
+    public static function badOutputFile() : self
     {
         return new self(self::$componentId, "Argument passed to \$output must be path to a YAML file", 1202);
     }
@@ -31,7 +31,7 @@ class ComposeException extends YamlException
      * @param string $dir
      * @return ComposeException
      */
-    public static function outputDirUnwritable(string $dir) : ComposeException
+    public static function outputDirUnwritable(string $dir) : self
     {
         return new self(self::$componentId, sprintf('Directory "%1$s" is not writable', $dir), 1203);
     }
@@ -39,7 +39,7 @@ class ComposeException extends YamlException
     /**
      * @return ComposeException
      */
-    public static function indentRequired() : ComposeException
+    public static function indentRequired() : self
     {
         return new self(self::$componentId, "Indent must be in range of 2 to 10", 1204);
     }
@@ -47,7 +47,7 @@ class ComposeException extends YamlException
     /**
      * @return ComposeException
      */
-    public static function firstTierNonIntegerKey() : ComposeException
+    public static function firstTierNonIntegerKey() : self
     {
         return new self(self::$componentId, "All array keys must be String in first tier", 1205);
     }
@@ -55,7 +55,7 @@ class ComposeException extends YamlException
     /**
      * @return ComposeException
      */
-    public static function composeFailed() : ComposeException
+    public static function composeFailed() : self
     {
         return new self(self::$componentId, sprintf('YAML composition failed'), 1206);
     }
@@ -64,7 +64,7 @@ class ComposeException extends YamlException
      * @param string $file
      * @return ComposeException
      */
-    public static function writeFailed(string $file) : ComposeException
+    public static function writeFailed(string $file) : self
     {
         return new self(self::$componentId, sprintf('Failed to write "%1$s" in "%2$s"', basename($file), dirname($file) . DIRECTORY_SEPARATOR), 1207);
     }

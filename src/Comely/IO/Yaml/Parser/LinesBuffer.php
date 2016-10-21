@@ -10,11 +10,17 @@ namespace Comely\IO\Yaml\Parser;
  */
 class LinesBuffer
 {
+    /** @var string */
     private $type;
+    /** @var null|string */
     private $key;
+    /** @var int */
     private $indent;
+    /** @var int */
     private $linesOffset;
+    /** @var array */
     private $lines;
+    /** @var null|LinesBuffer */
     private $subBuffer;
 
     /**
@@ -71,7 +77,8 @@ class LinesBuffer
     /**
      * @return bool
      */
-    public function hasKey() : bool {
+    public function hasKey() : bool
+    {
         return (!empty($this->key)) ? true : false;
     }
 

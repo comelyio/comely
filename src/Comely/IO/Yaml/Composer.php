@@ -14,7 +14,9 @@ class Composer
 {
     const EOL  =   "\n";
 
+    /** @var array|null */
     private $input;
+    /** @var int */
     private $indent;
 
     /**

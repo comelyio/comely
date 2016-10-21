@@ -14,23 +14,26 @@ use Comely\IO\Yaml\Parser\Line;
  */
 class Parser
 {
-    private $baseDir;
-
     const EOL   =   "\n";
+
+    /** @var string|null */
+    private $baseDir;
 
     /**
      * @param string $dir
+     * @return Parser
      */
-    public function setBaseDir(string $dir)
+    public function setBaseDir(string $dir) : self
     {
         $this->baseDir  =   rtrim($dir, DIRECTORY_SEPARATOR);
+        return $this;
     }
 
     /**
      * @param string $file
      * @return string
      */
-    private function importPath(string $file)
+    private function importPath(string $file) : string
     {
         return $this->baseDir . DIRECTORY_SEPARATOR . $file;
     }
@@ -54,7 +57,7 @@ class Parser
      */
     private function parseYaml(LinesBuffer $buffer, string $filePath)
     {
-        $dirPath    =   dirname($filePath);
+        //$dirPath    =   dirname($filePath);
         $bufferLines  =   $buffer->getBufferedData();
         $line   =   new Line($buffer->getLinesOffset());
         $parsed =   [];
@@ -146,6 +149,7 @@ class Parser
                             $value   =   $this->parseValue(trim(substr($line->value, 1)));
                         } catch(ParseException $e) {
                             $this->parseError($e->getMessage(), $filePath, $line->number);
+                            $value  =   null; // Script won't reach this, added for sake of IDE
                         }
 
                         // Check for special cases
