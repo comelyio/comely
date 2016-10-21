@@ -109,7 +109,7 @@ class Router
     public function addRoute(string $path, string $controller) : self
     {
         // Filter path
-        $path   =   $this->filterPath($path, "[]+.-_\\*");
+        $path   =   $this->filterPath($path, "[]+.-?_\\*");
         if(!$path) {
             throw RouterException::badRoutingPath(__METHOD__, $path);
         }
@@ -213,7 +213,7 @@ class Router
     private function filterPath(string $path, string $extra = "") : string
     {
         // Filter path
-        $path   =   explode("?", strtolower($path))[0];
+        //$path   =   explode("?", strtolower($path))[0];
         $path   =   trim(Strings::filter($path, "ad", false, "/-_" . $extra), "\\/");
         return ($path) ?  $path : "/";
     }
