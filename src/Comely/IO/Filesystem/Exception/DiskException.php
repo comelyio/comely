@@ -11,13 +11,14 @@ use Comely\IO\Filesystem\FilesystemException;
  */
 class DiskException extends FilesystemException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\Filesystem\\Disk";
 
     /**
      * @param string $message
      * @return DiskException
      */
-    public static function diskInit(string $message) : DiskException
+    public static function diskInit(string $message) : self
     {
         return new self(self::$componentId, $message, 1101);
     }
@@ -27,7 +28,7 @@ class DiskException extends FilesystemException
      * @param string $message
      * @return DiskException
      */
-    public static function invalidPath(string $method, string $message) : DiskException
+    public static function invalidPath(string $method, string $message) : self
     {
         return new self($method, $message, 1102);
     }
@@ -36,7 +37,7 @@ class DiskException extends FilesystemException
      * @param string $method
      * @return DiskException
      */
-    public static function readError(string $method) : DiskException
+    public static function readError(string $method) : self
     {
         return new self($method, "Disk instance doesn't have reading privilege", 1103);
     }
@@ -45,7 +46,7 @@ class DiskException extends FilesystemException
      * @param string $method
      * @return DiskException
      */
-    public static function writeError(string $method) : DiskException
+    public static function writeError(string $method) : self
     {
         return new self($method, "Disk instance doesn't have writing privilege", 1104);
     }
@@ -55,7 +56,7 @@ class DiskException extends FilesystemException
      * @param string $message
      * @return DiskException
      */
-    public static function fsError(string $method, string $message) : DiskException
+    public static function fsError(string $method, string $message) : self
     {
         return new self($method, $message, 1105);
     }

@@ -17,8 +17,11 @@ class Disk
     const WRITE_FLOCK  =   2;
     const OVERRIDE_TARGET = 4;
 
+    /** @var string */
     private $path;
+    /** @var bool */
     private $privilegeRead;
+    /** @var bool */
     private $privilegeWrite;
 
     /**
