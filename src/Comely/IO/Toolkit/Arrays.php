@@ -16,7 +16,7 @@ class Arrays
      * @param array $keys
      * @return bool
      */
-    public static function hasKeys(array $array, array $keys)
+    public static function hasKeys(array $array, array $keys) : bool
     {
         // Iterate through keys
         foreach($keys as $key) {

@@ -11,6 +11,7 @@ use Comely\IO\Toolkit\ToolkitException;
  */
 class ParserException extends ToolkitException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\Toolkit\\Parser";
 
     /**

@@ -12,7 +12,9 @@ use Comely\IO\Toolkit\Parser\Modifiers;
  */
 class Parser
 {
+    /** @var self */
     private static $instance;
+    /** @var Modifiers */
     private $modifiers;
 
     /**
@@ -39,7 +41,7 @@ class Parser
      * @return string
      * @throws ParserException
      */
-    public function parse(string $str, $data)
+    public function parse(string $str, $data) : string
     {
         if(is_object($data)) {
             // Convert object to array

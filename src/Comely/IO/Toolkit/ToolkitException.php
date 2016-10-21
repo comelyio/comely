@@ -9,5 +9,6 @@ namespace Comely\IO\Toolkit;
  */
 class ToolkitException extends \ComelyException
 {
+    /** @var string */
     protected static $componentId   =   __NAMESPACE__;
 }
