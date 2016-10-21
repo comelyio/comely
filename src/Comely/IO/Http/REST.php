@@ -13,7 +13,11 @@ use Comely\IO\Toolkit\Strings;
  */
 class REST
 {
-    public static function parseRequest(callable $callback = null)
+    /**
+     * @param callable|null $callback
+     * @return Request
+     */
+    public static function parseRequest(callable $callback = null) : Request
     {
         // HTTP Request Information
         $httpMethod =   $_SERVER["REQUEST_METHOD"] ?? "";
@@ -104,7 +108,7 @@ class REST
      * @param string $encoding
      * @return array
      */
-    public static function filterData(array $data, string $encoding = "ascii")
+    public static function filterData(array $data, string $encoding = "ascii") : array
     {
         foreach($data as $key => $value) {
             if(is_string($value)) {

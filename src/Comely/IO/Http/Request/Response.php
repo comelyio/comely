@@ -12,9 +12,13 @@ use Comely\IO\Http\Request;
  */
 class Response implements \Countable
 {
+    /** @var int */
     private $count;
+    /** @var array */
     private $data;
+    /** @var null|string */
     private $format;
+    /** @var Request */
     private $request;
 
     /**

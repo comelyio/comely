@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Comely\IO\Http\Controllers;
+namespace Comely\IO\Http\Controllers\Prototype;
 
+use Comely\IO\Http\Controllers\ControllerInterface;
 use Comely\IO\Http\Request;
 
 /**
@@ -13,23 +14,29 @@ abstract class AbstractRestController implements ControllerInterface
 {
     const REST_METHOD_PARAM =   "action";
 
+    /** @var ControllerInterface */
     protected $controller;
+    /** @var  Request\Input */
     protected $input;
+    /** @var  string */
     protected $method;
+    /** @var Request */
     protected $request;
+    /** @var Request\Response */
     protected $response;
 
     /**
      * @param Request $request
+     * @param Request\Response $response
      */
-    public function init(Request $request)
+    public function init(Request $request, Request\Response $response)
     {
         // Save all request related information
         $this->request  =   $request;
         $this->controller   =   $request->getController();
         $this->input    =   $request->getInput();
         $this->method   =   $request->getMethod();
-        $this->response =   $request->getResponse();
+        $this->response =   $response;
 
         // Get input params
         $params  =   $this->input->getData();

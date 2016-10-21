@@ -9,7 +9,9 @@ namespace Comely\IO\Http\Request;
  */
 class Input
 {
+    /** @var array */
     private $data;
+    /** @var array */
     private $headers;
 
     /**
@@ -20,7 +22,7 @@ class Input
     public function __construct(array $data, array $headers)
     {
         $this->data =   $data;
-        $this->headers  =   [];
+        $this->headers  =   $headers;
     }
 
     /**

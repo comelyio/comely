@@ -11,6 +11,7 @@ use Comely\IO\Http\HttpException;
  */
 class RequestException extends HttpException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\Http\\Request";
 
     /**

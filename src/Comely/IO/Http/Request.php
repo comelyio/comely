@@ -14,10 +14,15 @@ use Comely\IO\Http\Request\Response;
  */
 class Request
 {
+    /** @var ControllerInterface */
     private $controller;
+    /** @var Input */
     private $input;
+    /** @var string */
     private $method;
+    /** @var Response */
     private $response;
+    /** @var array */
     private $uri;
 
     /**

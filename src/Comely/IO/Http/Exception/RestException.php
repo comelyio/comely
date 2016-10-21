@@ -5,8 +5,13 @@ namespace Comely\IO\Http\Exception;
 
 use Comely\IO\Http\HttpException;
 
+/**
+ * Class RestException
+ * @package Comely\IO\Http\Exception
+ */
 class RestException extends HttpException
 {
+    /** @var string */
     protected static $componentId   =   "Comely\\IO\\Http\\REST";
 
     /**

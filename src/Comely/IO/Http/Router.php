@@ -13,13 +13,20 @@ use Comely\IO\Toolkit\Strings;
  */
 class Router
 {
+    /** @var self */
     private static $instance;
 
+    /** @var string */
     private $controllersPath;
+    /** @var string */
     private $controllersNamespace;
+    /** @var array */
     private $controllersArgs;
+    /** @var null|string */
     private $defaultController;
+    /** @var array */
     private $ignorePathIndexes;
+    /** @var array */
     private $routes;
 
     /**
