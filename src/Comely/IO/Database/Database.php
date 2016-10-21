@@ -50,6 +50,7 @@ class Database extends AbstractPdo
     ) {
         $this->config   =   new Config();
         $this->queryBuilder =   new QueryBuilder();
+        $this->lastQuery    =   new LastQuery();
         $this->errors   =   [];
 
         // Check if PDO extension is loaded, we need PDO
