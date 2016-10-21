@@ -236,6 +236,6 @@ class Message
      */
     private function checkBodyEncoding(string $body) : array
     {
-        return preg_match('/[\x80-\xFF]/', $body) ? ["utf-8", "8Bit"] : ["us-ascii", "7Bit"];
+        return preg_match("/[\x80-\xFF]/", $body) ? ["utf-8", "8Bit"] : ["us-ascii", "7Bit"];
     }
 }
