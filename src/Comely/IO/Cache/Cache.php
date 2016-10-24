@@ -18,15 +18,20 @@ class Cache
     const ENGINE_DETERMINE  =   1;
     const ENGINE_MEMCACHED  =   2;
     const ENGINE_REDIS  =   4;
+    const ENGINE_MEMCACHE   =   8;
 
     /** @var EngineInterface */
     private $engine;
+    /** @var bool */
+    private $silentMode;
+    /** @var string */
+    private $lastError;
     /** @var array */
     private $servers;
     /** @var int */
-    private $timeOut;
-    /** @var int */
     private $stringEncodeLength;
+    /** @var int */
+    private $timeOut;
 
     /**
      * Cache constructor.
@@ -36,6 +41,8 @@ class Cache
         $this->servers  =   [];
         $this->timeOut  =   1;
         $this->stringEncodeLength   =   100;
+        $this->silentMode   =   true;
+        $this->lastError    =   "";
     }
 
     /**
@@ -43,7 +50,7 @@ class Cache
      */
     public function __destruct()
     {
-        $this->engine->disconnect();
+        //$this->engine->disconnect();
     }
 
     /**
@@ -142,6 +149,14 @@ class Cache
     }
 
     /**
+     * @return string
+     */
+    public function lastError() : string
+    {
+        return $this->lastError;
+    }
+
+    /**
      * Engine Operations
      */
 
@@ -154,42 +169,53 @@ class Cache
      */
     public function set(string $key, $value, int $expire = 0) : bool
     {
-        if(!$this->isConnected()) {
-            throw CacheException::connectionNotEstablished(__METHOD__);
-        }
+        try {
+            $this->lastError    =   "";
+            if(!$this->isConnected()) {
+                throw CacheException::connectionNotEstablished(__METHOD__);
+            }
 
-        // Get type of value being stored
-        $valueType  =   gettype($value);
+            // Get type of value being stored
+            $valueType  =   gettype($value);
 
-        // Convert evil floats to String
-        if($valueType   === "double") {
-            $value  =   strval($value);
-            $valueType  =   "string";
-        }
+            // Convert evil floats to String
+            if($valueType   === "double") {
+                $value  =   strval($value);
+                $valueType  =   "string";
+            }
 
-        if(!in_array($valueType, ["boolean", "integer", "string", "array", "object", "NULL"])) {
-            throw CacheException::unstorableType(__METHOD__, $key, $valueType);
-        }
+            if(!in_array($valueType, ["boolean", "integer", "string", "array", "object", "NULL"])) {
+                throw CacheException::unstorableType(__METHOD__, $key, $valueType);
+            }
 
-        switch ($valueType) {
-            case "string":
-                if(strlen($value)   >=  $this->stringEncodeLength) {
+            switch ($valueType) {
+                case "string":
+                    if(strlen($value)   >=  $this->stringEncodeLength) {
+                        $value  =   $this->encode($value);
+                    }
+                    break;
+                case "array":
+                case "object":
                     $value  =   $this->encode($value);
-                }
-                break;
-            case "array":
-            case "object":
-                $value  =   $this->encode($value);
-                break;
-            case "NULL":
-            case "boolean":
-                if($this->engine instanceof Redis) {
-                    $value  =   $this->encode($value);
-                }
-                break;
-        }
+                    break;
+                case "NULL":
+                case "integer": // Todo: Change to IncrBy instead of encoding as Profile
+                case "boolean":
+                    if($this->engine instanceof Redis) {
+                        $value  =   $this->encode($value);
+                    }
+                    break;
+            }
 
-        return $this->engine->set($key, $value, $expire);
+            return $this->engine->set($key, $value, $expire);
+        } catch (CacheException $e) {
+            $this->lastError    =   $e->getMessage();
+            if(!$this->silentMode) {
+                throw $e;
+            }
+
+            return false;
+        }
     }
 
     /**
@@ -199,16 +225,51 @@ class Cache
      */
     public function get(string $key)
     {
-        if(!$this->isConnected()) {
-            throw CacheException::connectionNotEstablished(__METHOD__);
-        }
+        try {
+            $this->lastError    =   "";
+            if(!$this->isConnected()) {
+                throw CacheException::connectionNotEstablished(__METHOD__);
+            }
 
-        $value  =   $this->engine->get($key);
-        if(is_string($value)    &&  strlen($value)  >=  $this->stringEncodeLength) {
-            $value  =   $this->decode($value);
-        }
+            $value  =   $this->engine->get($key);
+            if(is_string($value)    &&  strlen($value)  >=  $this->stringEncodeLength) {
+                $value  =   $this->decode($value);
+            }
 
-        return $value;
+            return $value;
+        } catch (CacheException $e) {
+            $this->lastError    =   $e->getMessage();
+            if(!$this->silentMode) {
+                throw $e;
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * @return array
+     * @throws CacheException
+     */
+    public function getAllKeys() : array
+    {
+        try {
+            $this->lastError    =   "";
+            if(!$this->isConnected()) {
+                throw CacheException::connectionNotEstablished(__METHOD__);
+            }
+
+            // Todo: Implement
+
+            return [];
+        } catch (CacheException $e) {
+            $this->lastError    =   $e->getMessage();
+            if(!$this->silentMode) {
+                throw $e;
+            }
+
+            return [];
+        }
     }
 
     /**
@@ -290,6 +351,16 @@ class Cache
 
         $this->stringEncodeLength   =   $bytes;
 
+        return $this;
+    }
+
+    /**
+     * @param bool $trigger
+     * @return Cache
+     */
+    public function silentMode(bool $trigger) : self
+    {
+        $this->silentMode   =   $trigger;
         return $this;
     }
 }

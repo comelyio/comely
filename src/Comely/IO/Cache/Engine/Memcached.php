@@ -105,6 +105,8 @@ class Memcached implements EngineInterface
             }
         }
 
-        return false;
+        return $value;
     }
+
+
 }

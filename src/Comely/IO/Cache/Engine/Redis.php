@@ -162,7 +162,7 @@ class Redis implements EngineInterface
     private function redisResponse()
     {
         // Get response from stream
-        $response   =   @fgets($this->socket);
+        $response   =   fgets($this->socket);
         if($response    === false) {
             throw EngineException::ioError(
                 __CLASS__,
@@ -175,6 +175,7 @@ class Redis implements EngineInterface
         $responseType   =   substr($response, 0, 1);
         $data   =   substr($response, 1);
 
+
         // Check response
         switch ($responseType) {
             case "-": // Error
@@ -185,12 +186,14 @@ class Redis implements EngineInterface
             case ":": // Integer
                 return intval($data);
             case "$": // Bulk String
-                $bytes  =   intval($data[0]);
+                $bytes  =   intval($data);
                 if($bytes   >   0) {
                     $data   =   @stream_get_contents($this->socket, $bytes+2);
                     if($data    === false) {
                         throw EngineException::ioError(__CLASS__, 'Failed to read bulk-string response');
                     }
+
+                    return trim($data);
                 } elseif($bytes === 0) {
                     return ""; // Empty String
                 } elseif($bytes === -1) {
