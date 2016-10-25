@@ -17,7 +17,7 @@ interface EngineInterface
     public function isConnected() : bool;
 
     /**
-     * @return bool
+     * @return EngineInterface
      */
     public function poke() : self;
 

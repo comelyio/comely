@@ -142,6 +142,15 @@ class Cache
     }
 
     /**
+     * Check if still connected to cache engine/server
+     *
+     * This method determines if connection with cache engine/server "seems" alive. This method will not throw
+     * any exception and returns boolean TRUE or FALSE. It is NOT as reliable as self::poke() method.
+     *
+     * Example:
+     * On REDIS server this method will check "timed_out" key from stream's metadata.
+     * On (PECL) Memcached this method will check "pid" from getStats method.
+     *
      * @return bool
      */
     public function isConnected() : bool
@@ -150,20 +159,44 @@ class Cache
     }
 
     /**
+     * Poke cache engine/server
+     *
+     * This method goes an extra mile to check connection status (as opposed to self::isConnected() method).
+     *
+     * Example:
+     * On REDIS self::isConnected() will check "timed_out" key from stream's metadata to determine if connection
+     * is still alive but self::poke() method first internally calls self::isConnected() method and then sends
+     * "PING" command to REDIS server expecting a valid response.
+     *
+     * @param bool $reconnect
      * @return bool
      * @throws CacheException
+     * @throws EngineException
      */
-    public function poke() : bool
+    public function poke(bool $reconnect = false) : bool
     {
         if(!$this->isConnected()) {
             throw CacheException::connectionNotEstablished(__METHOD__);
         }
 
-        $this->engine   =   $this->engine->poke();
+        try {
+            $this->engine   =   $this->engine->poke();
+        } catch (EngineException $e) {
+            if($reconnect) {
+                $this->connect();
+                return true;
+            } else {
+                throw $e;
+            }
+        }
+
         return true;
     }
 
     /**
+     * Retrieve error message associated with last command or an empty String
+     * Included commands: set|get|countUp|countDown|has|delete|flush
+     *
      * @return string
      */
     public function lastError() : string
@@ -242,7 +275,7 @@ class Cache
     /**
      * Retrieve a value with key from cache engine
      *
-     * If key does not exist on cache engine, this method will return NULL.
+     * If key does not exist on cache engine, this method will return NULL (silent mode) or throw an exception
      * If a key has a string value comprised of all digits, it will be returned as an Integer.
      * If a key has a string value that exceeds "stringEncodeLength" in size, will be considered as encoded profile,
      * and decoded before being returned.
