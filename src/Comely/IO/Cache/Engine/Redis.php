@@ -16,7 +16,6 @@ class Redis implements EngineInterface
     private $cache;
     /** @var resource */
     private $socket;
-
     /** @var string */
     private $host;
     /** @var int */
@@ -86,6 +85,29 @@ class Redis implements EngineInterface
     }
 
     /**
+     * @return bool
+     */
+    public function disconnect() : bool
+    {
+        $this->redisCommand("QUIT");
+        return true;
+    }
+
+    /**
+     * @return EngineInterface
+     * @throws EngineException
+     */
+    public function poke() : EngineInterface
+    {
+        $ping   =   $this->redisCommand("PING");
+        if(!is_string($ping)    ||  strtolower($ping)   !== "pong") {
+            throw EngineException::connectionError(__CLASS__, 'Lost connection with Redis server');
+        }
+
+        return $this;
+    }
+
+    /**
      * @param string $key
      * @param $value
      * @param int $expire
@@ -114,6 +136,66 @@ class Redis implements EngineInterface
     {
         $value  =   $this->redisCommand(sprintf('GET %s', $key));
         return $value;
+    }
+
+    /**
+     * @param string $key
+     * @param int $add
+     * @return int
+     * @throws EngineException
+     */
+    public function countUp(string $key, int $add = 1) : int
+    {
+        $exec   =   $this->redisCommand(sprintf('INCRBY %s %d', $key, $add));
+        if(!is_int($exec)) {
+            throw EngineException::ioError(__CLASS__, 'Command "INCRBY" failed');
+        }
+
+        return $exec;
+    }
+
+    /**
+     * @param string $key
+     * @param int $sub
+     * @return int
+     * @throws EngineException
+     */
+    public function countDown(string $key, int $sub = 1) : int
+    {
+        $exec   =   $this->redisCommand(sprintf('DECRBY %s %d', $key, $sub));
+        if(!is_int($exec)) {
+            throw EngineException::ioError(__CLASS__, 'Command "DECRBY" failed');
+        }
+
+        return $exec;
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function has(string $key) : bool
+    {
+        return $this->redisCommand(sprintf('EXISTS %s', $key))  === 1 ? true : false;
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function delete(string $key) : bool
+    {
+        $delete =   $this->redisCommand(sprintf('DEL %s', $key));
+        return $delete  === 1 ?  true : false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function flush() : bool
+    {
+        $this->redisCommand('FLUSHALL');
+        return true;
     }
 
     /**
@@ -174,7 +256,6 @@ class Redis implements EngineInterface
         $response   =   trim($response);
         $responseType   =   substr($response, 0, 1);
         $data   =   substr($response, 1);
-
 
         // Check response
         switch ($responseType) {

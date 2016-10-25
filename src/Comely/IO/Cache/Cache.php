@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Comely\IO\Cache;
 
 use Comely\IO\Cache\Engine\EngineInterface;
-use Comely\IO\Cache\Engine\Memcached;
+use Comely\IO\Cache\Engine\PECL\Memcached;
 use Comely\IO\Cache\Engine\Redis;
 use Comely\IO\Cache\Exception\EngineException;
 use Comely\IO\Toolkit\Numbers;
@@ -16,9 +16,10 @@ use Comely\IO\Toolkit\Numbers;
 class Cache
 {
     const ENGINE_DETERMINE  =   1;
-    const ENGINE_MEMCACHED  =   2;
-    const ENGINE_REDIS  =   4;
-    const ENGINE_MEMCACHE   =   8;
+    const ENGINE_REDIS  =   2;
+    const ENGINE_MEMCACHED  =   8; // Alias to PECL\Memcached
+    const ENGINE_PECL_MEMCACHED =   8;
+
 
     /** @var EngineInterface */
     private $engine;
@@ -50,7 +51,7 @@ class Cache
      */
     public function __destruct()
     {
-        //$this->engine->disconnect();
+        $this->engine->disconnect();
     }
 
     /**
@@ -149,6 +150,20 @@ class Cache
     }
 
     /**
+     * @return bool
+     * @throws CacheException
+     */
+    public function poke() : bool
+    {
+        if(!$this->isConnected()) {
+            throw CacheException::connectionNotEstablished(__METHOD__);
+        }
+
+        $this->engine   =   $this->engine->poke();
+        return true;
+    }
+
+    /**
      * @return string
      */
     public function lastError() : string
@@ -161,6 +176,13 @@ class Cache
      */
 
     /**
+     * Save a key/value on cache engine
+     *
+     * If value is a String that exceeds "stringEncodeLength" in size, this will be encoded before its saved.
+     * Encoding of plain string adds a little overhead which can be avoided by setting an appropriate amount for
+     * "stringEncodeLength" that is neither too big nor too small using "setStringEncodeLength" method. Default value
+     * for "stringEncodeLength" prop. is 100 bytes.
+     *
      * @param string $key
      * @param $value
      * @param int $expire
@@ -199,7 +221,6 @@ class Cache
                     $value  =   $this->encode($value);
                     break;
                 case "NULL":
-                case "integer": // Todo: Change to IncrBy instead of encoding as Profile
                 case "boolean":
                     if($this->engine instanceof Redis) {
                         $value  =   $this->encode($value);
@@ -219,6 +240,13 @@ class Cache
     }
 
     /**
+     * Retrieve a value with key from cache engine
+     *
+     * If key does not exist on cache engine, this method will return NULL.
+     * If a key has a string value comprised of all digits, it will be returned as an Integer.
+     * If a key has a string value that exceeds "stringEncodeLength" in size, will be considered as encoded profile,
+     * and decoded before being returned.
+     *
      * @param string $key
      * @return mixed
      * @throws CacheException
@@ -232,8 +260,77 @@ class Cache
             }
 
             $value  =   $this->engine->get($key);
-            if(is_string($value)    &&  strlen($value)  >=  $this->stringEncodeLength) {
-                $value  =   $this->decode($value);
+            if(is_string($value)) {
+                $value  =   trim($value);
+                if(strlen($value)  >=  $this->stringEncodeLength) {
+                    $value  =   $this->decode($value); // Decode Profile
+                } elseif(preg_match('/^\-?[0-9]+$/', $value)) {
+                    $value  =   intval($value); // Integer
+                }
+            }
+
+            return $value;
+        } catch (CacheException $e) {
+            $this->lastError    =   $e->getMessage();
+            if(!$this->silentMode) {
+                throw $e;
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * Increase value of stored integer
+     *
+     * @param string $key
+     * @param int $add
+     * @return int|bool
+     * @throws CacheException
+     */
+    public function countUp(string $key, int $add = 1)
+    {
+        try {
+            $this->lastError    =   "";
+            if(!$this->isConnected()) {
+                throw CacheException::connectionNotEstablished(__METHOD__);
+            }
+
+            $value  =   $this->engine->countUp($key, $add);
+            return $value;
+        } catch (CacheException $e) {
+            $this->lastError    =   $e->getMessage();
+            if(!$this->silentMode) {
+                throw $e;
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * Decrease value of stored integer
+     *
+     * If value after decrement is lower than 0, value will be set to 0. It will never return or set value to negative
+     * integer (even if cache engine supports it) for consistency across all engines.
+     *
+     * @param string $key
+     * @param int $sub
+     * @return bool|int
+     * @throws CacheException
+     */
+    public function countDown(string $key, int $sub = 1)
+    {
+        try {
+            $this->lastError    =   "";
+            if(!$this->isConnected()) {
+                throw CacheException::connectionNotEstablished(__METHOD__);
+            }
+
+            $value  =   $this->engine->countDown($key, $sub);
+            if($value   <=  0) {
+                $this->engine->set($key, 0);
+                $value  =   0;
             }
 
             return $value;
@@ -248,10 +345,15 @@ class Cache
     }
 
     /**
-     * @return array
+     * Check if key exists on cache engine
+     *
+     * If key is not found on cache engine/server, no exception will be thrown and boolean FALSE will be returned.
+     *
+     * @param string $key
+     * @return bool
      * @throws CacheException
      */
-    public function getAllKeys() : array
+    public function has(string $key) : bool
     {
         try {
             $this->lastError    =   "";
@@ -259,16 +361,70 @@ class Cache
                 throw CacheException::connectionNotEstablished(__METHOD__);
             }
 
-            // Todo: Implement
-
-            return [];
+            $value  =   $this->engine->has($key);
+            return $value;
         } catch (CacheException $e) {
             $this->lastError    =   $e->getMessage();
             if(!$this->silentMode) {
                 throw $e;
             }
 
-            return [];
+            return false;
+        }
+    }
+
+    /**
+     * Deletes a key/value from cache engine
+     *
+     * If key is not found on cache engine/server, no exception will be thrown and boolean FALSE will be returned.
+     *
+     * @param string $key
+     * @return bool
+     * @throws CacheException
+     */
+    public function delete(string $key) : bool
+    {
+        try {
+            $this->lastError    =   "";
+            if(!$this->isConnected()) {
+                throw CacheException::connectionNotEstablished(__METHOD__);
+            }
+
+            $value  =   $this->engine->delete($key);
+            return $value;
+        } catch (CacheException $e) {
+            $this->lastError    =   $e->getMessage();
+            if(!$this->silentMode) {
+                throw $e;
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * Flush all key/value pairs (clear memory)
+     *
+     * @return bool
+     * @throws CacheException
+     */
+    public function flush() : bool
+    {
+        try {
+            $this->lastError    =   "";
+            if(!$this->isConnected()) {
+                throw CacheException::connectionNotEstablished(__METHOD__);
+            }
+
+            $value  =   $this->engine->flush();
+            return $value;
+        } catch (CacheException $e) {
+            $this->lastError    =   $e->getMessage();
+            if(!$this->silentMode) {
+                throw $e;
+            }
+
+            return false;
         }
     }
 

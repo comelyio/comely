@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Comely\IO\Cache\Engine;
+namespace Comely\IO\Cache\Engine\PECL;
 
 use Comely\IO\Cache\Cache;
+use Comely\IO\Cache\Engine\EngineInterface;
 use Comely\IO\Cache\Exception\EngineException;
 
 /**
@@ -16,7 +17,6 @@ class Memcached implements EngineInterface
     private $cache;
     /** @var $memcached */
     private $memcached;
-
     /** @var string */
     private $host;
     /** @var int */
@@ -38,6 +38,8 @@ class Memcached implements EngineInterface
 
         $this->cache  =   $cache;
         $this->memcached    =   new \Memcached();
+        // \Memcached::OPT_BINARY_PROTOCOL is necessary for increment/decrement methods to work as expected
+        $this->memcached->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
         if(!$this->memcached->addServer($host, $port)) {
             throw EngineException::connectionError(
                 __CLASS__,
@@ -71,6 +73,23 @@ class Memcached implements EngineInterface
         }
 
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function disconnect() : bool
+    {
+        return $this->memcached->quit();
+    }
+
+    /**
+     * @return EngineInterface
+     */
+    public function poke() : EngineInterface
+    {
+        // self::isConnected() method already checks that we're connected to server with pid check
+        return $this;
     }
 
     /**
@@ -108,5 +127,67 @@ class Memcached implements EngineInterface
         return $value;
     }
 
+    /**
+     * @param string $key
+     * @param int $add
+     * @return int
+     * @throws EngineException
+     */
+    public function countUp(string $key, int $add = 1) : int
+    {
+        $value  =   $this->memcached->increment($key, $add, $add);
+        if($value   === false   ||  !is_int($value)) {
+            throw EngineException::ioError(__METHOD__, 'Increment operation failed on Memcached server');
+        }
 
+        return $value;
+    }
+
+    /**
+     * @param string $key
+     * @param int $sub
+     * @return int
+     * @throws EngineException
+     */
+    public function countDown(string $key, int $sub = 1) : int
+    {
+        $value  =   $this->memcached->decrement($key, $sub, $sub);
+        if($value   === false   ||  !is_int($value)) {
+            throw EngineException::ioError(__METHOD__, 'Decrement operation failed on Memcached server');
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function has(string $key) : bool
+    {
+        $this->memcached->get($key);
+        return $this->memcached->getResultCode()    === \Memcached::RES_NOTFOUND ? false : true;
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function delete(string $key) : bool
+    {
+        $delete =   $this->memcached->delete($key);
+        return $delete  === true ? true : false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function flush() : bool
+    {
+        if($this->memcached->flush()    === true) {
+            return true;
+        }
+
+        return false;
+    }
 }

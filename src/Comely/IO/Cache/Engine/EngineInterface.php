@@ -19,12 +19,12 @@ interface EngineInterface
     /**
      * @return bool
      */
-    //public function poke() : bool;
+    public function poke() : self;
 
     /**
      * @return bool
      */
-    //public function disconnect() : bool;
+    public function disconnect() : bool;
 
     /**
      * @param string $key
@@ -41,32 +41,33 @@ interface EngineInterface
     public function get(string $key);
 
     /**
-     * @return array
+     * @param string $key
+     * @return bool
      */
-    //public function getAllKeys() : array;
+    public function has(string $key) : bool;
 
     /**
      * @param string $key
      * @param int $add
      * @return int
      */
-    //public function countUp(string $key, int $add = 1) : int;
+    public function countUp(string $key, int $add = 1) : int;
 
     /**
-     * @param string $keu
+     * @param string $key
      * @param int $sub
      * @return int
      */
-    //public function countDown(string $keu, int $sub = 1) : int;
+    public function countDown(string $key, int $sub = 1) : int;
 
     /**
      * @param string $key
      * @return bool
      */
-    //public function delete(string $key) : bool;
+    public function delete(string $key) : bool;
 
     /**
      * @return bool
      */
-    //public function flush() : bool;
+    public function flush() : bool;
 }
