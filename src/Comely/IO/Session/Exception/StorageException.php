@@ -47,8 +47,18 @@ class StorageException extends SessionException
      * @param string $error
      * @return StorageException
      */
-    public static function flushError(string $method, string $error) : self
+    public static function deleteError(string $method, string $error) : self
     {
         return new self($method, $error, 1104);
+    }
+
+    /**
+     * @param string $method
+     * @param string $error
+     * @return StorageException
+     */
+    public static function flushError(string $method, string $error) : self
+    {
+        return new self($method, $error, 1105);
     }
 }

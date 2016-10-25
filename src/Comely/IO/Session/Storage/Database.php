@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Comely\IO\Session\Storage;
 
-use Comely\IO\Database\Schema;
 use Comely\IO\Database\Schema\AbstractTable;
 use Comely\IO\Session\Exception\StorageException;
 
@@ -83,7 +82,7 @@ class Database extends AbstractTable implements StorageInterface
             ->delete();
 
         if($delete  !== 1   ||  $this->db->lastQuery->error !== null) {
-            throw StorageException::writeError(__METHOD__, $this->db->lastQuery->error ?? 'Failed');
+            throw StorageException::deleteError(__METHOD__, $this->db->lastQuery->error ?? 'Failed');
         }
 
         return true;
