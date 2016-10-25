@@ -1,8 +1,7 @@
 {
   "name": "comelyio/comely",
-  "description": "Kernel and IO Components",
-  "minimum-stability": "alpha",
-  "keywords": ["comely", "kernel"],
+  "description": "Comely Components",
+  "keywords": ["comely", "comelyio"],
   "license": "MIT",
   "authors": [
     {
@@ -15,7 +14,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Comely\\IO\\": "src/Comely/IO"
+      "Comely\\IO\\": "src/Comely/IO",
+      "Comely\\Internal\\": "src/Comely/Internal"
     },
     "files": ["src/Comely.php", "src/ComelyException.php"]
   }

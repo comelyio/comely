@@ -7,8 +7,10 @@ declare(strict_types=1);
  */
 class Comely
 {
-    /** Comely version and build */
-    const VERSION   =   "0.1.5-alpha";
+    /** string Comely Version (Major.Minor.Release-Suffix) */
+    const VERSION   =   "1.0.1-RC1";
+    /** int Comely Version (Major * 10000 + Minor * 100 + Release) */
+    const VERSION_ID    =   10001;
 
     /**
      * Converts given string (i.e. snake_case) to PascalCase
