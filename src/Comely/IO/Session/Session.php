@@ -3,12 +3,8 @@ declare(strict_types=1);
 
 namespace Comely\IO\Session;
 
+use Comely\IO\Session\Storage\StorageInterface;
 use ComelyException;
-use Comely\IO\Cache\CacheInterface;
-use Comely\IO\Database\Database;
-use Comely\IO\Database\Schema;
-use Comely\IO\Database\Schema\AbstractTable;
-use Comely\IO\Filesystem\Disk;
 use Comely\IO\Security\Cipher;
 
 /**
@@ -17,7 +13,7 @@ use Comely\IO\Security\Cipher;
  */
 class Session
 {
-    /** @var CacheInterface|AbstractTable|Disk */
+    /** @var StorageInterface */
     private $storage;
     /** @var ComelySession */
     private $session;
@@ -26,34 +22,13 @@ class Session
 
     /**
      * Session constructor.
-     * @param $storage
-     * @throws SessionException;
+     * @param StorageInterface $storage
+     * @throws SessionException
      */
-    public function __construct($storage)
+    public function __construct(StorageInterface $storage)
     {
-        // Determine Storage
-        if($storage instanceof Disk) {
-            // Storing session on Filesystem
-            if("rw" !== $storage->diskPrivileges())  {
-                // Filesystem\Disk instance must have read+write privileges
-                throw SessionException::storageError(
-                    "Filesystem\\Disk",
-                    "Disk instance doesn't have read+write privileges"
-                );
-            }
-        } elseif($storage instanceof Database) {
-            // Storing session on Database
-            Schema::loadTable($storage, "Comely\\IO\\Session\\Database\\Sessions");
-            $storage    =   Schema::table("comely_sessions");
-        } elseif($storage instanceof CacheInterface) {
-            // Storing session on Cache engine
-        } else {
-            throw SessionException::badStorage();
-        }
-
-        // Set Storage
-        $this->config   =   new Config();
-        $this->storage  =   $storage;
+        $this->config   =   new Config(); // Load Config
+        $this->storage  =   $storage; // Set StorageInterface
     }
 
     /**
@@ -65,7 +40,7 @@ class Session
     {
         // Check if session has already been started
         if($this->session instanceof ComelySession) {
-            throw SessionException::sessionAlreadyStarted();
+            throw SessionException::sessionExists();
         }
 
         // Read Session
@@ -108,23 +83,8 @@ class Session
     private function resume(string $id)
     {
         try {
-            if($this->storage instanceof Disk) {
-                // Read session file from Disk
-                $session    =   $this->storage->read($id . ".sess");
-            } elseif($this->storage instanceof AbstractTable) {
-                // Read from database
-                $session    =   call_user_func([$this->storage, "findById"], $id);
-                if(is_array($session)   &&  array_key_exists("payload", $session)) {
-                    $session    =   $session["payload"];
-                }
-            } elseif($this->storage instanceof CacheInterface) {
-                // Todo: Read from cache
-            }
-
-            // Expecting a String from read
-            if(!isset($session)||   !is_string($session)) {
-                throw SessionException::readError("Failed to read session from storage");
-            }
+            // Read from Storage, expect a String
+            $session    =   $this->storage->read($id);
 
             // Cipher Encryption?
             if($this->config->cipher instanceof Cipher) {
@@ -215,7 +175,7 @@ class Session
         try {
             // Make sure we have instance of ComelySession
             if(!$this->session instanceof ComelySession) {
-                throw SessionException::writeError('Cannot find instance of ComelySession for writing');
+                throw SessionException::sessionNotExists(__METHOD__);
             }
 
             // Prepare it for writing
@@ -228,34 +188,7 @@ class Session
             }
 
             // Write in storage
-            if($this->storage instanceof Disk) {
-                // Write to Filesystem
-                $this->storage->write(
-                    $this->session->getId() . ".sess",
-                    $payload,
-                    Disk::WRITE_FLOCK
-                );
-            } elseif($this->storage instanceof AbstractTable) {
-                // Write to Database
-                $db =   $this->storage->getDb();
-                $update =   $db->table($this->storage->getName())
-                    ->find("id=:id", ["id" => $this->session->getId()])
-                    ->update(
-                        [
-                            "payload"   =>  $payload,
-                            "time_stamp"    =>  time()
-                        ]
-                    );
-
-                // Make sure an exception is thrown even if DB instance is in silent mode
-                if(!$update) {
-                    throw SessionException::writeError(
-                        $db->lastQuery->error ?? "Failed to write changes in database"
-                    );
-                }
-            } elseif($this->storage instanceof CacheInterface) {
-                // TODO: Write in cache
-            }
+            $this->storage->write($this->session->getId(), $payload);
         } catch(\Throwable $t) {
             /**
              * Since this method would run at end of execution, its better to trigger an error alongside throwing
@@ -324,16 +257,7 @@ class Session
     private function isUniqueId(string $sessionId) : bool
     {
         try {
-            if($this->storage instanceof Disk) {
-                return $this->storage->isReadable($sessionId . ".sess") ? false : true;
-            } elseif($this->storage instanceof AbstractTable) {
-                $db =   $this->storage->getDb();
-                $row    =   $db->table($this->storage->getName())->select("id")->find("id=?", [$sessionId])->fetchFirst();
-                return is_array($row) ? false : true;
-            } elseif($this->storage instanceof CacheInterface) {
-                // TODO: Implement cache
-                return false;
-            }
+            return $this->storage->has($sessionId) ? false : true;
         } catch(ComelyException $e) {
             // Inspection failed for some reason, Its going to be a judgement call
             // Better return false?
@@ -352,23 +276,7 @@ class Session
     private function delete(string $sessionId, bool $triggerError = false)
     {
         try {
-            if($this->storage instanceof Disk) {
-                $this->storage->delete($sessionId . ".sess");
-            } elseif($this->storage instanceof AbstractTable) {
-                $db =   $this->storage->getDb();
-                $delete    =   $db->table($this->storage->getName())->find("id=?", [$sessionId])->delete();
-
-                // Throw an error even if database is in silent mode
-                if(!$delete) {
-                    throw new SessionException(
-                        __METHOD__,
-                        $db->lastQuery->error ?? "Failed to delete session from database",
-                        1401
-                    );
-                }
-            } elseif($this->storage instanceof CacheInterface) {
-                // TODO: Implement cache
-            }
+            $this->storage->delete($sessionId);
         } catch(ComelyException $e) {
              // Failed to delete session file
             if($triggerError) {

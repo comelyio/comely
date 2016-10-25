@@ -13,49 +13,34 @@ class SessionException extends \ComelyException
     protected static $componentId   =   __NAMESPACE__;
 
     /**
-     * @return SessionException
-     */
-    public static function badStorage() : self
-    {
-        return new self(self::$componentId, "Unacceptable session storage", 1001);
-    }
-
-    /**
-     * @param string $storage
-     * @param string $error
-     * @return SessionException
-     */
-    public static function storageError(string $storage, string $error) : self
-    {
-        return new self(self::$componentId, sprintf('%1$s', $error, $storage), 1002);
-    }
-
-    /**
      * @param string $key
      * @param string $error
      * @return SessionException
      */
     public static function configError(string $key, string $error) : self
     {
-        return new self(self::$componentId, sprintf('Unacceptable setting for "%1$s": %2$s', $key, $error), 1003);
+        return new self(
+            self::$componentId,
+            sprintf('Unacceptable setting for "%1$s": %2$s', $key, $error),
+            1001
+        );
     }
 
     /**
-     * @param string $message
+     * @param string $method
      * @return SessionException
      */
-    public static function readError(string $message) : self
+    public static function sessionNotExists(string $method) : self
     {
-        return new self(self::$componentId, $message, 1004);
+        return new self($method, 'ComelySession instance is not found', 1002);
     }
 
     /**
-     * @param string $message
      * @return SessionException
      */
-    public static function writeError(string $message) : self
+    public static function sessionExists() : self
     {
-        return new self(self::$componentId, $message, 1005);
+        return new self(self::$componentId, "Session was already started", 1003);
     }
 
     /**
@@ -64,13 +49,5 @@ class SessionException extends \ComelyException
     public static function badWakeUp() : self
     {
         return new self(self::$componentId, "Read session data is corrupt", 1006);
-    }
-
-    /**
-     * @return SessionException
-     */
-    public static function sessionAlreadyStarted() : self
-    {
-        return new self(self::$componentId, "Session was already started", 1007);
     }
 }
