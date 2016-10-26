@@ -1,6 +1,6 @@
 {
   "name": "comelyio/comely",
-  "description": "Comely Components",
+  "description": "Comely IO Components",
   "keywords": ["comely", "comelyio"],
   "license": "MIT",
   "authors": [
@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": ">=7.0.6"
+    "php": ">=7.0.0"
   },
   "autoload": {
     "psr-4": {
