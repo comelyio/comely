@@ -51,7 +51,9 @@ class Cache
      */
     public function __destruct()
     {
-        $this->engine->disconnect();
+        if($this->engine instanceof EngineInterface) {
+            $this->engine->disconnect();
+        }
     }
 
     /**
