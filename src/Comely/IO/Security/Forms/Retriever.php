@@ -109,4 +109,15 @@ class Retriever implements \Countable
     {
         return $this->obfuscated;
     }
+
+    /**
+     * @return array
+     */
+    public function getArray() : array
+    {
+        return [
+            "hash"  =>  $this->getHash(),
+            "fields"    =>  $this->obfuscated
+        ];
+    }
 }
