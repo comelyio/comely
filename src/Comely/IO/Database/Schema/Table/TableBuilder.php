@@ -124,18 +124,33 @@ class TableBuilder implements Constants
                 }
             } elseif($column->type    === "string") {
                 // String column type (char|varchar)
-                if($this->dbDriver  === "mysql") {
+                if ($this->dbDriver === "mysql") {
                     // MySQL
                     // Determine if its a CHAR or VARCHAR
-                    $sqlTable   .=  ($column->flag  === self::STR_FIXED) ? "char" : "varchar";
+                    $sqlTable .= ($column->flag === self::STR_FIXED) ? "char" : "varchar";
 
                     // Check if explicit length has been provided
-                    if(array_key_exists("length", $column->attributes)) {
-                        $sqlTable   .=  sprintf("(%d)", $column->attributes["length"]);
+                    if (array_key_exists("length", $column->attributes)) {
+                        $sqlTable .= sprintf("(%d)", $column->attributes["length"]);
                     }
-                } elseif($this->dbDriver    === "sqlite") {
+                } elseif ($this->dbDriver === "sqlite") {
                     // String types in SQLite
-                    $sqlTable   .=  "TEXT";
+                    $sqlTable .= "TEXT";
+                }
+            } elseif($column->type  === "binary") {
+                // String column type (char|varchar)
+                if ($this->dbDriver === "mysql") {
+                    // MySQL
+                    // Determine if its a CHAR or VARCHAR
+                    $sqlTable .= ($column->flag === self::BIN_FIXED) ? "binary" : "varbinary";
+
+                    // Check if explicit length has been provided
+                    if (array_key_exists("length", $column->attributes)) {
+                        $sqlTable .= sprintf("(%d)", $column->attributes["length"]);
+                    }
+                } elseif ($this->dbDriver === "sqlite") {
+                    // String types in SQLite
+                    $sqlTable .= "BLOB";
                 }
             } elseif($column->type    === "text") {
                 // Data type TEXT

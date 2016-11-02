@@ -19,4 +19,6 @@ interface Constants
     const TEXT_DEFAULT  =   128;
     const TEXT_MEDIUM   =   256;
     const TEXT_LONG =   512;
+    const BIN_FIXED =   1024;
+    const BIN_VARIABLE  =   2048;
 }

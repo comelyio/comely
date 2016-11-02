@@ -393,6 +393,38 @@ abstract class AbstractTable implements Constants
     }
 
     /**
+     * @param string $name
+     * @param int $len
+     * @param int $flag
+     * @return Column
+     * @throws SchemaException
+     */
+    final protected function binary(string $name, int $len = 255, int $flag = self::BIN_VARIABLE) : Column
+    {
+        // Check column's name
+        Column::checkName($name);
+
+        // Check variability flag
+        if(!in_array($flag, [self::BIN_FIXED, self::BIN_VARIABLE])) {
+            // String size must be declared Fixed (char) or Variable (varchar)
+            throw SchemaException::badFlag($name, "bin");
+        }
+
+        // Create Binary column
+        $this->columnsKeys[]    =   $name;
+        $this->columns[$name]   =   new Column;
+        $this->columns[$name]->type =   "binary";
+        $this->columns[$name]->scalarType =   "string";
+        $this->columns[$name]->flag =   $flag;
+        $this->columns[$name]->attributes["length"] =   $len;
+        $this->columns[$name]->attributes["charset"]    =   "binary";
+        $this->columns[$name]->attributes["collation"]    =   "binary";
+
+        // Return Column object for further attribution
+        return  $this->columns[$name];
+    }
+
+    /**
      * Defines a TEXT column
      *
      * @param string $name
