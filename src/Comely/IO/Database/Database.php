@@ -557,7 +557,7 @@ class Database extends AbstractPdo
     public function select(string ...$cols) : self
     {
         $this->queryBuilder->selectColumns	=	implode(",", array_map(function($col) {
-            return sprintf('`%1$s`', trim($col));
+            return preg_match('/[\(|\)]/', $col) ? trim($col) : sprintf('`%1$s`', trim($col));
         }, $cols));
 
         return $this;
