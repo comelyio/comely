@@ -144,6 +144,10 @@ class Cipher
         $iv =   substr($encrypted, 0, $this->ivSize);
         $encrypted  =   substr($encrypted, $this->ivSize);
 
+        if(empty($encrypted) || empty($iv)) {
+            throw new CipherException(__METHOD__, 'Input string cannot be decrypted', 1201);
+        }
+
         // Decrypt
         $decrypted  =   openssl_decrypt(
             $encrypted,
