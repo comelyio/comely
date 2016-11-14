@@ -89,8 +89,12 @@ class Redis implements EngineInterface
      */
     public function disconnect() : bool
     {
-        $this->redisCommand("QUIT");
-        return true;
+        if(is_resource($this->socket)) {
+            $this->redisCommand("QUIT");
+            return true;
+        }
+
+        return false;
     }
 
     /**
