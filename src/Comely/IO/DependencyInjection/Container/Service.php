@@ -124,4 +124,12 @@ class Service
         // Return created instance
         return $instance;
     }
+
+    /**
+     * @return string
+     */
+    public function name() : string
+    {
+        return $this->className;
+    }
 }

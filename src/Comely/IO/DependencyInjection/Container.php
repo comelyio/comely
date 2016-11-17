@@ -96,4 +96,18 @@ class Container extends AbstractDI
             return $service->createInstance($this, $args);
         }
     }
+
+    /**
+     * @return array
+     */
+    public function list() : array
+    {
+        $services   =   $this->repo->list();
+        /** @var $service Service */
+        foreach($this->services as $service) {
+            $services[]=    $service->name();
+        }
+
+        return $services;
+    }
 }

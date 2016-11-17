@@ -66,4 +66,17 @@ class Repository extends AbstractDI
         
         return $this->instances[$key];
     }
+
+    /**
+     * @return array
+     */
+    public function list() : array
+    {
+        $repositories   =   [];
+        foreach($this->instances as $key => $value) {
+            $repositories[] =   get_class($value);
+        }
+
+        return $repositories;
+    }
 }
