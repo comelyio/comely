@@ -15,11 +15,11 @@ use Comely\IO\Database\Schema\AbstractTable;
 abstract class Fluent
 {
     /** @var string */
-    private $modelName;
-    /** @var AbstractTable */
-    private $schemaTable;
+    protected $modelName;
+    /** @var AbstractTable|string */
+    protected $schemaTable;
     /** @var array */
-    private $private;
+    protected $private;
 
     /**
      * Fluent constructor.
