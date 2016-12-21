@@ -351,7 +351,8 @@ class SMTP implements AgentInterface
         // Keep alive?
         if(!$this->keepAlive) {
             $this->write("QUIT"); // Send QUIT command
-            unset($this->stream); // Close stream resource
+            //unset($this->stream);
+            $this->stream   =   null;  // Close stream resource
         }
 
         return $count;
