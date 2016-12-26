@@ -10,24 +10,38 @@ namespace Comely\IO\Logger;
 class Log
 {
     /** @var string */
-    public $name;
+    private $name;
     /** @var array */
-    public $data;
+    private $data;
     /** @var string */
-    public $text;
+    private $text;
     /** @var int */
-    public $timeStamp;
+    private $level;
+    /** @var int */
+    private $timeStamp;
 
     /**
      * Log constructor.
      * @param string $name
+     * @param int $level
      */
-    public function __construct(string $name)
+    public function __construct(string $name, int $level)
     {
         $this->name =   $name;
         $this->data =   [];
         $this->text =   "";
+        $this->level    =   $level;
         $this->timeStamp    =   time();
+    }
+
+    /**
+     * @param int $level
+     * @return Log
+     */
+    public function setLevel(int $level) : self
+    {
+        $this->level    =   $level;
+        return $this;
     }
 
     /**
@@ -60,5 +74,45 @@ class Log
     {
         $this->data =   array_merge($this->data, $data);
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName() : string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAttachedData() : array
+    {
+        return $this->data;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMessage() : string
+    {
+        return $this->text;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLevel(): int
+    {
+        return $this->level;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimeStamp() : int
+    {
+        return $this->timeStamp;
     }
 }
