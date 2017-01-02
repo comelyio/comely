@@ -10,7 +10,7 @@ use Comely\IO\Session\ComelySession\Bag;
  * Class Obfuscator
  * @package Comely\IO\Security
  */
-class Obfuscator
+class Obfuscator implements SecureFormsInterface
 {
     const OBFUSCATE_KEY_SIZE    =   12;
 

@@ -7,7 +7,7 @@ namespace Comely\IO\Security\Forms;
  * Class Retriever
  * @package Comely\IO\Security\Forms
  */
-class Retriever implements \Countable
+class Retriever implements \Countable, SecureFormsInterface
 {
     /** @var array */
     private $input;

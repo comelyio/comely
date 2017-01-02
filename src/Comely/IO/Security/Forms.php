@@ -5,6 +5,7 @@ namespace Comely\IO\Security;
 
 use Comely\IO\Security\Forms\Obfuscator;
 use Comely\IO\Security\Forms\Retriever;
+use Comely\IO\Security\Forms\SecureFormsInterface;
 use Comely\IO\Session\ComelySession\Bag;
 
 /**
@@ -78,6 +79,17 @@ class Forms
 
         $retriever  =   new Retriever($name, $obfuscated);
         return $retriever;
+    }
+
+    /**
+     * @param string $form
+     * @param \string[] ...$fields
+     * @return SecureFormsInterface
+     */
+    public function get(string $form, string ...$fields) : SecureFormsInterface
+    {
+        return $this->has($form) ? $this->retrieve($form) : $this->obfuscate($form)
+            ->setFields(...$fields);
     }
 
     /**
