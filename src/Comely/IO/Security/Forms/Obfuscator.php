@@ -57,7 +57,11 @@ class Obfuscator implements SecureFormsInterface
         // Iterate through keys
         $count  =   0;
         foreach($keys as $key) {
-            $this->obfuscated[$key] =   $bytes[$count];
+            $obfuscated =   $bytes[$count];
+            if(preg_match('/^[0-9]+$/', $obfuscated)) {
+                $obfuscated{0}  =   "a";
+            }
+            $this->obfuscated[$key] =   $obfuscated;
             $count++;
         }
 
