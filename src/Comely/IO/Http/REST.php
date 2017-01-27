@@ -69,6 +69,9 @@ class REST
 
         if($method  === "POST") {
             $inputMerge =   $_POST;
+            if($contentType === "application/json") {
+                $inputBody  =   file_get_contents("php://input");
+            }
         } elseif($method    === "PUT") {
             $inputBody  =   file_get_contents("php://input");
         } elseif($method    === "DELETE") {
