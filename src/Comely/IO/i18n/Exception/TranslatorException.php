@@ -73,4 +73,13 @@ class TranslatorException extends i18nException
     {
         return new self(self::$componentId, "No language was object passed by reference or bound as default", 1106);
     }
+
+    /**
+     * @param string $method
+     * @return TranslatorException
+     */
+    public static function getBoundError(string $method) : self
+    {
+        return new self($method, 'No language was bound with translator component', 1107);
+    }
 }

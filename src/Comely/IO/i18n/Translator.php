@@ -158,6 +158,19 @@ class Translator implements TranslatorInterface
     }
 
     /**
+     * @return Language
+     * @throws TranslatorException
+     */
+    public function getBoundLanguage() : Language
+    {
+        if(!$this->boundLanguage instanceof Language) {
+            throw TranslatorException::getBoundError(__METHOD__);
+        }
+
+        return $this->boundLanguage;
+    }
+
+    /**
      * @param Language $lang
      * @return Translator
      */
@@ -174,6 +187,19 @@ class Translator implements TranslatorInterface
     public function bindFallback(Language $lang) : self
     {
         return $this->bindFallbackLanguage($lang);
+    }
+
+    /**
+     * @return Language
+     * @throws TranslatorException
+     */
+    public function getFallbackLanguage() : Language
+    {
+        if(!$this->boundFallback instanceof Language) {
+            throw TranslatorException::getBoundError(__METHOD__);
+        }
+
+        return $this->boundFallback;
     }
 
     /**
