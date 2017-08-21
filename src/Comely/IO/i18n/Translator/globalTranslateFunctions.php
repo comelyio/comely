@@ -20,6 +20,18 @@ namespace
 
     /**
      * Global translate function # 2
+     * Returns translation key as-is instead of NULL if a translation was not found
+     *
+     * @param string $key
+     * @return string
+     */
+    function __k(string $key) : string
+    {
+        return Translator::getInstance()->translate($key) ?? $key;
+    }
+
+    /**
+     * Global translate function # 3
      * This function returns a formatted translated String using vsprintf
      * or a Boolean false on failure
      *
@@ -38,7 +50,7 @@ namespace
     }
 
     /**
-     * Global translate function # 3
+     * Global translate function # 4
      * This function performs print OR vprintf on a translated String
      *
      * @param string $key
