@@ -33,4 +33,10 @@ interface ControllerInterface
      * @param Response $response
      */
     public function init(Request $request, Response $response);
+
+    /**
+     * This method is called from "init" method as the request finishes
+     * @return mixed
+     */
+    public function finish();
 }
