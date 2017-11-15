@@ -104,6 +104,22 @@ class Database extends AbstractPdo
     }
 
     /**
+     * @return int
+     */
+    public function countQueries() : int
+    {
+        return count($this->queries);
+    }
+
+    /**
+     * @return array
+     */
+    public function listQueries() : array
+    {
+        return $this->queries;
+    }
+
+    /**
      * Sets a flag
      *
      * @param int $flag

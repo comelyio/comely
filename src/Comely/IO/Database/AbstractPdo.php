@@ -22,6 +22,8 @@ abstract class AbstractPdo
 {
     /** @var \PDO */
     protected $pdo;
+    /** @var array */
+    protected $queries;
 
     /**
      * AbstractPdo constructor.
@@ -39,6 +41,8 @@ abstract class AbstractPdo
         } catch(\PDOException $e) {
             throw DatabaseException::connectionError($e->getMessage());
         }
+
+        $this->queries  =   [];
     }
 
     /**
@@ -198,6 +202,7 @@ abstract class AbstractPdo
             // Prepare a PDOStatement
             $stmnt  =   $this->pdo->prepare($query);
             $this->lastQuery->query =   $stmnt->queryString;
+            $this->queries[]    =   $stmnt->queryString;
 
             // Bind params/values
             foreach($data as $key => $value) {
