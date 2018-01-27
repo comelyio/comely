@@ -22,4 +22,5 @@ class Comely
     {
         return substr(strrchr($class, "\\"), 1);
     }
+
 }
