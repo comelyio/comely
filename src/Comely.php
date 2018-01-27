@@ -3,7 +3,7 @@
  * This file is part of Comely IO package.
  * https://github.com/comelyio/comely
  *
- * Copyright (c) 2016-2017 Furqan A. Siddiqui <hello@furqansiddiqui.com>
+ * Copyright (c) 2016-2018 Furqan A. Siddiqui <hello@furqansiddiqui.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code or visit following link:
@@ -19,9 +19,9 @@ declare(strict_types=1);
 class Comely
 {
     /** string Comely Version (Major.Minor.Release-Suffix) */
-    const VERSION   =   "1.0.2";
+    const VERSION   =   "1.0.3";
     /** int Comely Version (Major * 10000 + Minor * 100 + Release) */
-    const VERSION_ID    =   10002;
+    const VERSION_ID    =   10003;
 
     /**
      * Converts given string (i.e. snake_case) to PascalCase
@@ -51,8 +51,7 @@ class Comely
         }
 
         // Convert to PascalCase first and then convert PascalCase to camelCase
-        $pascal =   self::pascalCase($name);
-        return sprintf("%s%s", strtolower($pascal[0]), substr($pascal, 1));
+        return lcfirst(self::pascalCase($name));
     }
 
     /**
