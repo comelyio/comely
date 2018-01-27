@@ -1,7 +1,0 @@
-[submodule "src/Comely/Engine"]
-	path = src/Comely/Engine
-	url = https://github.com/comelyio/comely-engine.git
-
-[submodule "src/Comely/IO/Cache"]
-	path = src/Comely/IO/Cache
-	url = https://github.com/comelyio/cache.git
