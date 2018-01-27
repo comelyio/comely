@@ -1,0 +1,22 @@
+{
+  "name": "comelyio/cache",
+  "description": "Comely IO Component: Cache",
+  "keywords": ["cache", "redis", "memcached", "comely", "comelyio", "comely.io", "comely2"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Furqan A. Siddiqui",
+      "email": "hello@furqansiddiqui.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0",
+    "comelyio/comely-engine": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Comely\\IO\\Cache": ""
+    }
+  },
+  "minimum-stability": "dev"
+}

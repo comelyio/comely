@@ -1,0 +1,21 @@
+{
+  "name": "comelyio/comely-engine",
+  "description": "Backbone of all Comely components",
+  "keywords": ["comely-engine", "comely", "comelyio", "comely.io", "comely2"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Furqan A. Siddiqui",
+      "email": "hello@furqansiddiqui.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Comely\\Engine": ""
+    }
+  },
+  "minimum-stability": "dev"
+}
