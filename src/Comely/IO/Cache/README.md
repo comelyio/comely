@@ -13,6 +13,6 @@ system to safely store and retrieve data with their types and integrity preserve
 
 `composer require comelyio/cache`
 
-##Resources
+## Resources
 
 * [Documentation](https://comely.io/cache)
