@@ -377,7 +377,7 @@ class Cache implements ComponentInterface
     {
         $cacheable = serialize($cacheable);
         $padding = $this->cacheableLengthFrom - strlen($cacheable);
-        if ($padding) {
+        if ($padding > 0) {
             $cacheable .= str_repeat("\0", $padding); // Pad with NULL-bytes
         }
 
