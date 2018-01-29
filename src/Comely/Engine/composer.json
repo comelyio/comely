@@ -14,7 +14,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Comely\\Engine": ""
+      "Comely\\Engine\\": ""
     }
   },
   "minimum-stability": "dev"

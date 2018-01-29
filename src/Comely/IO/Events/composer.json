@@ -1,0 +1,22 @@
+{
+  "name": "comelyio/events",
+  "description": "Comely IO Component: Events",
+  "keywords": ["events", "comely", "comelyio", "comely.io", "comely2"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Furqan A. Siddiqui",
+      "email": "hello@furqansiddiqui.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0",
+    "comelyio/comely-engine": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Comely\\IO\\Events\\": ""
+    }
+  },
+  "minimum-stability": "dev"
+}

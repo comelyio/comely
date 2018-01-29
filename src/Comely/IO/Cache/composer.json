@@ -11,11 +11,12 @@
   ],
   "require": {
     "php": ">=7.1.0",
-    "comelyio/comely-engine": "*"
+    "comelyio/comely-engine": "*",
+    "comelyio/events": "*"
   },
   "autoload": {
     "psr-4": {
-      "Comely\\IO\\Cache": ""
+      "Comely\\IO\\Cache\\": ""
     }
   },
   "minimum-stability": "dev"
