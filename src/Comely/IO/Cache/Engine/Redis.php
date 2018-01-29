@@ -146,7 +146,7 @@ class Redis implements EngineInterface
      * @return mixed
      * @throws EngineException
      */
-    public function get(string $key): mixed
+    public function get(string $key)
     {
         try {
             return $this->send(sprintf('GET %s', $key));
@@ -247,7 +247,7 @@ class Redis implements EngineInterface
      * @return mixed
      * @throws RedisException
      */
-    private function send(string $command): mixed
+    private function send(string $command)
     {
         if (!$this->sock) {
             throw new RedisException('Not connected to any server');
@@ -285,7 +285,7 @@ class Redis implements EngineInterface
      * @return mixed
      * @throws RedisException
      */
-    private function response(): mixed
+    private function response()
     {
         // Get response from stream
         $response = fgets($this->sock);

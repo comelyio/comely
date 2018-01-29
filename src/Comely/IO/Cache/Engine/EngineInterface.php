@@ -65,7 +65,7 @@ interface EngineInterface
      * @return mixed
      * @throws EngineException
      */
-    public function get(string $key): mixed;
+    public function get(string $key);
 
     /**
      * @param string $key

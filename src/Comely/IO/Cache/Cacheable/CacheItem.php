@@ -131,7 +131,7 @@ class CacheItem implements CacheableInterface
      * @return mixed
      * @throws CacheException
      */
-    public function yield(): mixed
+    public function yield()
     {
         $data = $this->data;
         if ($this->dataEncoded === true) {

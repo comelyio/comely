@@ -62,5 +62,5 @@ interface CacheableInterface
     /**
      * @return mixed
      */
-    public function yield(): mixed;
+    public function yield();
 }
