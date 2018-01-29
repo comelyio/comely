@@ -2,10 +2,10 @@
 
 Backbone of all Comely components and apps.
 
-#### Prerequisites
+## Prerequisites
 
-* PHP ^7.1.x
+* PHP >= 7.1.x
 
-#### Installation
+## Installation
 
 `composer require comelyio/comely-engine`
