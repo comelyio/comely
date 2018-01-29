@@ -95,8 +95,9 @@ class Memcached implements EngineInterface
             return false;
         }
 
-        $servers = $this->memcached->getStats();
-        $pid = intval($servers[$this->server->host]["pid"] ?? 0);
+        $stats = $this->memcached->getStats();
+        $server = sprintf('%s:%d', $this->server->host, $this->server->port);
+        $pid = intval($stats[$server]["pid"] ?? 0);
         return $pid ? true : false;
     }
 
@@ -137,7 +138,7 @@ class Memcached implements EngineInterface
      * @return mixed
      * @throws EngineException
      */
-    public function get(string $key): mixed
+    public function get(string $key)
     {
         $this->checkConnection();
         $val = $this->memcached->get($key);
