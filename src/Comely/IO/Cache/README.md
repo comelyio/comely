@@ -9,10 +9,10 @@ system to safely store and retrieve data with their types and integrity preserve
 * [comelyio/comely-engine](https://github.com/comelyio/engine) 
 * [comelyio/events](https://github.com/comelyio/events) *(for Indexing feature)*
 
-#### Installation
+## Installation
 
 `composer require comelyio/cache`
 
-#### Resources
+##Resources
 
 * [Documentation](https://comely.io/cache)
