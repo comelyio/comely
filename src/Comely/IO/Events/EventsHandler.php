@@ -74,8 +74,9 @@ class EventsHandler implements ComponentInterface
         }
 
         $count = 0;
+        array_push($params, $event);
         foreach ($listeners as $i => $callback) {
-            call_user_func_array($callback, array_merge($params, $event));
+            call_user_func_array($callback, $params);
             $count++;
         }
 
