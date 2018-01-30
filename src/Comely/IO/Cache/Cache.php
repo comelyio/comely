@@ -278,6 +278,8 @@ class Cache implements ComponentInterface
     }
 
     /**
+     * Checks if a data exists on cache server corresponding to provided key
+     *
      * @param string $key
      * @return bool
      * @throws CacheException
@@ -290,6 +292,8 @@ class Cache implements ComponentInterface
     }
 
     /**
+     * Delete an stored item with provided key on cache server
+     *
      * @param string $key
      * @return bool
      * @throws CacheException
@@ -310,6 +314,8 @@ class Cache implements ComponentInterface
     }
 
     /**
+     * Flushes all stored data from cache server
+     *
      * @return bool
      * @throws CacheException
      * @throws EngineException
