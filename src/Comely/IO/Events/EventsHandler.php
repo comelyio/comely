@@ -61,25 +61,11 @@ class EventsHandler implements ComponentInterface
     }
 
     /**
-     * @param string $event
-     * @param array ...$params
-     * @return int
+     * @param string $tag
+     * @return Trigger
      */
-    public function trigger(string $event, ...$params): int
+    public function trigger(string $tag): Trigger
     {
-        $event = $this->on($event); // Grab event
-        $listeners = $event->listeners();
-        if (!$listeners->count()) { // Have listeners?
-            return 0; // No listeners
-        }
-
-        $count = 0;
-        array_push($params, $event);
-        foreach ($listeners as $i => $callback) {
-            call_user_func_array($callback, $params);
-            $count++;
-        }
-
-        return $count;
+        return new Trigger($this->on($tag));
     }
 }
