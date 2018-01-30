@@ -24,6 +24,10 @@ class Trigger
     private $event;
     /** @var null|array */
     private $params;
+    /** @var bool */
+    private $destruct;
+    /** @var bool */
+    private $quiet;
 
     /**
      * Trigger constructor.
@@ -32,9 +36,12 @@ class Trigger
     public function __construct(Event $event)
     {
         $this->event = $event;
+        $this->destruct = false;
+        $this->quiet = false;
     }
 
     /**
+     * All arguments passed to this method will be forwarded to callback functions of all listeners
      * @param array ...$params
      * @return Trigger
      */
@@ -46,7 +53,30 @@ class Trigger
     }
 
     /**
+     * Clear/remove this event from handler once its fired?
+     * @return Trigger
+     */
+    public function clearOnceFired(): self
+    {
+        $this->destruct = true;
+        return $this;
+    }
+
+    /**
+     * Enables quiet mode.
+     * If a listener's callback function throws an Exception, it will be catched and E_USER_WARNING will be triggered
+     * with Exception's class, message and code so that next listener's callback may be fired safely.
+     * @return Trigger
+     */
+    public function quiet(): self
+    {
+        $this->quiet = true;
+        return $this;
+    }
+
+    /**
      * @return int
+     * @throws \Exception
      */
     public function fire(): int
     {
@@ -57,8 +87,24 @@ class Trigger
 
         $count = 0;
         foreach ($listeners as $i => $callback) {
-            call_user_func_array($callback, $this->params ?? []);
-            $count++;
+            try {
+                call_user_func_array($callback, $this->params ?? []);
+                $count++;
+            } catch (\Exception $e) {
+                if (!$this->quiet) {
+                    throw $e;
+                }
+
+                trigger_error(
+                    sprintf('[%1$s][#%2$d] %3$s', get_class($e), $e->getCode(), $e->getMessage()),
+                    E_USER_WARNING
+                );
+            }
+        }
+
+        // Destruct?
+        if ($this->destruct) {
+            $this->event->handler()->clear($this->event);
         }
 
         return $count;

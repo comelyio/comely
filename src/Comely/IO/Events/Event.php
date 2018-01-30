@@ -63,6 +63,14 @@ class Event
     }
 
     /**
+     * @return EventsHandler
+     */
+    public function handler(): EventsHandler
+    {
+        return $this->handler;
+    }
+
+    /**
      * @param callable $callback
      * @return bool
      * @throws Exception\ListenerException
