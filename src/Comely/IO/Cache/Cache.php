@@ -233,7 +233,9 @@ class Cache implements ComponentInterface
 
         $store = $this->engine->set($key, $value, $ttl);
         if ($store && $this->index) {
-            $this->index->events()->trigger(Indexing::EVENT_ON_STORE, $key, $valueType);
+            $this->index->events()->trigger(Indexing::EVENT_ON_STORE)
+                ->params($key, $valueType)
+                ->fire();
         }
 
         return $store;
@@ -298,7 +300,10 @@ class Cache implements ComponentInterface
         $this->checkConnection(__METHOD__);
         $delete = $this->engine->delete($key);
         if ($delete && $this->index) {
-            $this->index->events()->trigger(Indexing::EVENT_ON_DELETE, $key);
+            $this->index->events()
+                ->trigger(Indexing::EVENT_ON_DELETE)
+                ->params($key)
+                ->fire();
         }
 
         return $delete;
@@ -314,7 +319,8 @@ class Cache implements ComponentInterface
         $this->checkConnection(__METHOD__);
         $flush = $this->engine->flush();
         if ($flush && $this->index) {
-            $this->index->events()->trigger(Indexing::EVENT_ON_FLUSH);
+            $this->index->events()->trigger(Indexing::EVENT_ON_FLUSH)
+                ->fire();
         }
 
         return $flush;
