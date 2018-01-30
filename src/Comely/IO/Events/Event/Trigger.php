@@ -12,11 +12,13 @@
 
 declare(strict_types=1);
 
-namespace Comely\IO\Events;
+namespace Comely\IO\Events\Event;
+
+use Comely\IO\Events\Event;
 
 /**
  * Class Trigger
- * @package Comely\IO\Events
+ * @package Comely\IO\Events\Event
  */
 class Trigger
 {

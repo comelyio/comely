@@ -12,13 +12,14 @@
 
 declare(strict_types=1);
 
-namespace Comely\IO\Events;
+namespace Comely\IO\Events\Event;
 
+use Comely\IO\Events\Event;
 use Comely\IO\Events\Exception\ListenerException;
 
 /**
  * Class Listeners
- * @package Comely\IO\Events
+ * @package Comely\IO\Events\Event
  */
 class Listeners implements \Countable, \Iterator
 {

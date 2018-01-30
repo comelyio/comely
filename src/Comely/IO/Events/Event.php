@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Comely\IO\Events;
 
+use Comely\IO\Events\Event\Listeners;
 use Comely\IO\Events\Exception\EventsException;
 
 /**
