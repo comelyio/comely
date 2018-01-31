@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace Comely\IO\Cache\Exception;
 
-use Comely\Engine\Exception\ComelyException;
+use Comely\Kernel\Exception\ComelyException;
 
 /**
  * Class CacheException

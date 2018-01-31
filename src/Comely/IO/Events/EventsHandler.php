@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace Comely\IO\Events;
 
-use Comely\Engine\Extend\ComponentInterface;
 use Comely\IO\Events\Event\Trigger;
+use Comely\Kernel\Extend\ComponentInterface;
 
 /**
  * Class EventsHandler

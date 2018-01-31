@@ -20,7 +20,7 @@ use Comely\IO\Cache\Server;
 
 /**
  * Class Redis
- * @package Comely\IO\Cache\Engine
+ * @package Comely\IO\Cache\Kernel
  */
 class Redis implements EngineInterface
 {

@@ -19,7 +19,7 @@ use Comely\IO\Cache\Server;
 
 /**
  * Interface EngineInterface
- * @package Comely\IO\Cache\Engine
+ * @package Comely\IO\Cache\Kernel
  */
 interface EngineInterface
 {

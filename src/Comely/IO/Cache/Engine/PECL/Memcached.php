@@ -20,7 +20,7 @@ use Comely\IO\Cache\Server;
 
 /**
  * Class Memcached
- * @package Comely\IO\Cache\Engine\PECL
+ * @package Comely\IO\Cache\Kernel\PECL
  */
 class Memcached implements EngineInterface
 {

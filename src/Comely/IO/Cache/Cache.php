@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace Comely\IO\Cache;
 
-use Comely\Engine\Extend\ComponentInterface;
 use Comely\IO\Cache\Cacheable\CacheableInterface;
 use Comely\IO\Cache\Cacheable\CacheItem;
 use Comely\IO\Cache\Engine\EngineInterface;
@@ -23,6 +22,7 @@ use Comely\IO\Cache\Engine\Redis;
 use Comely\IO\Cache\Exception\CacheException;
 use Comely\IO\Cache\Exception\ConnectionException;
 use Comely\IO\Cache\Exception\EngineException;
+use Comely\Kernel\Extend\ComponentInterface;
 
 /**
  * Class Cache
