@@ -1,7 +1,7 @@
 {
-  "name": "comelyio/comely-engine",
+  "name": "comelyio/comely-kernel",
   "description": "Backbone of all Comely components",
-  "keywords": ["comely-engine", "comely", "comelyio", "comely.io", "comely2"],
+  "keywords": ["comely-kernel", "comely", "comelyio", "comely.io", "comely2"],
   "license": "MIT",
   "authors": [
     {
@@ -14,7 +14,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Comely\\Engine\\": ""
+      "Comely\\Kernel\\": ""
     }
   },
   "minimum-stability": "dev"

@@ -12,11 +12,11 @@
 
 declare(strict_types=1);
 
-namespace Comely\Engine\Exception;
+namespace Comely\Kernel\Exception;
 
 /**
  * Class ComelyException
- * @package Comely\Engine
+ * @package Comely\Kernel\Exception
  */
 class ComelyException extends \Exception
 {

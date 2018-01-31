@@ -1,4 +1,4 @@
-# Comely Engine
+# Comely Kernel
 
 Backbone of all Comely components and apps.
 

@@ -12,16 +12,16 @@
 
 declare(strict_types=1);
 
-namespace Comely\Engine\Extend;
+namespace Comely\Kernel\Extend;
 
-use Comely\Engine\Comely;
+use Comely\Kernel\Comely;
 
 /**
  * Interface ComponentInterface
- * @package Comely\Engine\Extend
+ * @package Comely\Kernel\Extend
  */
 interface ComponentInterface
 {
-    public const VERSION    =   Comely::VERSION;
-    public const VERSION_ID =   Comely::VERSION_ID;
+    public const VERSION = Comely::VERSION;
+    public const VERSION_ID = Comely::VERSION_ID;
 }
