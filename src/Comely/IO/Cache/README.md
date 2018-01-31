@@ -6,7 +6,7 @@ system to safely store and retrieve data with their types and integrity preserve
 ## Prerequisites
 
 * PHP >= 7.1.x
-* [comelyio/comely-engine](https://github.com/comelyio/engine) 
+* [comelyio/comely-kernel](https://github.com/comelyio/comely-kernel) 
 * [comelyio/events](https://github.com/comelyio/events) *(for Indexing feature)*
 
 ## Installation
