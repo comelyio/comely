@@ -40,7 +40,12 @@ abstract class Controller
         $this->router = $router;
         $this->request = $request;
         $this->response = new Response($this);
+
+        $this->callback(); // Callback
     }
+
+
+    abstract protected function callback(): void;
 
     /**
      * @return Router
