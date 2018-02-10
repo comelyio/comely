@@ -14,25 +14,27 @@ declare(strict_types=1);
 
 namespace Comely\IO\HttpRouter\Router;
 
-use Comely\IO\HttpRouter\Controller;
 use Comely\IO\HttpRouter\Exception\RouteException;
+use Comely\IO\HttpRouter\Exception\RoutingException;
+use Comely\Kernel\Comely;
 
 /**
  * Class Route
  * @package Comely\IO\HttpRouter\Router
- * @property string $_uri
- * @property string $_route
- * @property null|Controller $_default
- * @property null|Authentication $_auth
  */
 class Route
 {
+    private const ROUTE_NAMESPACE = 200;
+    private const ROUTE_DIRECT = 100;
+
     /** @var string */
     private $uri;
     /** @var string */
-    private $routeTo;
-    /** @var null|Controller */
-    private $defaultController;
+    private $route;
+    /** @var int */
+    private $routeType;
+    /** @var null|string */
+    private $fallbackController;
     /** @var null|Authentication */
     private $authentication;
 
@@ -44,7 +46,7 @@ class Route
     public function __construct(string $uri, string $routeTo)
     {
         // Validate URI
-        if (!preg_match('/^\/' . $this->patternValidChars('/*') . '*$/', $uri)) {
+        if (!preg_match('/^\/[a-zA-Z0-9\.\_\-\/\*]*$/', $uri)) {
             if (substr($uri, 0, 1) !== "/") {
                 throw new RouteException('All HTTP routes must start with "/"');
             }
@@ -52,92 +54,110 @@ class Route
             throw new RouteException('HTTP route URI contain an illegal character');
         }
 
-        $this->uri = preg_quote($uri, '/');
-        $this->uri = strtolower($this->uri); // Case-insensitivity
-        $this->uri = $this->wildcards($this->uri); // Activate wildcards
-
         // Validate Controller/Namespace
         if (!preg_match('/^[a-zA-Z0-9\_]+(\\\[a-zA-Z0-9\_]+)*$/', $routeTo)) {
             throw new RouteException('Invalid route Controller class or Namespace');
         }
 
-        $this->routeTo = $routeTo;
-        // Remove trailing backslash from Namespace
-        if (ord($this->routeTo[-1]) === 92) {
-            $this->routeTo = substr($routeTo, 0, -1);
+        // Prepare URI pattern
+        $this->uri = preg_quote($uri, '/');
+        $this->uri = strtolower($this->uri); // Case-insensitivity
+
+        // Check if route leads to a Namespace
+        if (substr($this->uri, -4) === '\/\*') {
+            // Route to Namespace
+            $this->uri = substr($this->uri, 0, -4);
+            $this->uri = str_replace('\*', '[^\/]?[a-zA-Z0-9\.\_\-]*', $this->uri); // Activate wildcards in URI
+            $this->routeType = self::ROUTE_NAMESPACE;
+            $this->route = $routeTo;
+
+            // Remove trailing backslash from Namespace
+            if (ord(substr($this->route, -1)) === 92) {
+                $this->route = substr($this->route, 0, -1);
+            }
+        } else {
+            // Direct route to Controller
+            $this->uri = str_replace('\*', '[^\/]?[a-zA-Z0-9\.\_\-]*', $this->uri); // Activate wildcards in URI
+            $this->routeType = self::ROUTE_DIRECT;
+            $this->route = $routeTo;
+            if (!class_exists($routeTo)) {
+                throw new RoutingException(
+                    sprintf('Cannot find class "%s" for direct route "%s', $this->route, $this->uri)
+                );
+            }
         }
     }
 
     /**
-     * @param string $allow
-     * @return string
+     * @param Request $request
+     * @return null|string
      */
-    private function patternValidChars(?string $allow = null): string
+    public function request(Request $request): ?string
     {
-        $allow = $allow ? preg_quote($allow, '/') : '';
-        return sprintf('[a-zA-Z0-9\.\_\-%s]', $allow);
-    }
-
-    /**
-     * @param string $uri
-     * @return string
-     */
-    private function wildcards(string $uri): string
-    {
-        $hasMasterWildcard = false;
-        if (substr($uri, -4) === '\/\*') {
-            $uri = substr($uri, 0, -4);
-            $hasMasterWildcard = true;
+        // Prepare pattern
+        $pattern = $this->uri;
+        if ($this->routeType === self::ROUTE_NAMESPACE) {
+            $pattern .= '[a-zA-Z0-9\.\_\-\/]*';
         }
 
-        // Activate remaining wildcard
-        $uri = str_replace('\*', '[^\/]?[a-zA-Z0-9\.\_\-]*', $uri);
-
-        // Add master wildcard
-        if ($hasMasterWildcard) {
-            $uri .= '[a-zA-Z0-9\.\_\-\/]*';
+        // Match with URI
+        if (!preg_match('/^' . $pattern . '$/', $request->_uri)) {
+            return null; // No match
         }
 
-        // All wildcards activated, return URI
-        return $uri;
-    }
+        // Request matches with this Route
+        // Authentication?
+        // Todo: Authentication
 
-    /**
-     * @param $prop
-     * @return bool|Controller|Authentication|mixed|null|string
-     */
-    public function __get($prop)
-    {
-        switch ($prop) {
-            case "_uri":
-                return $this->uri;
-            case "_route":
-                return $this->routeTo;
-            case "_default":
-                return $this->defaultController;
-            case "_auth":
-                return $this->authentication;
+        // Find HTTP Controller
+        $controller = null;
+        if ($this->routeType === self::ROUTE_DIRECT) {
+            $controller = $this->route; // Class exists check already done in constructor
+        } elseif ($this->routeType === self::ROUTE_NAMESPACE) {
+            $offset = [];
+            preg_match('/^' . $this->uri . '/', $request->_uri, $offset);
+            $offset = strlen(strval($offset[0] ?? ""));
+            $controller = array_map(function ($part) {
+                if ($part) {
+                    return Comely::PascalCase($part);
+                }
+                return null;
+            }, explode("/", substr($request->_uri, $offset)));
+            $controller = sprintf('%s\%s', $this->route, implode('\\', $controller));
+            $controller = preg_replace('/\\\{2,}/', '\\', $controller);
+            $controller = rtrim($controller, '\\');
         }
-        return false;
+
+        // Check controller class exist
+        if (!$controller || !class_exists($controller)) {
+            // Nope... Try using a fallback controller
+            $controller = $this->fallbackController ?? null;
+            if (!$controller || !class_exists($controller)) {
+                return null;
+            }
+        }
+
+        return $controller;
     }
 
     /**
-     * @param $prop
-     * @param $value
-     * @return bool
-     */
-    public function __set($prop, $value)
-    {
-        return false; // Prevent override
-    }
-
-    /**
-     * @param Controller $controller
+     * @param string $controller
      * @return Route
+     * @throws RouteException
      */
-    public function default(Controller $controller): self
+    public function fallbackController(string $controller): self
     {
-        $this->defaultController = $controller;
+        // Validate Controller
+        if (!preg_match('/^[a-zA-Z0-9\_]+(\\\[a-zA-Z0-9\_]+)*$/', $controller)) {
+            throw new RouteException('Invalid fallback controller name');
+        }
+
+        // Make sure that class exists
+        if (class_exists($controller)) {
+            throw new RouteException(sprintf('Fallback controller class "%s" not found', $controller));
+        }
+
+        $this->fallbackController = $controller;
         return $this;
     }
 
