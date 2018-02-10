@@ -20,12 +20,16 @@ use Comely\IO\HttpRouter\Exception\RouteException;
 /**
  * Class Route
  * @package Comely\IO\HttpRouter\Router
+ * @property string $_uri
+ * @property string $_route
+ * @property null|Controller $_default
+ * @property null|Authentication $_auth
  */
 class Route
 {
-    /** @var mixed */
+    /** @var string */
     private $uri;
-    /** @var bool|string */
+    /** @var string */
     private $routeTo;
     /** @var null|Controller */
     private $defaultController;
@@ -62,6 +66,35 @@ class Route
         if (ord($this->routeTo[-1]) === 92) {
             $this->routeTo = substr($routeTo, 0, -1);
         }
+    }
+
+    /**
+     * @param $prop
+     * @return bool|Controller|Authentication|mixed|null|string
+     */
+    public function __get($prop)
+    {
+        switch ($prop) {
+            case "_uri":
+                return $this->uri;
+            case "_route":
+                return $this->routeTo;
+            case "_default":
+                return $this->defaultController;
+            case "_auth":
+                return $this->authentication;
+        }
+        return false;
+    }
+
+    /**
+     * @param $prop
+     * @param $value
+     * @return bool
+     */
+    public function __set($prop, $value)
+    {
+        return false; // Prevent override
     }
 
     /**
