@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace Comely\IO\HttpRouter\Controller;
 
-use Comely\IO\HttpRouter\Controller\Request\Headers;
-use Comely\IO\HttpRouter\Controller\Request\Payload;
+use Comely\IO\HttpRouter\Controller\Data\Headers;
+use Comely\IO\HttpRouter\Controller\Data\Payload;
 use Comely\IO\HttpRouter\Exception\RequestException;
 
 /**
