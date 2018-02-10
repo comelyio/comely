@@ -21,6 +21,15 @@ namespace Comely\IO\HttpRouter\Controller\Request;
 class Headers extends AbstractInput
 {
     /**
+     * @param string $key
+     * @return null|string
+     */
+    public function get(string $key): ?string
+    {
+        return parent::get(strtolower($key));
+    }
+
+    /**
      * @return array
      */
     public function copy(): array
