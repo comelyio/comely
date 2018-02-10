@@ -107,7 +107,9 @@ class Route
 
         // Request matches with this Route
         // Authentication?
-        // Todo: Authentication
+        if($this->authentication) {
+            $this->authentication->authenticate();
+        }
 
         // Find HTTP Controller
         $controller = null;
