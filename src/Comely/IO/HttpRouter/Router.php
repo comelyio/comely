@@ -14,10 +14,8 @@ declare(strict_types=1);
 
 namespace Comely\IO\HttpRouter;
 
-use Comely\IO\HttpRouter\Controller\Request;
-use Comely\IO\HttpRouter\Controller\Request\Headers;
-use Comely\IO\HttpRouter\Controller\Request\Payload;
-use Comely\IO\HttpRouter\Exception\RoutingException;
+use Comely\IO\HttpRouter\Exception\RequestException;
+use Comely\IO\HttpRouter\Router\Request;
 use Comely\IO\HttpRouter\Router\Route;
 use Comely\IO\HttpRouter\Router\Sanitizer;
 use Comely\Kernel\Extend\ComponentInterface;
@@ -55,81 +53,66 @@ class Router implements ComponentInterface
     }
 
     /**
-     * @param array $input
-     * @return Payload
+     * @return Sanitizer
      */
-    private function payload(array $input): Payload
+    public function sanitizer(): Sanitizer
     {
-        return new Payload($this->sanitizer->payload($input));
+        return $this->sanitizer;
     }
 
-    /**
-     * @param array $headers
-     * @return Headers
-     */
-    private function headers(array $headers): Headers
+    public function send(Request $request): Controller
     {
-        return new Headers($this->sanitizer->headers($headers));
+
     }
 
     /**
      * @param string $method
      * @param string $uri
-     * @param array|null $payload
-     * @param array|null $headers
-     * @return Controller
-     * @throws RoutingException
+     * @return Request
+     * @throws RequestException
      */
-    private function request(string $method, string $uri, ?array $payload = null, ?array $headers = null): Controller
+    private function request(string $method, string $uri): Request
     {
-
+        return new Request($this, $method, $uri);
     }
 
     /**
      * @param string $uri
-     * @param array|null $payload
-     * @param array|null $headers
-     * @return Controller
-     * @throws RoutingException
+     * @return Request
+     * @throws RequestException
      */
-    public function get(string $uri, ?array $payload = null, ?array $headers = null): Controller
+    public function get(string $uri): Request
     {
-        return $this->request("GET", $uri, $payload, $headers);
+        return $this->request("GET", $uri);
     }
 
     /**
      * @param string $uri
-     * @param array|null $payload
-     * @param array|null $headers
-     * @return Controller
-     * @throws RoutingException
+     * @return Request
+     * @throws RequestException
      */
-    public function post(string $uri, ?array $payload = null, ?array $headers = null): Controller
+    public function post(string $uri): Request
     {
-        return $this->request("POST", $uri, $payload, $headers);
+        return $this->request("POST", $uri);
     }
 
     /**
      * @param string $uri
-     * @param array|null $payload
-     * @param array|null $headers
-     * @return Controller
-     * @throws RoutingException
+     * @return Request
+     * @throws RequestException
      */
-    public function delete(string $uri, ?array $payload = null, ?array $headers = null): Controller
+    public function put(string $uri): Request
     {
-        return $this->request("DELETE", $uri, $payload, $headers);
+        return $this->request("PUT", $uri);
     }
 
     /**
      * @param string $uri
-     * @param array|null $payload
-     * @param array|null $headers
-     * @return Controller
-     * @throws RoutingException
+     * @return Request
+     * @throws RequestException
      */
-    public function put(string $uri, ?array $payload = null, ?array $headers = null): Controller
+    public function delete(string $uri): Request
     {
-        return $this->request("PUT", $uri, $payload, $headers);
+        return $this->request("DELETE", $uri);
     }
 }
