@@ -14,12 +14,16 @@ declare(strict_types=1);
 
 namespace Comely\IO\HttpRouter\Controller\Data;
 
+use Comely\IO\HttpRouter\Router;
+
 /**
  * Class AbstractIterableData
  * @package Comely\IO\HttpRouter\Controller\Data
  */
 abstract class AbstractIterableData implements \Countable, \Iterator
 {
+    /** @var Router */
+    protected $router;
     /** @var array|null */
     private $data;
     /** @var int */
@@ -27,9 +31,11 @@ abstract class AbstractIterableData implements \Countable, \Iterator
 
     /**
      * AbstractIterableData constructor.
+     * @param Router $router
      */
-    final protected function __construct()
+    protected function __construct(Router $router)
     {
+        $this->router = $router;
         $this->data = [];
         $this->count = 0;
     }
