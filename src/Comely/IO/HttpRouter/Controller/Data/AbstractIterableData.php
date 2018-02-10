@@ -33,7 +33,7 @@ abstract class AbstractIterableData implements \Countable, \Iterator
      * AbstractIterableData constructor.
      * @param Router $router
      */
-    protected function __construct(Router $router)
+    public function __construct(Router $router)
     {
         $this->router = $router;
         $this->data = [];
@@ -58,6 +58,20 @@ abstract class AbstractIterableData implements \Countable, \Iterator
     final protected function getProp(string $key): ?Property
     {
         return $this->data[strtolower($key)] ?? null;
+    }
+
+    /**
+     * @return array
+     */
+    final public function array(): array
+    {
+        $array = [];
+        /** @var Property $prop */
+        foreach ($this->data as $key => $prop) {
+            $array[$prop->key] = $prop->value;
+        }
+
+        return $array;
     }
 
     /**
