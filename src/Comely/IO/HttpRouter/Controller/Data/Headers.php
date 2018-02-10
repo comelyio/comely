@@ -12,17 +12,31 @@
 
 declare(strict_types=1);
 
-namespace Comely\IO\HttpRouter\Controller;
+namespace Comely\IO\HttpRouter\Controller\Data;
 
-use Comely\IO\HttpRouter\Controller\Data\AbstractIterableData;
-use Comely\IO\HttpRouter\Controller\Data\Property;
+use Comely\IO\HttpRouter\Router;
 
 /**
  * Class Headers
- * @package Comely\IO\HttpRouter\Controller
+ * @package Comely\IO\HttpRouter\Controller\Data
  */
 class Headers extends AbstractIterableData
 {
+    /**
+     * Headers constructor.
+     * @param Router $router
+     * @param array|null $headers
+     */
+    public function __construct(Router $router, ?array $headers = null)
+    {
+        parent::__construct($router);
+        if (is_array($headers)) {
+            foreach ($headers as $key => $value) {
+                $this->set($key, $value);
+            }
+        }
+    }
+
     /**
      * @param string $key
      * @param string $value
@@ -30,7 +44,12 @@ class Headers extends AbstractIterableData
      */
     public function set(string $key, string $value): bool
     {
-        return $this->setProp($key, $value);
+        $prop = $this->router->sanitizer()->header($key, $value);
+        if ($prop) {
+            return $this->setProp($prop);
+        }
+
+        return false;
     }
 
     /**
