@@ -26,41 +26,21 @@ abstract class AbstractIterableData implements \Countable, \Iterator
     private $count;
 
     /**
-     * AbstractData constructor.
-     * @param array|null $data
+     * AbstractIterableData constructor.
      */
-    final public function __construct(?array $data = null)
+    final protected function __construct()
     {
         $this->data = [];
         $this->count = 0;
-
-        if (is_array($data)) {
-            $this->feed($data);
-        }
     }
 
     /**
-     * @param array $data
-     */
-    final protected function feed(array $data): void
-    {
-        foreach ($data as $key => $value) {
-            $this->setProp($key, $value);
-        }
-    }
-
-    /**
-     * @param string $key
-     * @param $value
+     * @param Property $prop
      * @return bool
      */
-    final protected function setProp(string $key, $value): bool
+    final protected function setProp(Property $prop): bool
     {
-        if (!preg_match('/^[a-zA-Z0-9\_\-\.]+$/', $key)) {
-            return false;
-        }
-
-        $this->data[strtolower($key)] = new Property($key, $value);
+        $this->data[strtolower($prop->key)] = $prop;
         $this->count++;
         return true;
     }
