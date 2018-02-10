@@ -40,36 +40,15 @@ class Request
 
     /**
      * Request constructor.
-     * @param string $method
-     * @param string $uri
-     * @param Payload $payload
-     * @param Headers $headers
-     * @throws RequestException
+     * @param \Comely\IO\HttpRouter\Router\Request $request
      */
-    public function __construct(string $method, string $uri, Payload $payload, Headers $headers)
+    public function __construct(\Comely\IO\HttpRouter\Router\Request $request)
     {
-        // Method
-        $this->method = strtoupper($method);
-        if (!in_array($this->method, ["GET", "POST", "PUT", "DELETE"])) {
-            throw new RequestException('HTTP router will only accept GET/POST/PUT/DELETE requests');
-        }
-
-        // URI
-        $this->uri = explode("?", $uri)[0]; // Strip GET query (if any)
-        if (!preg_match('/^\/[a-zA-Z0-9\/\._\-\*]*$/', $this->uri)) {
-            if (substr($this->uri, 0, 1) !== "/") {
-                throw new RequestException('Request URI must begin with "/"');
-            }
-
-            throw new RequestException('Request URI contains an illegal character');
-        }
-
-        // URI Parts
+        $this->method = $request->_method;
+        $this->uri = $request->_uri;
         $this->uriParts = explode("/", trim($this->uri, "/"));
-
-        // Payload and Headers
-        $this->payload = $payload;
-        $this->headers = $headers;
+        $this->payload = $request->_payload;
+        $this->headers = $request->_headers;
     }
 
     /**
