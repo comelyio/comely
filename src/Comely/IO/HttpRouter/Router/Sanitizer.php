@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Comely\IO\HttpRouter\Router;
 
+use Comely\IO\HttpRouter\Controller\Data\Property;
 use Comely\IO\HttpRouter\Exception\SanitizerException;
 
 /**
@@ -92,24 +93,20 @@ class Sanitizer
     }
 
     /**
-     * @param array $headers
-     * @return array
+     * @param $key
+     * @param $value
+     * @return Property|null
      */
-    public function headers(array $headers): array
+    public function header($key, $value): ?Property
     {
-        $sanitized = [];
-        foreach ($headers as $key => $value) {
-            if (!is_string($key) || !preg_match('/^[a-zA-Z0-9\s\_\-\.]+$/', $key)) {
-                continue; // Not a valid key
-            }
-
-            if (!is_string($value)) {
-                continue;
-            }
-
-            $sanitized[$key] = $value;
+        if (!is_string($key) || !preg_match('/^[a-zA-Z0-9\s\_\-\.]+$/', $key)) {
+            return null;
         }
 
-        return $sanitized;
+        if (!is_string($value)) {
+            return null;
+        }
+
+        return new Property($key, $value);
     }
 }

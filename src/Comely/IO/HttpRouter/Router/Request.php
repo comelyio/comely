@@ -15,8 +15,8 @@ declare(strict_types=1);
 namespace Comely\IO\HttpRouter\Router;
 
 use Comely\IO\HttpRouter\Controller;
-use Comely\IO\HttpRouter\Controller\Request\Headers;
-use Comely\IO\HttpRouter\Controller\Request\Payload;
+use Comely\IO\HttpRouter\Controller\Data\Payload;
+use Comely\IO\HttpRouter\Controller\Data\Headers;
 use Comely\IO\HttpRouter\Exception\RequestException;
 use Comely\IO\HttpRouter\Exception\RoutingException;
 use Comely\IO\HttpRouter\Router;
@@ -70,8 +70,8 @@ class Request
         $this->router = $router;
         $this->method = $method;
         $this->uri = $uri;
-        $this->payload = new Payload();
-        $this->headers = new Headers();
+        $this->payload = new Payload($router);
+        $this->headers = new Headers($router);
     }
 
     /**
@@ -105,13 +105,13 @@ class Request
     }
 
     /**
-     * @param array $headers
-     * @return Request
+     * @param Headers|null $headers
+     * @return Headers
      */
-    public function headers(array $headers): self
+    public function headers(?Headers $headers = null): Headers
     {
-        $this->headers = new Headers($this->router->sanitizer()->headers($headers));
-        return $this;
+        $this->headers = $headers ?? $this->headers;
+        return $this->headers;
     }
 
     /**
@@ -120,7 +120,7 @@ class Request
      */
     public function payload(array $payload): self
     {
-        $this->payload = new Payload($this->router->sanitizer()->payload($payload));
+        $this->payload = new Payload($this->router, $payload);
         return $this;
     }
 
