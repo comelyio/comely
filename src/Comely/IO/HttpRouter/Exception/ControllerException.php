@@ -18,6 +18,6 @@ namespace Comely\IO\HttpRouter\Exception;
  * Class ControllerException
  * @package Comely\IO\HttpRouter\Exception
  */
-class ControllerException extends HttpRouterException
+class ControllerException extends RoutingException
 {
 }

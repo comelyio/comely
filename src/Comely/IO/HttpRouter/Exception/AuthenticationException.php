@@ -18,6 +18,6 @@ namespace Comely\IO\HttpRouter\Exception;
  * Class AuthenticationException
  * @package Comely\IO\HttpRouter\Exception
  */
-class AuthenticationException extends HttpRouterException
+class AuthenticationException extends RoutingException
 {
 }
