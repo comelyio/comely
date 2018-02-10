@@ -62,6 +62,15 @@ abstract class AbstractInput implements \Countable, \Iterator
     }
 
     /**
+     * @param string $key
+     * @return mixed|null
+     */
+    protected function get(string $key)
+    {
+        return $this->data[$key] ?? null;
+    }
+
+    /**
      * @return int
      */
     final public function count(): int
