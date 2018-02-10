@@ -30,9 +30,10 @@ class Sanitizer
 
     /**
      * Sanitizer constructor.
-     * @param null $encoding
+     * @param null|string $encoding
+     * @throws SanitizerException
      */
-    public function __construct(?$encoding = null)
+    public function __construct(?string $encoding = null)
     {
         $this->encoding($encoding ?? self::UTF8);
     }
