@@ -29,22 +29,13 @@ abstract class AbstractInput implements \Countable, \Iterator
 
     /**
      * AbstractInput constructor.
+     * @param array $data
      */
-    public function __construct()
+    public function __construct(array $data)
     {
-        $this->data = [];
-        $this->count = 0;
+        $this->data = $data;
+        $this->count = count($data);
         $this->index = 0;
-    }
-
-    /**
-     * @param string $key
-     * @param $value
-     */
-    public function append(string $key, $value)
-    {
-        $this->data[$key] = $value;
-        $this->count++;
     }
 
     /**
