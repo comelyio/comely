@@ -84,7 +84,6 @@ class Route
      */
     private function wildcards(string $uri): string
     {
-        // Check if master wildcard exists
         $hasMasterWildcard = false;
         if (substr($uri, -4) === '\/\*') {
             $uri = substr($uri, 0, -4);
@@ -96,7 +95,7 @@ class Route
 
         // Add master wildcard
         if ($hasMasterWildcard) {
-            $uri .= '[^\/]?[a-zA-Z0-9\.\_\-\/]*';
+            $uri .= '[a-zA-Z0-9\.\_\-\/]*';
         }
 
         // All wildcards activated, return URI
