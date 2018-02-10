@@ -20,4 +20,11 @@ namespace Comely\IO\HttpRouter\Controller\Request;
  */
 class Headers extends AbstractInput
 {
+    /**
+     * @return array
+     */
+    public function copy(): array
+    {
+        return $this->data;
+    }
 }
