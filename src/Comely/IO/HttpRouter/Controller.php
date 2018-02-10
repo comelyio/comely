@@ -39,13 +39,13 @@ abstract class Controller
     {
         $this->router = $router;
         $this->request = $request;
-        $this->response = new Response();
+        $this->response = new Response($this);
     }
 
     /**
      * @return Router
      */
-    final protected function router(): Router
+    final public function router(): Router
     {
         return $this->router;
     }
