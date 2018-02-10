@@ -44,7 +44,7 @@ class Route
     public function __construct(string $uri, string $routeTo)
     {
         // Validate URI
-        if (!preg_match('/^\/[a-zA-Z0-9' . preg_quote('/._-*', '/') . ']*$/', $uri)) {
+        if (!preg_match('/^\/' . $this->patternValidChars('/*') . '*$/', $uri)) {
             if (substr($uri, 0, 1) !== "/") {
                 throw new RouteException('All HTTP routes must start with "/"');
             }
@@ -54,7 +54,7 @@ class Route
 
         $this->uri = preg_quote($uri, '/');
         $this->uri = strtolower($this->uri); // Case-insensitivity
-        $this->uri = str_replace('\*', '.*', $this->uri); // Activate wildcards
+        $this->uri = $this->wildcards($this->uri); // Activate wildcards
 
         // Validate Controller/Namespace
         if (!preg_match('/^[a-zA-Z0-9\_]+(\\\[a-zA-Z0-9\_]+)*$/', $routeTo)) {
@@ -66,6 +66,41 @@ class Route
         if (ord($this->routeTo[-1]) === 92) {
             $this->routeTo = substr($routeTo, 0, -1);
         }
+    }
+
+    /**
+     * @param string $allow
+     * @return string
+     */
+    private function patternValidChars(?string $allow = null): string
+    {
+        $allow = $allow ? preg_quote($allow, '/') : '';
+        return sprintf('[a-zA-Z0-9\.\_\-%s]', $allow);
+    }
+
+    /**
+     * @param string $uri
+     * @return string
+     */
+    private function wildcards(string $uri): string
+    {
+        // Check if master wildcard exists
+        $hasMasterWildcard = false;
+        if (substr($uri, -4) === '\/\*') {
+            $uri = substr($uri, 0, -4);
+            $hasMasterWildcard = true;
+        }
+
+        // Activate remaining wildcard
+        $uri = str_replace('\*', '[^\/]?[a-zA-Z0-9\.\_\-]*', $uri);
+
+        // Add master wildcard
+        if ($hasMasterWildcard) {
+            $uri .= '[^\/]?[a-zA-Z0-9\.\_\-\/]*';
+        }
+
+        // All wildcards activated, return URI
+        return $uri;
     }
 
     /**
