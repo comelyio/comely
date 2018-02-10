@@ -17,6 +17,7 @@ namespace Comely\IO\HttpRouter;
 use Comely\IO\HttpRouter\Exception\RequestException;
 use Comely\IO\HttpRouter\Exception\RoutingException;
 use Comely\IO\HttpRouter\Router\Request;
+use Comely\IO\HttpRouter\Router\Response;
 use Comely\IO\HttpRouter\Router\Route;
 use Comely\IO\HttpRouter\Router\Sanitizer;
 use Comely\Kernel\Extend\ComponentInterface;
@@ -34,6 +35,8 @@ class Router implements ComponentInterface
     private $sanitizer;
     /** @var null|string */
     private $fallbackController;
+    /** @var Response */
+    private $response;
 
     /**
      * Router constructor.
@@ -42,6 +45,7 @@ class Router implements ComponentInterface
     {
         $this->routes = [];
         $this->sanitizer = new Sanitizer();
+        $this->response = new Response();
     }
 
     /**
@@ -88,6 +92,14 @@ class Router implements ComponentInterface
 
         $this->fallbackController = $controller;
         return $this;
+    }
+
+    /**
+     * @return Response
+     */
+    public function response(): Response
+    {
+        return $this->response;
     }
 
     /**

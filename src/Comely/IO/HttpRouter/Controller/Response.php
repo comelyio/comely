@@ -17,6 +17,8 @@ namespace Comely\IO\HttpRouter\Controller;
 use Comely\IO\HttpRouter\Controller;
 use Comely\IO\HttpRouter\Controller\Data\Payload;
 use Comely\IO\HttpRouter\Controller\Data\Headers;
+use Comely\IO\HttpRouter\Exception\ControllerResponseException;
+use Comely\IO\HttpRouter\Exception\RoutingException;
 
 /**
  * Class Response
@@ -24,6 +26,8 @@ use Comely\IO\HttpRouter\Controller\Data\Headers;
  */
 class Response
 {
+    /** @var Controller */
+    private $controller;
     /** @var int */
     private $code;
     /** @var string */
@@ -39,10 +43,26 @@ class Response
      */
     public function __construct(Controller $controller)
     {
+        $this->controller = $controller;
         $this->code = 200;
-        $this->format($controller->request()->headers()->get("accept") ?? "");
         $this->payload = new Payload($controller->router());
         $this->headers = new Headers($controller->router());
+        $this->format("text/html");
+    }
+
+    /**
+     * @param string $format
+     * @return Response
+     * @throws ControllerResponseException
+     */
+    public function format(string $format): self
+    {
+        if ($this->controller->router()->response()->isValid($format)) {
+            throw new ControllerResponseException('Invalid response/content type');
+        }
+
+        $this->format = $format;
+        return $this;
     }
 
     /**
@@ -81,28 +101,8 @@ class Response
     }
 
     /**
-     * @param string $accept
-     * @return Response
+     * @throws ControllerResponseException
      */
-    public function format(string $accept): self
-    {
-        $accept = explode(";", $accept)[0]; // Grab first part of string
-        $accept = explode(",", $accept); // Accept arguments
-
-        $this->format = "text/html";
-        foreach ($accept as $format) {
-            $format = trim(strtolower($format));
-            switch ($format) {
-                case "application/json":
-                case "application/javascript":
-                    $this->format = $format;
-                    break;
-            }
-        }
-
-        return $this;
-    }
-
     public function send(): void
     {
         // Send HTTP response code
@@ -113,13 +113,11 @@ class Response
             header(sprintf('%s: %s', $name, $value));
         }
 
-        // Send Body/Payload
-        switch ($this->format) {
-            case "application/json":
-                header('Content-type: application/json; charset=utf-8');
-                print json_encode($this->payload->array());
-                return;
-
+        // Send Payload/Body
+        try {
+            $this->controller->router()->response()->send($this->format, $this->payload);
+        } catch (RoutingException $e) {
+            throw new ControllerResponseException($e->getMessage());
         }
     }
 }
