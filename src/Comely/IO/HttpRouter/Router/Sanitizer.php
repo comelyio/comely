@@ -64,6 +64,8 @@ class Sanitizer
                 continue; // Not a valid key
             }
 
+            $key = strtolower($key); // Case-insensitive
+
             if (is_scalar($value)) {
                 if (is_string($value)) {
                     switch ($this->encoding) {
@@ -107,6 +109,7 @@ class Sanitizer
                 continue;
             }
 
+            $key = strtolower($key); // Case-insensitive
             $sanitized[$key] = $value;
         }
 
