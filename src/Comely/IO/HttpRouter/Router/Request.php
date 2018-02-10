@@ -105,11 +105,13 @@ class Request
     }
 
     /**
-     * @return Headers
+     * @param array $headers
+     * @return Request
      */
-    public function headers(): Headers
+    public function headers(array $headers): self
     {
-        return $this->headers;
+        $this->headers = new Headers($this->router->sanitizer()->headers($headers));
+        return $this;
     }
 
     /**
@@ -118,7 +120,7 @@ class Request
      */
     public function payload(array $payload): self
     {
-        $this->payload = new Payload($payload);
+        $this->payload = new Payload($this->router->sanitizer()->payload($payload));
         return $this;
     }
 
