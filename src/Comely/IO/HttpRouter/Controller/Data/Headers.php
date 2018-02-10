@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Comely\IO\HttpRouter\Controller;
 
 use Comely\IO\HttpRouter\Controller\Data\AbstractIterableData;
+use Comely\IO\HttpRouter\Controller\Data\Property;
 
 /**
  * Class Headers
@@ -34,11 +35,10 @@ class Headers extends AbstractIterableData
 
     /**
      * @param string $key
-     * @return null|string
+     * @return Property|null
      */
-    public function get(string $key): ?string
+    public function get(string $key): ?Property
     {
-        $prop = $this->getProp($key);
-        return $prop->key ?? null;
+        return $this->getProp($key);
     }
 }
