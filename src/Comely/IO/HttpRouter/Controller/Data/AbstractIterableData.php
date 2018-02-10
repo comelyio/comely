@@ -45,7 +45,7 @@ abstract class AbstractIterableData implements \Countable, \Iterator
     final protected function feed(array $data): void
     {
         foreach ($data as $key => $value) {
-            $this->set($key, $value);
+            $this->setProp($key, $value);
         }
     }
 
@@ -54,7 +54,7 @@ abstract class AbstractIterableData implements \Countable, \Iterator
      * @param $value
      * @return bool
      */
-    protected function set(string $key, $value): bool
+    final protected function setProp(string $key, $value): bool
     {
         if (!preg_match('/^[a-zA-Z0-9\_\-\.]+$/', $key)) {
             return false;
@@ -69,7 +69,7 @@ abstract class AbstractIterableData implements \Countable, \Iterator
      * @param string $key
      * @return Property|null
      */
-    protected function get(string $key): ?Property
+    final protected function getProp(string $key): ?Property
     {
         return $this->data[strtolower($key)] ?? null;
     }
