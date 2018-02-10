@@ -31,17 +31,40 @@ abstract class AbstractInput implements \Countable, \Iterator
      * AbstractInput constructor.
      * @param array $data
      */
-    public function __construct(array $data)
+    public function __construct(?array $data = null)
+    {
+        $this->data = [];
+        $this->count = 0;
+        $this->index = 0;
+
+        if ($data) {
+            $this->data($data);
+        }
+    }
+
+    /**
+     * @param array $data
+     */
+    final protected function data(array $data): void
     {
         $this->data = $data;
         $this->count = count($data);
-        $this->index = 0;
+    }
+
+    /**
+     * @param string $key
+     * @param $value
+     */
+    final protected function append(string $key, $value): void
+    {
+        $this->data[$key]   =   $value;
+        $this->count++;
     }
 
     /**
      * @return int
      */
-    public function count(): int
+    final public function count(): int
     {
         return $this->count;
     }
@@ -49,7 +72,7 @@ abstract class AbstractInput implements \Countable, \Iterator
     /**
      * @return void
      */
-    public function rewind(): void
+    final public function rewind(): void
     {
         reset($this->data);
     }
@@ -57,7 +80,7 @@ abstract class AbstractInput implements \Countable, \Iterator
     /**
      * @return mixed
      */
-    public function current()
+    final public function current()
     {
         return current($this->data);
     }
@@ -65,7 +88,7 @@ abstract class AbstractInput implements \Countable, \Iterator
     /**
      * @return string
      */
-    public function key(): string
+    final public function key(): string
     {
         return key($this->data);
     }
@@ -73,7 +96,7 @@ abstract class AbstractInput implements \Countable, \Iterator
     /**
      * @return void
      */
-    public function next(): void
+    final public function next(): void
     {
         next($this->data);
     }
@@ -81,7 +104,7 @@ abstract class AbstractInput implements \Countable, \Iterator
     /**
      * @return bool
      */
-    public function valid(): bool
+    final public function valid(): bool
     {
         return is_null(key($this->data)) ? false : true;
     }
