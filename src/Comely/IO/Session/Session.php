@@ -14,6 +14,9 @@ declare(strict_types=1);
 
 namespace Comely\IO\Session;
 
+use Comely\IO\Cipher\Cipher;
+use Comely\IO\Cipher\Exception\CipherException;
+use Comely\IO\Cipher\Keychain\CipherKey;
 use Comely\IO\Session\Exception\SessionException;
 use Comely\IO\Session\Storage\SessionStorageInterface;
 use Comely\Kernel\Extend\ComponentInterface;
@@ -30,6 +33,10 @@ class Session implements ComponentInterface
     private $storage;
     /** @var array */
     private $sessions;
+    /** @var null|Cipher */
+    private $cipher;
+    /** @var null|CipherKey */
+    private $cipherKey;
 
     /**
      * Session constructor.
@@ -43,6 +50,18 @@ class Session implements ComponentInterface
 
         // Register shutdown handler
         register_shutdown_function([$this, "save"]);
+    }
+
+    /**
+     * @param Cipher $cipher
+     * @param CipherKey|null $key
+     * @return Session
+     */
+    public function useCipher(Cipher $cipher, ?CipherKey $key = null): self
+    {
+        $this->cipher = $cipher;
+        $this->cipherKey = $key;
+        return $this;
     }
 
     /**
@@ -62,7 +81,17 @@ class Session implements ComponentInterface
             try {
                 $read = base64_decode($this->storage->read($id));
 
-                // Todo: Decryption
+                // Decryption
+                if ($this->cipher) {
+                    if (substr($read, 0, 11) === "~encrypted~") {
+                        // This should let existing non-encrypted session to resume
+                        try {
+                            $read = $this->cipher->decrypt($read, $this->cipherKey);
+                        } catch (CipherException $e) {
+                            throw new SessionException(sprintf('Decryption error: %s', $e->getMessage()));
+                        }
+                    }
+                }
 
                 $session = @unserialize($read, [
                     "allowed_classes" => [
@@ -110,11 +139,14 @@ class Session implements ComponentInterface
          */
         foreach ($this->sessions as $id => $session) {
             try {
-                $encoded = base64_encode(serialize($session));
+                $serialized = base64_encode(serialize($session));
 
-                // Todo: Encryption
+                // Encryption
+                if ($this->cipher) {
+                    $serialized = "~encrypted~" . $this->cipher->encrypt($serialized, $this->cipherKey);
+                }
 
-                $this->storage->write($id, $encoded);
+                $this->storage->write($id, $serialized);
             } catch (\Exception $e) {
                 trigger_error(sprintf('Failed to write session "%s", %s', $e->getMessage()), E_USER_WARNING);
                 throw $e;
