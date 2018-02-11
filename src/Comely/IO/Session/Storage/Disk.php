@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Comely\IO\Session\Storage;
 
+use Comely\IO\FileSystem\Disk\Directory;
 use Comely\IO\FileSystem\Exception\DiskException;
 use Comely\IO\Session\Exception\StorageException;
 
@@ -28,15 +29,15 @@ class Disk implements SessionStorageInterface
 
     /**
      * Disk constructor.
-     * @param \Comely\IO\FileSystem\Disk $disk
+     * @param Directory $disk
      * @throws StorageException
      */
-    public function __construct(\Comely\IO\FileSystem\Disk $disk)
+    public function __construct(Directory $disk)
     {
         // Check permission
-        if (!$disk->privileges()->read) {
+        if (!$disk->permissions()->read) {
             throw new StorageException('Disk instance passed for Session storage does not have READ privilege');
-        } elseif (!$disk->privileges()->write) {
+        } elseif (!$disk->permissions()->write) {
             throw new StorageException('Disk instance passed for Session storage does not have WRITE privilege');
         }
 
@@ -79,15 +80,7 @@ class Disk implements SessionStorageInterface
      */
     public function has(string $id): bool
     {
-        try {
-            $file = $this->disk->file($id . ".sess");
-            if ($file->is() === \Comely\IO\FileSystem\Disk::IS_FILE) {
-                return $file->permissions()->read;
-            }
-        } catch (DiskException $e) {
-        }
-
-        return false;
+        return is_readable($this->disk->suffixed($id . ".sess"));
     }
 
     /**
@@ -97,7 +90,7 @@ class Disk implements SessionStorageInterface
     public function delete(string $id): void
     {
         try {
-            $this->disk->file($id . ".sess")->delete();
+            $this->disk->delete($id . ".sess");
         } catch (DiskException $e) {
             throw new StorageException($e->getMessage());
         }
@@ -111,7 +104,7 @@ class Disk implements SessionStorageInterface
         $files = $this->list();
         foreach ($files as $file) {
             try {
-                $this->disk->file($file)->delete();
+                $this->disk->delete($file);
             } catch (DiskException $e) {
                 trigger_error($e->getMessage(), E_USER_WARNING);
             }
@@ -125,7 +118,7 @@ class Disk implements SessionStorageInterface
     public function list(): array
     {
         try {
-            return $this->disk->find("*.sess");
+            return $this->disk->glob("*.sess");
         } catch (DiskException $e) {
             throw new StorageException($e->getMessage());
         }
@@ -139,7 +132,7 @@ class Disk implements SessionStorageInterface
     public function lastModified(string $id): int
     {
         try {
-            return $this->disk->file($id . ".sess")->lastModified();
+            return $this->disk->lastModified($id . ".sess");
         } catch (DiskException $e) {
             throw new StorageException($e->getMessage());
         }
