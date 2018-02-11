@@ -20,7 +20,7 @@ use Comely\IO\Cipher\Exception\CipherException;
  * Class Encrypted
  * @package Comely\IO\Cipher
  */
-class Encrypted
+class Encrypted implements \Serializable
 {
     /** @var string */
     private $type;
@@ -73,5 +73,34 @@ class Encrypted
         }
 
         return $this->data;
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize(): string
+    {
+        return base64_encode(serialize([
+            "type" => $this->type,
+            "data" => $this->data
+        ]));
+    }
+
+    /**
+     * @param string $serialized
+     * @throws CipherException
+     */
+    public function unserialize($serialized)
+    {
+        $unserialize = unserialize(base64_decode($serialized));
+        if (!is_array($unserialize)) {
+            throw new CipherException('Incomplete or corrupt encrypted data');
+        }
+
+        $this->type = $unserialize["type"] ?? null;
+        $this->data = $unserialize["data"] ?? null;
+        if (!$this->type || !$this->data) {
+            throw new CipherException('Incomplete or corrupt encrypted data');
+        }
     }
 }
