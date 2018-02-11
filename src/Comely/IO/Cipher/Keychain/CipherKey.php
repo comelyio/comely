@@ -29,23 +29,21 @@ use Comely\Kernel\Toolkit\Number;
  */
 class CipherKey implements Constants
 {
-
-    /** @var string */
-    private $cipherMethod;
     /** @var string */
     private $key;
     /** @var int */
-    private $ivLength;
-    /** @var int */
     private $encoding;
+    /** @var null|string */
+    private $cipherMethod;
+    /** @var null|int */
+    private $ivLength;
 
     /**
      * CipherKey constructor.
      * @param string $hexits
-     * @param string $cipherMethod
      * @throws CipherKeyException
      */
-    public function __construct(string $hexits, string $cipherMethod = "aes-256-cbc")
+    public function __construct(string $hexits)
     {
         // Validate key
         if (!ctype_xdigit($hexits)) {
@@ -65,7 +63,16 @@ class CipherKey implements Constants
         }
 
         $this->key = $binary;
+        $this->encoding = self::ENCODE_BASE64;
+    }
 
+    /**
+     * @param string $cipherMethod
+     * @return CipherKey
+     * @throws CipherKeyException
+     */
+    public function cipherMethod(string $cipherMethod = "aes-256-cbc"): self
+    {
         // Cipher method
         if (!in_array($cipherMethod, openssl_get_cipher_methods())) {
             throw new CipherKeyException(
@@ -75,7 +82,7 @@ class CipherKey implements Constants
 
         $this->cipherMethod = $cipherMethod;
         $this->ivLength = openssl_cipher_iv_length($this->cipherMethod);
-        $this->encoding = self::ENCODE_BASE64;
+        return $this;
     }
 
     /**
