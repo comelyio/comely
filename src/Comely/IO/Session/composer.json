@@ -1,0 +1,22 @@
+{
+  "name": "comelyio/session",
+  "description": "Session handler for your Comely apps",
+  "keywords": ["session", "comely", "comelyio", "comely.io", "comely2"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Furqan A. Siddiqui",
+      "email": "hello@furqansiddiqui.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0",
+    "comelyio/comely-kernel": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Comely\\IO\\Session\\": ""
+    }
+  },
+  "minimum-stability": "dev"
+}
