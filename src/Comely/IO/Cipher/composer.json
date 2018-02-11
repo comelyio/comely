@@ -1,0 +1,23 @@
+{
+  "name": "comelyio/cipher",
+  "description": "Cipher component for your Comely apps",
+  "keywords": ["cipher", "comely", "comelyio", "comely.io", "comely2"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Furqan A. Siddiqui",
+      "email": "hello@furqansiddiqui.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0",
+    "ext-openssl": "*",
+    "comelyio/comely-kernel": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Comely\\IO\\Cipher\\": ""
+    }
+  },
+  "minimum-stability": "dev"
+}
