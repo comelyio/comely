@@ -72,6 +72,8 @@ class Cipher implements ComponentInterface, Constants
             throw new CipherException('No default cipher key set, provide an instance of CipherKey');
         }
 
+        $this->checkKey($key); // Validate CipherKey
+
         $iv = openssl_random_pseudo_bytes($key->_offset);
         if (!$iv) {
             throw new CipherException('Failed to generate Initialization Vector');
@@ -114,6 +116,8 @@ class Cipher implements ComponentInterface, Constants
         if (!$key) {
             throw new CipherException('No default cipher key set, provide an instance of CipherKey');
         }
+
+        $this->checkKey($key); // Validate CipherKey
 
         $decoded = $this->decode($key, $encrypted);
         if (!$decoded) {
@@ -167,4 +171,14 @@ class Cipher implements ComponentInterface, Constants
         }
     }
 
+    /**
+     * @param CipherKey $key
+     * @throws CipherException
+     */
+    private function checkKey(CipherKey $key): void
+    {
+        if (!$key->_cipher) {
+            throw new CipherException('No cipher method defined for provided CipherKey');
+        }
+    }
 }
