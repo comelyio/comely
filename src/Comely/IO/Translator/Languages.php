@@ -122,6 +122,7 @@ class Languages
         // Parse translations
         $translations = [];
         $count = 0;
+        $group = $this->translator->_filesCacheId;
         foreach ($this->translator->_files as $file) {
             try {
                 $parsed = Yaml::Parse($languageDirectory->suffixed($file . "yml"))
@@ -138,12 +139,12 @@ class Languages
             }
         }
 
-        if (!$count) {
+        if (!$count || !$group) {
             throw new CompileLanguageException(sprintf('No files were loaded for language "%s"', $name));
         }
 
         // Construct Language instance
-        $language = new Language($name, $translations);
+        $language = new Language($name, $group, $translations);
 
         // Cache storage?
         $cacheStore = $this->translator->_cache;
