@@ -14,3 +14,12 @@ use Comely\IO\Translator\Translator;
 
 $translator = Translator::getInstance();
 ```
+
+## Languages
+
+A language is represented by a directory with in parent directory that is specified to Translator component.
+
+```php
+$dir = new Disk("/home/user/domain.com/app/translations")->dir();
+$translator->directory($dir);
+```
