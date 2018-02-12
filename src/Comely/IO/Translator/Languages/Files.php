@@ -17,11 +17,69 @@ namespace Comely\IO\Translator\Languages;
 /**
  * Class Files
  * @package Comely\IO\Translator\Languages
+ * @property array $_selected
  */
 class Files
 {
-    private $dictionary;
-    private $messages;
-    private $sitemap;
-    private $misc;
+    /** @var array */
+    private $selected;
+
+    /**
+     * @param string $prop
+     * @return array|bool
+     */
+    public function __get(string $prop)
+    {
+        if (strtolower($prop) === "_selected") {
+            return array_keys($this->selected);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $prop
+     * @param $value
+     * @return bool
+     */
+    public function __set($prop, $value)
+    {
+        return false;
+    }
+
+    /**
+     * @return Files
+     */
+    public function dictionary(): self
+    {
+        $this->selected["dictionary"] = 1;
+        return $this;
+    }
+
+    /**
+     * @return Files
+     */
+    public function messages(): self
+    {
+        $this->selected["messages"] = 1;
+        return $this;
+    }
+
+    /**
+     * @return Files
+     */
+    public function sitemap(): self
+    {
+        $this->selected["sitemap"] = 1;
+        return $this;
+    }
+
+    /**
+     * @return Files
+     */
+    public function misc(): self
+    {
+        $this->selected["misc"] = 1;
+        return $this;
+    }
 }
