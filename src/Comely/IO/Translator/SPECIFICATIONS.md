@@ -81,7 +81,8 @@ As per above example, key `profile.name.first` will retrieve value `First name` 
 * Call `load()` method and chain to select which files to include.
 * Language files will be complied when first translation is requested.
 * Method `load()` SHOULD BE called before any translation is requested by your app.
-* Method `load()` SHOULD NOT BE called more than once as it will reset internally stored instances of compile Language files
+* Method `load()` SHOULD NOT BE called more than once as it will reset all internally stored instances of compile 
+Language files causing re-compile of languages on next translation request which comes with a overhead.
 
 ```php
 $translator->load()
