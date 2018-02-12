@@ -18,6 +18,7 @@ namespace Comely\IO\Translator\Languages;
  * Class Files
  * @package Comely\IO\Translator\Languages
  * @property array $_selected
+ * @property string $_cacheId
  */
 class Files
 {
@@ -50,7 +51,7 @@ class Files
         switch ($prop) {
             case "_selected":
                 return array_keys($this->selected);
-            case "_cache_id":
+            case "_cacheId":
                 return implode("", array_values($this->selected));
         }
 
