@@ -69,7 +69,7 @@ profile:
 
 ```
 
-As per above example, key `profile.name.first` will retrieve value `First name` for language `en-us`
+As per above example, key `'profile.name.first'` will retrieve value `First name` for language `en-us`
 
 --
 
@@ -80,7 +80,7 @@ As per above example, key `profile.name.first` will retrieve value `First name` 
 
 * Call `load()` method and chain to select which files to include.
 * Language files will be complied when first translation is requested.
-* Method `load()` SHOULD BE called before any translation is requested by your app.
+* Method `load()` MUST BE called once before any translation is requested by your app.
 * Method `load()` SHOULD NOT BE called more than once as it will reset all internally stored instances of compile 
 Language files causing re-compile of languages on next translation request which comes with a overhead.
 
@@ -91,3 +91,30 @@ $translator->load()
   ->sitemap()
   ->misc();
 ```
+
+## Caching Compiled Files
+
+* Compile Language instance SHOULD BE cached to speed up your app.
+
+### Caching in a directory
+
+* Call `cacheDirectory()` method with instance of `Directory` as parameter to enable caching on directory.
+* Cache files will be stored and retrieved from this directory.
+
+```php
+use Comely\IO\FileSystem\Disk\Directory;
+
+$translator->cacheDirectory(new Directory('/home/user/domain.com/tmp/cache'));
+```
+
+## Global Translation Functions
+
+* Translator component is packed with few GLOBAL translation functions.
+* These functions will be defined automatically when Translator class is auto-loaded or included.
+* Translator component checks if your app or framework has already defined any of these functions to avoid fatal error.
+
+Function | Parameters | Returns | Description
+--- | --- | --- | ---
+__() | `string` $key, `null`/`string` $lang | `null`/`string` |Retrieves a translation
+__k() | `string` $key, `null`/`string` $lang | `string` | Retrieves a translation, if none found, return $key
+__f() | `string` $key, `array` $args, null`/`string` $lang | `null`/`string` | Retrieves a translation and runs `vsprintf()`
