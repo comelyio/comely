@@ -48,6 +48,7 @@ class Files
      */
     public function __get(string $prop)
     {
+        ksort($this->selected);
         switch ($prop) {
             case "_selected":
                 return array_keys($this->selected);
