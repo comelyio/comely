@@ -17,6 +17,7 @@ namespace Comely\IO\Translator\Cache;
 use Comely\IO\FileSystem\Disk\Directory;
 use Comely\IO\FileSystem\Exception\DiskException;
 use Comely\IO\Translator\Exception\CachedLanguageException;
+use Comely\IO\Translator\Exception\TranslatorException;
 use Comely\IO\Translator\Languages\Language;
 
 /**
@@ -34,6 +35,12 @@ class DiskCache implements LanguageCacheInterface
      */
     public function __construct(Directory $directory)
     {
+        if (!$directory->permissions()->read) {
+            throw new TranslatorException('Cache directory must have READ permission');
+        } elseif (!$directory->permissions()->write) {
+            throw new TranslatorException('Cache directory must have WRITE permission');
+        }
+
         $this->directory = $directory;
     }
 
