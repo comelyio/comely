@@ -117,4 +117,4 @@ Function | Parameters | Returns | Description
 --- | --- | --- | ---
 __() | `string` $key, `null`/`string` $lang | `null`/`string` |Retrieves a translation
 __k() | `string` $key, `null`/`string` $lang | `string` | Retrieves a translation, if none found, return $key
-__f() | `string` $key, `array` $args, null`/`string` $lang | `null`/`string` | Retrieves a translation and runs `vsprintf()`
+__f() | `string` $key, `array` $args, `null`/`string`` $lang | `null`/`string` | Retrieves a translation and runs `vsprintf()`
