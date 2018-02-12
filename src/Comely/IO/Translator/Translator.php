@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Comely\IO\Translator;
 
 use Comely\IO\FileSystem\Disk\Directory;
+use Comely\IO\Translator\Cache\DiskCache;
 use Comely\IO\Translator\Cache\LanguageCacheInterface;
 use Comely\IO\Translator\Exception\LanguageException;
 use Comely\IO\Translator\Exception\TranslatorException;
@@ -41,10 +42,8 @@ class Translator implements ComponentInterface
     private $files;
     /** @var Languages */
     private $languages;
-
     /** @var null|LanguageCacheInterface */
     private $cache;
-
     /** @var null|string */
     private $current;
     /** @var null|string */
@@ -70,6 +69,16 @@ class Translator implements ComponentInterface
     {
         $this->files = new Files();
         $this->languages = new Languages($this);
+    }
+
+    /**
+     * @param Directory $directory
+     * @return Translator
+     */
+    public function cacheDirectory(Directory $directory): self
+    {
+        $this->cache = new DiskCache($directory);
+        return $this;
     }
 
     /**
