@@ -25,6 +25,23 @@ class Files
     private $selected;
 
     /**
+     * Files constructor.
+     */
+    public function __construct()
+    {
+        $this->selected = [];
+    }
+
+    /**
+     * @return Files
+     */
+    public function reset(): self
+    {
+        $this->selected = [];
+        return $this;
+    }
+
+    /**
      * @param string $prop
      * @return array|bool
      */
