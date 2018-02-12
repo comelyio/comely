@@ -22,17 +22,21 @@ class Language
 {
     /** @var string */
     private $name;
+    /** @var string */
+    private $group;
     /** @var array */
     private $translations;
 
     /**
      * Language constructor.
      * @param string $name
+     * @param string $group
      * @param array $translations
      */
-    public function __construct(string $name, array $translations)
+    public function __construct(string $name, string $group, array $translations)
     {
         $this->name = $name;
+        $this->group = $group;
         $this->translations = [];
     }
 
@@ -76,6 +80,14 @@ class Language
     public function name(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function group(): string
+    {
+        return $this->group;
     }
 
     /**
