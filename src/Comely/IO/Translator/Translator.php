@@ -14,6 +14,11 @@ declare(strict_types=1);
 
 namespace Comely\IO\Translator;
 
+/**
+ * Load GLOBAL translation functions
+ */
+require_once __DIR__ . DIRECTORY_SEPARATOR . "globalTranslationFunctions.php";
+
 use Comely\IO\FileSystem\Disk\Directory;
 use Comely\IO\Translator\Cache\DiskCache;
 use Comely\IO\Translator\Cache\LanguageCacheInterface;
