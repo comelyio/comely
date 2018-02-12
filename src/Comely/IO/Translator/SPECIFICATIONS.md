@@ -24,3 +24,24 @@ use Comely\IO\FileSystem\Disk\Directory;
 
 $translator->directory(new Directory('/home/user/domain.com/app/translations'));
 ```
+
+* As per above example, `translations` directory should contain sub-directories i.e. `en`, `ur`, `lt` where each 
+directory represents an individual language.
+* Language names MUST BE either 2 alphabet name (e.g. `en`) OR 4 alphabet having "-" after first 2 alphabet (e.g. `en-us`)
+* Language directories MUST BE in lowercase.
+
+### Files
+
+Translator component divides all your translations in 4 groups, each group is a YAML file (ending in .yml extension). 
+These groups are:
+
+Name | File | Description
+--- | --- | ---
+Dictionary | dictionary.yml | Should contain translations for words, actions and other vocabulary
+Messages | messages.yml | Should contain error/success messages
+Sitemap | sitemap.yml | Should contain links names and page titles
+Misc | misc.yml | Should contain any other miscellaneous translations
+
+* Files must be named in all lowercase, matching exact giving names
+* Files must have `.yml` extensions
+
