@@ -30,7 +30,7 @@ directory represents an individual language.
 * Language names MUST BE either 2 alphabet name (e.g. `en`) OR 4 alphabet having "-" after first 2 alphabet (e.g. `en-us`)
 * Language directories MUST BE in lowercase.
 
-### Files
+## Files
 
 Translator component divides all your translations in 4 groups, each group is a YAML file (ending in .yml extension). 
 These groups are:
@@ -42,6 +42,6 @@ Messages | messages.yml | Should contain error/success messages
 Sitemap | sitemap.yml | Should contain links names and page titles
 Misc | misc.yml | Should contain any other miscellaneous translations
 
-* Files must be named in all lowercase, matching exact giving names
-* Files must have `.yml` extensions
+* Files MUST BE named in all lowercase, matching exact giving names
+* Files MUST have `.yml` extensions
 
