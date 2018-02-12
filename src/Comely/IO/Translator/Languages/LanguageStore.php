@@ -12,23 +12,15 @@
 
 declare(strict_types=1);
 
-namespace Comely\IO\Translations;
-
-use Comely\Kernel\Extend\ComponentInterface;
+namespace Comely\IO\Translator\Languages;
 
 /**
- * Class Translations
- * @package Comely\IO\Translations
+ * Class LanguageStore
+ * @package Comely\IO\Translator\Languages
  */
-class Translations implements ComponentInterface
+class LanguageStore
 {
-    /** @var self */
-    private static $instance;
+    private $name;
+    private $directory;
 
-    /**
-     * Translations constructor.
-     */
-    private function __construct()
-    {
-    }
 }

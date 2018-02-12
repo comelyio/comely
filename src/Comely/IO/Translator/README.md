@@ -1,6 +1,6 @@
-# Translations Component
+# Translator Component
 
-Translations component for your Comely apps
+Translator component for your Comely apps
 
 ## Prerequisites
 
@@ -10,8 +10,8 @@ Translations component for your Comely apps
 
 ## Installation
 
-`composer require comelyio/translations`
+`composer require comelyio/translator`
 
 ## Resources
 
-* [Documentation](https://comely.io/translations)
+* [Documentation](https://comely.io/translator)

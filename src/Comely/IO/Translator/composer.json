@@ -1,7 +1,7 @@
 {
-  "name": "comelyio/translations",
+  "name": "comelyio/translator",
   "description": "Translations component for your Comely apps",
-  "keywords": ["translations", "i18n", "comely", "comelyio", "comely.io", "comely2"],
+  "keywords": ["translator", "translations", "i18n", "comely", "comelyio", "comely.io", "comely2"],
   "license": "MIT",
   "authors": [
     {
@@ -16,7 +16,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Comely\\IO\\Translations\\": ""
+      "Comely\\IO\\Translator\\": ""
     }
   },
   "minimum-stability": "dev"
