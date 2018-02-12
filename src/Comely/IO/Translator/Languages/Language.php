@@ -14,11 +14,13 @@ declare(strict_types=1);
 
 namespace Comely\IO\Translator\Languages;
 
+use Comely\IO\Translator\Exception\CachedLanguageException;
+
 /**
  * Class Language
  * @package Comely\IO\Translator\Languages
  */
-class Language
+class Language implements \Serializable
 {
     /** @var string */
     private $name;
@@ -38,6 +40,41 @@ class Language
         $this->name = $name;
         $this->group = $group;
         $this->translations = [];
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize(): string
+    {
+        return base64_encode(serialize([
+            "name" => $this->name,
+            "group" => $this->group,
+            "translations" => $this->translations,
+        ]));
+    }
+
+    /**
+     * @param string $serialized
+     * @throws CachedLanguageException
+     */
+    public function unserialize($serialized)
+    {
+        $language = unserialize(base64_decode($serialized));
+        if (!is_array($language)) {
+            throw new CachedLanguageException('Incomplete or corrupt instance');
+        }
+
+        $name = $language["name"] ?? null;
+        $group = $language["group"] ?? null;
+        $translations = $language["translations"] ?? null;
+        if (!is_string($name) || !is_string($group) || !is_array($translations)) {
+            throw new CachedLanguageException('Invalid Language instance data');
+        }
+
+        $this->name = $name;
+        $this->group = $group;
+        $this->translations = $translations;
     }
 
     /**
