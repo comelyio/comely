@@ -43,12 +43,15 @@ class Files
 
     /**
      * @param string $prop
-     * @return array|bool
+     * @return array|bool|string
      */
     public function __get(string $prop)
     {
-        if (strtolower($prop) === "_selected") {
-            return array_keys($this->selected);
+        switch ($prop) {
+            case "_selected":
+                return array_keys($this->selected);
+            case "_cache_id":
+                return implode("", array_values($this->selected));
         }
 
         return false;
@@ -69,7 +72,7 @@ class Files
      */
     public function dictionary(): self
     {
-        $this->selected["dictionary"] = 1;
+        $this->selected["dictionary"] = "dkn";
         return $this;
     }
 
@@ -78,7 +81,7 @@ class Files
      */
     public function messages(): self
     {
-        $this->selected["messages"] = 1;
+        $this->selected["messages"] = "msg";
         return $this;
     }
 
@@ -87,7 +90,7 @@ class Files
      */
     public function sitemap(): self
     {
-        $this->selected["sitemap"] = 1;
+        $this->selected["sitemap"] = "smp";
         return $this;
     }
 
@@ -96,7 +99,7 @@ class Files
      */
     public function misc(): self
     {
-        $this->selected["misc"] = 1;
+        $this->selected["misc"] = "msc";
         return $this;
     }
 }
