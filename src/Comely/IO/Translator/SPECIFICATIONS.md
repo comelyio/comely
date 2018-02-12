@@ -20,6 +20,7 @@ $translator = Translator::getInstance();
 A language is represented by a directory with in parent directory that is specified to Translator component.
 
 ```php
-$dir = new Disk("/home/user/domain.com/app/translations")->dir();
-$translator->directory($dir);
+use Comely\IO\FileSystem\Disk\Directory;
+
+$translator->directory(new Directory('/home/user/domain.com/app/translations'));
 ```
