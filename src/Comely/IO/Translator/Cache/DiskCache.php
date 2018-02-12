@@ -62,13 +62,16 @@ class DiskCache implements LanguageCacheInterface
         }
 
         // Unserialize
-        $language = unserialize($serialized, [
-            "allowed_classes" => [
-                'Comely\IO\Translator\Languages\Language'
-            ]
-        ]);
+        try {
+            $language = unserialize($serialized, [
+                "allowed_classes" => [
+                    'Comely\IO\Translator\Languages\Language'
+                ]
+            ]);
+        } catch (CachedLanguageException $e) {
+        }
 
-        if (!$language || !$language instanceof Language) {
+        if (!isset($language) || !$language instanceof Language) {
             throw new CachedLanguageException(
                 sprintf('Cached language file "%s" is incomplete or corrupted', basename($cachedFile->path()))
             );
