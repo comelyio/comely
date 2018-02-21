@@ -23,6 +23,7 @@ use Comely\IO\HttpRouter\Exception\RequestException;
  * @package Comely\IO\HttpRouter\Controller
  * @property string $_method
  * @property string $_uri
+ * @property string $_queryString
  * @property string $_root
  */
 class Request
@@ -65,6 +66,8 @@ class Request
                 return $this->method;
             case "_uri":
                 return $this->uri;
+            case "_queryString":
+                return $this->queryString;
             case "_root":
                 return $this->root();
         }
