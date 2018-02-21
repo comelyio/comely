@@ -79,7 +79,7 @@ class RESTful
     {
         foreach ($_SERVER as $key => $value) {
             if (substr($key, 0, 5) === "HTTP_") {
-                $request->headers()->set(substr($key, 5), $value);
+                $request->headers()->set($key, $value);
             }
         }
     }
