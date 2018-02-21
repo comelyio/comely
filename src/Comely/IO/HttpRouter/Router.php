@@ -149,19 +149,16 @@ class Router implements ComponentInterface
             throw new RoutingException(sprintf('Request routed to "%s" HTTP controller not found', $controller));
         }
 
-        // Bootstrap HTTP Controller
-        try {
-            $controller = new $controller($this, new Controller\Request($request));
-        } catch (\Throwable $t) {
-            trigger_error($t->getMessage(), E_USER_WARNING);
-        }
-
-        // Make sure constructed class in instance of HTTP Controller
-        if (!$controller instanceof Controller) {
+        // Make sure that class is instance of HTTP controller before it is constructed
+        $reflect = new \ReflectionClass($controller);
+        if (!$reflect->isSubclassOf('Comely\IO\HttpRouter\Controller')) {
             throw new RoutingException(
                 sprintf('Request routed to "%s" but object is not an instance of HTTP controller', $controller)
             );
         }
+
+        // Bootstrap HTTP Controller
+        $controller = new $controller($this, new Controller\Request($request));
 
         return $controller;
     }
