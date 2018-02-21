@@ -33,6 +33,8 @@ class Request
     private $uri;
     /** @var array */
     private $uriParts;
+    /** @var string */
+    private $queryString;
     /** @var Payload */
     private $payload;
     /** @var Headers */
@@ -47,6 +49,7 @@ class Request
         $this->method = $request->_method;
         $this->uri = $request->_uri;
         $this->uriParts = explode("/", trim($this->uri, "/"));
+        $this->queryString = $request->_queryString;
         $this->payload = $request->_payload;
         $this->headers = $request->_headers;
     }

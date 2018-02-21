@@ -26,6 +26,7 @@ use Comely\IO\HttpRouter\Router;
  * @package Comely\IO\HttpRouter\Router
  * @property string $_method
  * @property string $_uri
+ * @property string $_queryString
  * @property Payload $_payload
  * @property Headers $_headers
  */
@@ -37,6 +38,8 @@ class Request
     private $method;
     /** @var string */
     private $uri;
+    /** @var string */
+    private $queryString;
     /** @var Payload */
     private $payload;
     /** @var Headers */
@@ -58,7 +61,12 @@ class Request
         }
 
         // URI
-        $this->uri = explode("?", $uri)[0]; // Strip GET query (if any)
+        $uri = explode("?", $uri); // Strip GET query string (if any)
+        $this->uri = $uri[0];
+        unset($uri[0]);
+        $this->queryString = implode("?", $uri);
+
+        // Validate URI
         if (!preg_match('/^\/[a-zA-Z0-9\/\._\-\*]*$/', $this->uri)) {
             if (substr($this->uri, 0, 1) !== "/") {
                 throw new RequestException('Request URI must begin with "/"');
@@ -69,7 +77,6 @@ class Request
 
         $this->router = $router;
         $this->method = $method;
-        $this->uri = $uri;
         $this->payload = new Payload($router);
         $this->headers = new Headers($router);
     }
@@ -89,6 +96,8 @@ class Request
                 return $this->payload;
             case "_headers":
                 return $this->headers;
+            case "_queryString":
+                return $this->queryString;
         }
 
         return false;
