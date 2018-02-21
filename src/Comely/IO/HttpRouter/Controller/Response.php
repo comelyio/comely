@@ -92,6 +92,16 @@ class Response
     }
 
     /**
+     * @param string $key
+     * @param $value
+     * @return bool
+     */
+    public function set(string $key, $value): bool
+    {
+        return $this->payload->set($key, $value);
+    }
+
+    /**
      * @param string $body
      * @return bool
      */
