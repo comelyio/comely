@@ -54,10 +54,10 @@ class Headers extends AbstractIterableData
 
     /**
      * @param string $key
-     * @return Property|null
+     * @return null|string
      */
-    public function get(string $key): ?Property
+    public function get(string $key): ?string
     {
-        return $this->getProp($key);
+        return $this->getProp($key)->value ?? null;
     }
 }
