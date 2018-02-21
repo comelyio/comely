@@ -14,7 +14,16 @@
   },
   "replace": {
     "comely/comely-engine": "self.version",
-    "comely/cache": "self.version"
+    "comely/cache": "self.version",
+    "comely/cipher": "self.version",
+    "comely/database": "self.version",
+    "comely/dependency-inject": "self.version",
+    "comely/events": "self.version",
+    "comely/file-system": "self.version",
+    "comely/http-router": "self.version",
+    "comely/session": "self.version",
+    "comely/translator": "self.version",
+    "comely/yaml": "self.version"
   },
   "autoload": {
     "psr-4": {
