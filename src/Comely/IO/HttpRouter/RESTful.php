@@ -36,6 +36,13 @@ class RESTful
         $httpMethod = $_SERVER["REQUEST_METHOD"] ?? "";
         $httpUri = $_SERVER["REQUEST_URI"] ?? "/";
 
+        // Check if URL not rewritten properly (i.e. called /index.php/some/controller)
+        if (preg_match('/^\/?[a-z0-9\-\_\.]+\.php\//', $httpUri)) {
+            $httpUri = explode("/", $httpUri);
+            unset($httpUri[1]);
+            $httpUri = implode("/", $httpUri);
+        }
+
         $request = new Request($router, $httpMethod, $httpUri);
         $request->payload(self::Payload($request->_method));
         self::Headers($request);
