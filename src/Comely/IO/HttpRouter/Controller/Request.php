@@ -129,4 +129,12 @@ class Request
     {
         return $this->headers;
     }
+
+    /**
+     * @return string
+     */
+    public function method(): string
+    {
+        return $this->method;
+    }
 }
