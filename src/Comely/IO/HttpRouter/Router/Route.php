@@ -155,7 +155,7 @@ class Route
         }
 
         // Make sure that class exists
-        if (class_exists($controller)) {
+        if (!class_exists($controller)) {
             throw new RouteException(sprintf('Fallback controller class "%s" not found', $controller));
         }
 

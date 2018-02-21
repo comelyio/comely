@@ -86,7 +86,7 @@ class Router implements ComponentInterface
         }
 
         // Make sure that class exists
-        if (class_exists($controller)) {
+        if (!class_exists($controller)) {
             throw new RoutingException(sprintf('Fallback controller class "%s" not found', $controller));
         }
 
