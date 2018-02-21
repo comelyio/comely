@@ -35,7 +35,12 @@ class Response
     {
         $this->handlers = [];
         $this->defaultHandler = function (Payload $payload) {
-            print $payload->get("body");
+            $body = $payload->get("body");
+            if ($body) { // Has body?
+                return print $body;
+            }
+
+            return print_r($payload->array());
         };
 
         // Default response handles
