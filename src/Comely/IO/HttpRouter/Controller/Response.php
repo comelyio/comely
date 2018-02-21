@@ -57,7 +57,7 @@ class Response
      */
     public function format(string $format): self
     {
-        if ($this->controller->router()->response()->isValid($format)) {
+        if (!$this->controller->router()->response()->isValid($format)) {
             throw new ControllerResponseException('Invalid response/content type');
         }
 
