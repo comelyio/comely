@@ -41,9 +41,9 @@ abstract class Authentication
     }
 
     /**
-     * @return void
+     * @param string $authorization
      */
-    abstract public function authenticate(): void;
+    abstract public function authenticate(?string $authorization): void;
 
     /**
      * @param string $realm

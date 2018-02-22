@@ -24,15 +24,35 @@ use Comely\IO\HttpRouter\Router\Authentication;
 class BasicAuth extends Authentication
 {
     /**
+     * @param string $authorization
      * @throws AuthenticationException
      */
-    public function authenticate(): void
+    public function authenticate(?string $authorization): void
     {
         try {
-            $username = $this->sanitize($_SERVER["PHP_AUTH_USER"] ?? null);
-            $password = $this->sanitize($_SERVER["PHP_AUTH_PW"] ?? null);
+            $username = null;
+            $password = null;
 
-            // Sent PHP_AUTH_USER header?
+            if ($authorization) {
+                $authorization = explode(" ", $authorization);
+                if (strtolower($authorization[0]) !== "basic") {
+                    throw new AuthenticationException(
+                        sprintf('Realm "%s" requires Basic auth, Invalid authorization header', $this->realm)
+                    );
+                }
+
+                $credentials = base64_decode($authorization[1]);
+                if (!$credentials) {
+                    throw new AuthenticationException('Invalid Basic authorization header');
+                }
+
+                $credentials = explode(":", $credentials);
+                $username = $this->sanitize($credentials[0] ?? null);
+                $password = $this->sanitize($credentials[1] ?? null);
+                unset($credentials);
+            }
+
+            // Sent username?
             if (!$username) {
                 throw new AuthenticationException(
                     sprintf('Authentication is required to enter this "%s"', $this->realm)

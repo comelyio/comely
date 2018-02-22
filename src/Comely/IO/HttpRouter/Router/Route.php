@@ -107,8 +107,10 @@ class Route
 
         // Request matches with this Route
         // Authentication?
-        if($this->authentication) {
-            $this->authentication->authenticate();
+        if ($this->authentication) {
+            $this->authentication->authenticate(
+                $request->headers()->get("authorization") // Get request header: Authorization
+            );
         }
 
         // Find HTTP Controller
