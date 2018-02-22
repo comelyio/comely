@@ -78,8 +78,15 @@ class RESTful
     protected static function Headers(Request $request): void
     {
         foreach ($_SERVER as $key => $value) {
-            if (substr($key, 0, 5) === "HTTP_") {
-                $request->headers()->set($key, $value);
+            $value = strval($value); // Cast as string
+            $key = explode("_", $key);
+            if ($key[0] === "HTTP") {
+                unset($key[0]);
+                $key = array_map(function ($part) {
+                    return ucfirst(strtolower($part));
+                }, $key);
+
+                $request->headers()->set(implode("-", $key), $value);
             }
         }
     }
