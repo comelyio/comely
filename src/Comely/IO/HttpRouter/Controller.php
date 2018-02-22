@@ -16,6 +16,8 @@ namespace Comely\IO\HttpRouter;
 
 use Comely\IO\HttpRouter\Controller\Request;
 use Comely\IO\HttpRouter\Controller\Response;
+use Comely\Kernel\Traits\NotCloneableTrait;
+use Comely\Kernel\Traits\NotSerializableTrait;
 
 /**
  * Class Controller
@@ -29,6 +31,9 @@ abstract class Controller
     private $request;
     /** @var Response */
     private $response;
+
+    use NotCloneableTrait;
+    use NotSerializableTrait;
 
     /**
      * Controller constructor.
