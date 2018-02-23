@@ -73,7 +73,7 @@ class Session implements ComponentInterface
     {
         $sessionId = $id;
         if (!$sessionId && $cookieName) {
-            $sessionId = $_COOKIE[$cookieName];
+            $sessionId = $_COOKIE[$cookieName] ?? null;
         }
 
         // Has session ID?
