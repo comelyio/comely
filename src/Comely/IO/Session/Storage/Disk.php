@@ -54,7 +54,7 @@ class Disk implements SessionStorageInterface
         try {
             return $this->disk->file($id . ".sess")->read();
         } catch (DiskException $e) {
-            throw new StorageException($e->getMessage());
+            throw new StorageException(sprintf('Session "%s" not found in sessions directory', $id));
         }
     }
 
