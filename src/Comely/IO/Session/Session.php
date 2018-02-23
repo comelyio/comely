@@ -79,7 +79,7 @@ class Session implements ComponentInterface
         // Has session ID?
         if ($sessionId) {
             try {
-                $read = base64_decode($this->storage->read($id));
+                $read = base64_decode($this->storage->read($sessionId));
 
                 // Decryption
                 if ($this->cipher) {
