@@ -12,14 +12,14 @@
 
 declare(strict_types=1);
 
-namespace Comely\IO\HttpRouter\Router;
+namespace Comely\IO\HttpRouter;
 
 use Comely\IO\HttpRouter\Authentication\BasicAuth;
 use Comely\IO\HttpRouter\Authentication\User;
 
 /**
  * Class Authentication
- * @package Comely\IO\HttpRouter\Router
+ * @package Comely\IO\HttpRouter
  */
 abstract class Authentication
 {

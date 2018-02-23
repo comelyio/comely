@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace Comely\IO\HttpRouter\Authentication;
 
+use Comely\IO\HttpRouter\Authentication;
 use Comely\IO\HttpRouter\Exception\AuthenticationException;
-use Comely\IO\HttpRouter\Router\Authentication;
 
 /**
  * Class BasicAuth
