@@ -47,7 +47,7 @@ class Route
     public function __construct(string $uri, string $routeTo)
     {
         // Validate URI
-        if (!preg_match('/^\/[a-zA-Z0-9\.\_\-\/\*]*$/', $uri)) {
+        if (!preg_match('/^\/[a-zA-Z0-9\.\_\-\*]+(\/?[a-zA-Z0-9\.\_\-\*]+)*$/', $uri)) {
             if (substr($uri, 0, 1) !== "/") {
                 throw new RouteException('All HTTP routes must start with "/"');
             }
@@ -56,37 +56,62 @@ class Route
         }
 
         // Validate Controller/Namespace
-        if (!preg_match('/^[a-zA-Z0-9\_]+(\\\[a-zA-Z0-9\_]+)*$/', $routeTo)) {
+        if (!preg_match('/^[a-zA-Z0-9\_]+(\\\[a-zA-Z0-9\_]+)*(\\\\\*)?$/', $routeTo)) {
             throw new RouteException('Invalid route Controller class or Namespace');
         }
 
         // Prepare URI pattern
-        $this->uri = preg_quote($uri, '/');
-        $this->uri = strtolower($this->uri); // Case-insensitivity
+        $this->uri = strtolower($uri); // Case-insensitivity
+        $this->uri = preg_replace('/\*{2,}/', '*', $this->uri);
+
+        // Controller/Namespace Path
+        $this->route = $routeTo;
 
         // Check if route leads to a Namespace
-        if (substr($this->uri, -4) === '\/\*') {
-            // Route to Namespace
-            $this->uri = substr($this->uri, 0, -4);
-            $this->uri = str_replace('\*', '[^\/]?[a-zA-Z0-9\.\_\-]*', $this->uri); // Activate wildcards in URI
-            $this->routeType = self::ROUTE_NAMESPACE;
-            $this->route = $routeTo;
-
-            // Remove trailing backslash from Namespace
-            if (ord(substr($this->route, -1)) === 92) {
-                $this->route = substr($this->route, 0, -1);
+        if (substr($this->route, -2) === '\*') {
+            if (substr($this->uri, -2) !== '/*') {
+                throw new RoutingException(
+                    sprintf('URI for namespace "%s" must end with /*', $routeTo)
+                );
             }
+
+            // Route to Namespace
+            $this->uri = $this->wildcards($this->uri);
+            $this->routeType = self::ROUTE_NAMESPACE;
+            $this->route = substr($this->route, 0, -2);
         } else {
             // Direct route to Controller
-            $this->uri = str_replace('\*', '[^\/]?[a-zA-Z0-9\.\_\-]*', $this->uri); // Activate wildcards in URI
+            $this->uri = $this->wildcards($this->uri);
             $this->routeType = self::ROUTE_DIRECT;
-            $this->route = $routeTo;
-            if (!class_exists($routeTo)) {
+            if (!class_exists($this->route)) {
                 throw new RoutingException(
-                    sprintf('Cannot find class "%s" for direct route "%s', $this->route, $this->uri)
+                    sprintf(
+                        'Cannot controller "%s" for direct routing, for namespaces suffix path with "\\*"',
+                        $this->route
+                    )
                 );
             }
         }
+    }
+
+    /**
+     * @param string $uri
+     * @return string
+     */
+    private function wildcards(string $uri): string
+    {
+        $uri = preg_quote($uri, '/');
+
+        // Last wildcard
+        if (substr($uri, -2) === '\*') {
+            $uri = substr($uri, -4) === '\/\*' ? substr($uri, 0, -4) : substr($uri, 0, -2);
+            $uri .= '(\/?[a-zA-Z0-9\.\_\-]+)*';
+        }
+
+        // Middle wildcards
+        $uri = str_replace('\*', '[^\/]?[a-zA-Z0-9\.\_\-]*', $uri);
+
+        return $uri; // activated
     }
 
     /**
