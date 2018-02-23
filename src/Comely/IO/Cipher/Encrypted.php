@@ -63,6 +63,8 @@ class Encrypted implements \Serializable
             if (!is_object($unserialize)) {
                 throw new CipherException('Failed to unserialize encrypted object');
             }
+
+            return $unserialize;
         } elseif ($this->type === "array") {
             $array = json_decode(base64_decode($this->data), true);
             if (!is_array($array)) {
