@@ -52,7 +52,7 @@ class CipherKey implements Constants
 
         $binary = strval(hex2bin($hexits));
         $bitLength = strlen($binary) * 8;
-        if (in_array($bitLength, self::KEY_SIZES)) {
+        if (!in_array($bitLength, self::KEY_SIZES)) {
             throw new CipherKeyException(
                 sprintf(
                     'Key of size %d bits not acceptable, use a %s bits long key',
