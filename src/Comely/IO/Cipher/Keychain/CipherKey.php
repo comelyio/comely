@@ -27,7 +27,7 @@ use Comely\Kernel\Toolkit\Number;
  * @property int $_offset
  * @property int $_encoding
  */
-class CipherKey implements Constants
+class CipherKey implements Constants, \Serializable
 {
     /** @var string */
     private $key;
@@ -44,6 +44,16 @@ class CipherKey implements Constants
      * @throws CipherKeyException
      */
     public function __construct(string $hexits)
+    {
+        $this->hexits($hexits);
+        $this->encoding = self::ENCODE_BASE64;
+    }
+
+    /**
+     * @param string $hexits
+     * @throws CipherKeyException
+     */
+    private function hexits(string $hexits): void
     {
         // Validate key
         if (!ctype_xdigit($hexits)) {
@@ -63,7 +73,36 @@ class CipherKey implements Constants
         }
 
         $this->key = $binary;
-        $this->encoding = self::ENCODE_BASE64;
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize(
+            [
+                "key" => $this->key,
+                "encoding" => $this->encoding,
+                "cipher" => $this->cipherMethod
+            ]
+        );
+    }
+
+    /**
+     * @param string $serialized
+     * @throws CipherKeyException
+     */
+    public function unserialize($serialized)
+    {
+        $unserialize = unserialize($serialized);
+        if (!is_array($unserialize)) {
+            throw new CipherKeyException('Unserialize key is corrupt or incomplete');
+        }
+
+        $this->hexits(bin2hex($unserialize["key"] ?? ""));
+        $this->encoding(intval($unserialize["encoding"] ?? 0));
+        $this->cipherMethod($unserialize["cipher"] ?? "~null");
     }
 
     /**
