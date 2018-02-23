@@ -51,7 +51,7 @@ class Route
             if (substr($uri, 0, 1) !== "/") {
                 throw new RouteException('All HTTP routes must start with "/"');
             } elseif (substr($uri, -1) === "/") {
-                throw new RouteException('All HTTP routes cannot end with "/", use "/*" for wildcard');
+                throw new RouteException('HTTP route cannot end with "/", use "/*" for wildcard');
             }
 
             throw new RouteException('HTTP route URI contain an illegal character');
@@ -88,7 +88,7 @@ class Route
             if (!class_exists($this->route)) {
                 throw new RoutingException(
                     sprintf(
-                        'Cannot controller "%s" for direct routing, for namespaces suffix path with "\\*"',
+                        'Cannot find controller "%s" for direct routing, for namespaces suffix path with "\\*"',
                         $this->route
                     )
                 );
