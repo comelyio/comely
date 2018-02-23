@@ -148,6 +148,22 @@ class ComelySession implements \Serializable
     }
 
     /**
+     * @return FlashMessages
+     */
+    public function flash(): FlashMessages
+    {
+        return $this->flash;
+    }
+
+    /**
+     * @return Metadata
+     */
+    public function meta(): Metadata
+    {
+        return $this->metadata;
+    }
+
+    /**
      * @return int
      */
     public function timeStamp(): int
