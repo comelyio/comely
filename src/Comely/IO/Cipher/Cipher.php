@@ -85,7 +85,7 @@ class Cipher implements ComponentInterface, Constants
             throw new CipherException(sprintf('Failed to encrypt using cipher "%s"', $key->_cipher));
         }
 
-        return $this->encode($key, $encrypted);
+        return $this->encode($key, $iv . $encrypted);
     }
 
     /**
