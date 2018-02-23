@@ -88,6 +88,6 @@ class Response
 
         /** @var \Closure $closure */
         $closure = $this->handlers[$type] ?? $this->defaultHandler;
-        call_user_func($closure, $type, $payload);
+        call_user_func($closure, $payload);
     }
 }
