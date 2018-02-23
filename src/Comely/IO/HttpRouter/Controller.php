@@ -75,4 +75,18 @@ abstract class Controller
     {
         return $this->response;
     }
+
+    /**
+     * @param string $url
+     * @param int|null $code
+     */
+    public function redirect(string $url, ?int $code = null): void
+    {
+        if ($code) {
+            http_response_code($code);
+        }
+
+        header(sprintf('Location: %s', $url));
+        exit;
+    }
 }
