@@ -44,6 +44,7 @@ class ComelySession implements \Serializable
         $this->id = $this->generateId();
         $this->bags = new Bag();
         $this->flash = new FlashMessages();
+        $this->metadata = new Metadata();
         $this->timeStamp = time();
     }
 
@@ -93,7 +94,7 @@ class ComelySession implements \Serializable
         $this->timeStamp = $timeStamp;
 
         // Baggage
-        $baggage = @unserialize(strval($session["baggage"] ?? ""), [
+        $baggage = @unserialize(strval($unserialize["baggage"] ?? ""), [
             "allowed_classes" => ['Comely\IO\Session\ComelySession\Bag']
         ]);
         if (!$baggage instanceof Bag) {
@@ -103,7 +104,7 @@ class ComelySession implements \Serializable
         }
 
         // Flash
-        $flash = @unserialize(strval($session["flash"] ?? ""), [
+        $flash = @unserialize(strval($unserialize["flash"] ?? ""), [
             "allowed_classes" => [
                 'Comely\IO\Session\ComelySession\FlashMessages',
                 'Comely\IO\Session\ComelySession\FlashMessages\FlashMessage'
@@ -116,7 +117,7 @@ class ComelySession implements \Serializable
         }
 
         // Metadata
-        $metadata = @unserialize(strval($session["metadata"] ?? ""), [
+        $metadata = @unserialize(strval($unserialize["metadata"] ?? ""), [
             "allowed_classes" => ['Comely\IO\Session\ComelySession\Metadata']
         ]);
         if (!$metadata instanceof Metadata) {
