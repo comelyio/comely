@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Comely\IO\HttpRouter\Router;
 
+use Comely\IO\HttpRouter\Authentication;
 use Comely\IO\HttpRouter\Exception\RouteException;
 use Comely\IO\HttpRouter\Exception\RoutingException;
 use Comely\Kernel\Comely;
