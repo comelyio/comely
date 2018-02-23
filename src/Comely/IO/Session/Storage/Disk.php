@@ -67,7 +67,7 @@ class Disk implements SessionStorageInterface
     public function write(string $id, $payload): bool
     {
         try {
-            $write = $this->disk->write($id . ".sess", $payload, true);
+            $write = $this->disk->write($id . ".sess", $payload, false, true);
             return $write ? true : false;
         } catch (DiskException $e) {
             throw new StorageException($e->getMessage());
