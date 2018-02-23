@@ -96,7 +96,10 @@ class Session implements ComponentInterface
                 $session = @unserialize($read, [
                     "allowed_classes" => [
                         'Comely\IO\Session\ComelySession',
-                        'Comely\IO\Session\ComelySession\Bag'
+                        'Comely\IO\Session\ComelySession\Bag',
+                        'Comely\IO\Session\ComelySession\Metadata',
+                        'Comely\IO\Session\ComelySession\FlashMessages',
+                        'Comely\IO\Session\ComelySession\FlashMessages\FlashMessage'
                     ]
                 ]);
 

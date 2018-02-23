@@ -15,6 +15,8 @@ declare(strict_types=1);
 namespace Comely\IO\Session;
 
 use Comely\IO\Session\ComelySession\Bag;
+use Comely\IO\Session\ComelySession\FlashMessages;
+use Comely\IO\Session\ComelySession\Metadata;
 use Comely\IO\Session\Exception\ComelySessionException;
 
 /**
@@ -27,6 +29,10 @@ class ComelySession implements \Serializable
     private $id;
     /** @var Bag */
     private $bags;
+    /** @var FlashMessages */
+    private $flash;
+    /** @var Metadata */
+    private $metadata;
     /** @var int */
     private $timeStamp;
 
@@ -37,6 +43,7 @@ class ComelySession implements \Serializable
     {
         $this->id = $this->generateId();
         $this->bags = new Bag();
+        $this->flash = new FlashMessages();
         $this->timeStamp = time();
     }
 
@@ -60,7 +67,9 @@ class ComelySession implements \Serializable
     {
         return serialize([
             "id" => $this->id,
-            "baggage" => base64_encode(serialize($this->bags)),
+            "baggage" => serialize($this->bags),
+            "flash" => serialize($this->flash),
+            "metadata" => serialize($this->metadata),
             "timeStamp" => time()
         ]);
     }
@@ -92,6 +101,34 @@ class ComelySession implements \Serializable
                 sprintf('Failed to retrieve serialized baggage for session "%s"', $this->id)
             );
         }
+
+        // Flash
+        $flash = @unserialize(strval($session["flash"] ?? ""), [
+            "allowed_classes" => [
+                'Comely\IO\Session\ComelySession\FlashMessages',
+                'Comely\IO\Session\ComelySession\FlashMessages\FlashMessage'
+            ]
+        ]);
+        if (!$flash instanceof FlashMessages) {
+            throw new ComelySessionException(
+                sprintf('Failed to retrieve serialized flash messages for session "%s"', $this->id)
+            );
+        }
+
+        // Metadata
+        $metadata = @unserialize(strval($session["metadata"] ?? ""), [
+            "allowed_classes" => ['Comely\IO\Session\ComelySession\Metadata']
+        ]);
+        if (!$metadata instanceof Metadata) {
+            throw new ComelySessionException(
+                sprintf('Failed to retrieve serialized metadata for session "%s"', $this->id)
+            );
+        }
+
+        // Populate properties
+        $this->bags = $baggage;
+        $this->flash = $flash;
+        $this->metadata = $metadata;
     }
 
     /**
