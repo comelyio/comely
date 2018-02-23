@@ -50,6 +50,8 @@ class Route
         if (!preg_match('/^\/[a-zA-Z0-9\.\_\-\*]+(\/?[a-zA-Z0-9\.\_\-\*]+)*$/', $uri)) {
             if (substr($uri, 0, 1) !== "/") {
                 throw new RouteException('All HTTP routes must start with "/"');
+            } elseif (substr($uri, -1) === "/") {
+                throw new RouteException('All HTTP routes cannot end with "/", use "/*" for wildcard');
             }
 
             throw new RouteException('HTTP route URI contain an illegal character');
@@ -103,10 +105,12 @@ class Route
         $uri = preg_quote($uri, '/');
 
         // Last wildcard
-        if (substr($uri, -2) === '\*') {
-            $uri = substr($uri, -4) === '\/\*' ? substr($uri, 0, -4) : substr($uri, 0, -2);
-            $uri .= '(\/?[a-zA-Z0-9\.\_\-]+)*';
+        if (substr($uri, -4) === '\/\*') {
+            $uri = substr($uri, 0, -4) . '(\/[a-zA-Z0-9\.\_\-]+)*';
         }
+
+        // Optional trailing "/"
+        $uri .= "\/?";
 
         // Middle wildcards
         $uri = str_replace('\*', '[^\/]?[a-zA-Z0-9\.\_\-]*', $uri);

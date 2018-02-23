@@ -68,12 +68,6 @@ class Request
 
         // Remove multiple "/"s
         $this->uri = preg_replace('/\/{2,}/', '/', $this->uri);
-        if (substr($this->uri, -1) === "/") {
-            $this->uri = substr($this->uri, 0, -1); // Remove trailing "/"
-            if (!$this->uri) { // Was it the only "/" ?
-                $this->uri = "/";
-            }
-        }
 
         // Validate URI
         if (!preg_match('/^\/[a-zA-Z0-9\/\._\-]*$/', $this->uri)) {
