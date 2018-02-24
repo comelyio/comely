@@ -61,10 +61,13 @@ class Bag
             case "string":
             case "array":
             case "NULL":
-                return $this->props[strtolower($key)] = $value;
+                $this->props[strtolower($key)] = $value;
+                break;
             default:
                 throw new ComelySessionException(sprintf('Data type "%s" cannot be stored', $valueType));
         }
+
+        return $this;
     }
 
     /**
