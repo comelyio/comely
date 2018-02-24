@@ -42,6 +42,7 @@ class Bag
      */
     public function bag(string $name): Bag
     {
+        $name = strtolower($name);
         return $this->bags[$name] ?? $this->bags[$name] = new Bag;
     }
 
