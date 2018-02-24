@@ -23,6 +23,8 @@ use Comely\IO\HttpRouter\Exception\RoutingException;
 /**
  * Class Response
  * @package Comely\IO\HttpRouter\Controller
+ * @property int $_code
+ * @property string $_format
  */
 class Response
 {
@@ -48,6 +50,32 @@ class Response
         $this->payload = new Payload($controller->router());
         $this->headers = new Headers($controller->router());
         $this->format("text/html");
+    }
+
+    /**
+     * @param $prop
+     * @return bool|int|string
+     */
+    public function __get($prop)
+    {
+        switch ($prop) {
+            case "_format":
+                return $this->format;
+            case "_code":
+                return $this->code;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * @param $prop
+     * @param $value
+     * @return bool
+     */
+    public function __set($prop, $value)
+    {
+        return false;
     }
 
     /**
