@@ -103,10 +103,12 @@ class Bag
 
     /**
      * @param string $key
+     * @return Bag
      */
-    public function delete(string $key): void
+    public function delete(string $key): self
     {
         $key = strtolower($key);
         unset($this->props[$key], $this->bags[$key]);
+        return $this;
     }
 }
