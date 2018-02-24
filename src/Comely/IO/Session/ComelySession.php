@@ -16,7 +16,6 @@ namespace Comely\IO\Session;
 
 use Comely\IO\Session\ComelySession\Bag;
 use Comely\IO\Session\ComelySession\FlashMessages;
-use Comely\IO\Session\ComelySession\Metadata;
 use Comely\IO\Session\Exception\ComelySessionException;
 
 /**
@@ -31,7 +30,7 @@ class ComelySession implements \Serializable
     private $bags;
     /** @var FlashMessages */
     private $flash;
-    /** @var Metadata */
+    /** @var Bag */
     private $metadata;
     /** @var int */
     private $timeStamp;
@@ -44,7 +43,7 @@ class ComelySession implements \Serializable
         $this->id = $this->generateId();
         $this->bags = new Bag();
         $this->flash = new FlashMessages();
-        $this->metadata = new Metadata();
+        $this->metadata = new Bag();
         $this->timeStamp = time();
     }
 
@@ -118,9 +117,9 @@ class ComelySession implements \Serializable
 
         // Metadata
         $metadata = @unserialize(strval($unserialize["metadata"] ?? ""), [
-            "allowed_classes" => ['Comely\IO\Session\ComelySession\Metadata']
+            "allowed_classes" => ['Comely\IO\Session\ComelySession\Bag']
         ]);
-        if (!$metadata instanceof Metadata) {
+        if (!$metadata instanceof Bag) {
             throw new ComelySessionException(
                 sprintf('Failed to retrieve serialized metadata for session "%s"', $this->id)
             );
@@ -157,9 +156,9 @@ class ComelySession implements \Serializable
     }
 
     /**
-     * @return Metadata
+     * @return Bag
      */
-    public function meta(): Metadata
+    public function meta(): Bag
     {
         return $this->metadata;
     }
