@@ -58,6 +58,7 @@ class RESTful
             foreach ($acceptHeader as $format) {
                 try {
                     $controller->response()->format(trim($format));
+                    continue; // Accepted
                 } catch (ControllerResponseException $e) {
                     continue; // Ignore
                 }
