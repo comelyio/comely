@@ -23,8 +23,6 @@ use Comely\IO\HttpRouter\Exception\RoutingException;
 /**
  * Class Response
  * @package Comely\IO\HttpRouter\Controller
- * @property int $_code
- * @property string $_format
  */
 class Response
 {
@@ -53,54 +51,34 @@ class Response
     }
 
     /**
-     * @param $prop
-     * @return bool|int|string
-     */
-    public function __get($prop)
-    {
-        switch ($prop) {
-            case "_format":
-                return $this->format;
-            case "_code":
-                return $this->code;
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * @param $prop
-     * @param $value
-     * @return bool
-     */
-    public function __set($prop, $value)
-    {
-        return false;
-    }
-
-    /**
      * @param string $format
      * @return Response
      * @throws ControllerResponseException
      */
-    public function format(string $format): self
+    public function format(?string $format = null): string
     {
-        if (!$this->controller->router()->response()->isValid($format)) {
-            throw new ControllerResponseException('Invalid response/content type');
+        if ($format) {
+            if (!$this->controller->router()->response()->isValid($format)) {
+                throw new ControllerResponseException('Invalid response/content type');
+            }
+
+            $this->format = $format;
         }
 
-        $this->format = $format;
-        return $this;
+        return $this->format;
     }
 
     /**
-     * @param int $code
-     * @return Response
+     * @param int|null $code
+     * @return int
      */
-    public function code(int $code): self
+    public function code(?int $code = null): int
     {
-        $this->code = $code;
-        return $this;
+        if($code) {
+            $this->code = $code;
+        }
+
+        return  $this->code;
     }
 
     /**
