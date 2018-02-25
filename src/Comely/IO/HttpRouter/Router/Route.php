@@ -161,7 +161,7 @@ class Route
                 }
 
                 return null;
-            }, explode("/", $request->_uri));
+            }, explode("/", trim($request->_uri, "/")));
 
             $controller = sprintf('%s\%s', $this->route, implode('\\', $controller));
             $controller = preg_replace('/\\\{2,}/', '\\', $controller);
