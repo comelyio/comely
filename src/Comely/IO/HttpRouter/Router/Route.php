@@ -153,8 +153,10 @@ class Route
         if ($this->routeType === self::ROUTE_DIRECT) {
             $controller = $this->route; // Class exists check already done in constructor
         } elseif ($this->routeType === self::ROUTE_NAMESPACE) {
-            $controller = array_map(function ($part) {
-                if ($part) {
+            $pathIndex = -1;
+            $controller = array_map(function ($part) use (&$pathIndex) {
+                $pathIndex++;
+                if ($part && !in_array($pathIndex, $this->ignoredPathIndexes)) {
                     return Comely::PascalCase($part);
                 }
 
