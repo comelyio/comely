@@ -38,6 +38,8 @@ class Route
     private $fallbackController;
     /** @var null|Authentication */
     private $authentication;
+    /** @var array */
+    private $ignoredPathIndexes;
 
     /**
      * Route constructor.
@@ -94,6 +96,9 @@ class Route
                 );
             }
         }
+
+        // Other variables
+        $this->ignoredPathIndexes = [];
     }
 
     /**
@@ -148,15 +153,14 @@ class Route
         if ($this->routeType === self::ROUTE_DIRECT) {
             $controller = $this->route; // Class exists check already done in constructor
         } elseif ($this->routeType === self::ROUTE_NAMESPACE) {
-            $offset = [];
-            preg_match('/^' . $this->uri . '/', $request->_uri, $offset);
-            $offset = strlen(strval($offset[0] ?? ""));
             $controller = array_map(function ($part) {
                 if ($part) {
                     return Comely::PascalCase($part);
                 }
+
                 return null;
-            }, explode("/", substr($request->_uri, $offset)));
+            }, explode("/", $request->_uri));
+
             $controller = sprintf('%s\%s', $this->route, implode('\\', $controller));
             $controller = preg_replace('/\\\{2,}/', '\\', $controller);
             $controller = rtrim($controller, '\\');
@@ -202,6 +206,16 @@ class Route
     public function authenticate(Authentication $auth): self
     {
         $this->authentication = $auth;
+        return $this;
+    }
+
+    /**
+     * @param int $index
+     * @return Route
+     */
+    public function ignorePathIndex(int $index): self
+    {
+        $this->ignoredPathIndexes[] = $index;
         return $this;
     }
 }
