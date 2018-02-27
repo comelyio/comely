@@ -141,16 +141,7 @@ class Cipher implements ComponentInterface, Constants
             throw new CipherException('Failed to decode encrypted bytes');
         }
 
-        $iv = substr($decoded, 0, $key->_offset);
-        $decoded = substr($decoded, $key->_offset);
-
-        if (!$iv) {
-            throw new CipherException('Failed to retrieve Initialization Vector');
-        } elseif (!$decoded) {
-            throw new CipherException('Failed to retrieve encrypted bytes');
-        }
-
-        $decrypt = $this->openSSL->decrypt($key, $decoded, $iv);
+        $decrypt = $this->openSSL->decrypt($key, $decoded);
         $encrypted = unserialize($decrypt);
         if (!$encrypted || !$encrypted instanceof Encrypted) {
             throw new CipherException('Failed to retrieve encrypted item');

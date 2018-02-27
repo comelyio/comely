@@ -47,9 +47,21 @@ class OpenSSL
      * @return string
      * @throws CipherException
      */
-    public function decrypt(CipherKey $key, string $raw, string $iv): string
+    public function decrypt(CipherKey $key, string $raw, ?string $iv = null): string
     {
-        $decrypt = openssl_decrypt($raw, $key->_cipher, $key->_key, OPENSSL_RAW_DATA, $iv);
+        $subject = $raw;
+        if (!$iv) {
+            $iv = substr($subject, 0, $key->_offset);
+            $subject = substr($subject, $key->_offset);
+        }
+
+        if (!$iv) {
+            throw new CipherException('Failed to retrieve Initialization Vector');
+        } elseif (!$subject) {
+            throw new CipherException('Failed to retrieve encrypted bytes');
+        }
+
+        $decrypt = openssl_decrypt($subject, $key->_cipher, $key->_key, OPENSSL_RAW_DATA, $iv);
         if (!$decrypt) {
             throw new CipherException('Failed to decrypt data');
         }
