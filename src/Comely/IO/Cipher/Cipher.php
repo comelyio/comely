@@ -28,6 +28,8 @@ class Cipher implements ComponentInterface, Constants
     private $keychain;
     /** @var null|CipherKey */
     private $defaultKey;
+    /** @var OpenSSL */
+    private $openSSL;
 
     /**
      * Cipher constructor.
@@ -39,6 +41,7 @@ class Cipher implements ComponentInterface, Constants
         }
 
         $this->keychain = new Keychain();
+        $this->openSSL = new OpenSSL();
     }
 
     /**
@@ -47,6 +50,14 @@ class Cipher implements ComponentInterface, Constants
     public function keychain(): Keychain
     {
         return $this->keychain;
+    }
+
+    /**
+     * @return OpenSSL
+     */
+    public function openSSL(): OpenSSL
+    {
+        return $this->openSSL;
     }
 
     /**
@@ -80,10 +91,7 @@ class Cipher implements ComponentInterface, Constants
         }
 
         $data = serialize(new Encrypted($data));
-        $encrypted = openssl_encrypt($data, $key->_cipher, $key->_key, OPENSSL_RAW_DATA, $iv);
-        if (!$encrypted) {
-            throw new CipherException(sprintf('Failed to encrypt using cipher "%s"', $key->_cipher));
-        }
+        $encrypted = $this->openSSL->encrypt($key, $data, $iv);
 
         return $this->encode($key, $iv . $encrypted);
     }
@@ -142,11 +150,7 @@ class Cipher implements ComponentInterface, Constants
             throw new CipherException('Failed to retrieve encrypted bytes');
         }
 
-        $decrypt = openssl_decrypt($decoded, $key->_cipher, $key->_key, OPENSSL_RAW_DATA, $iv);
-        if (!$decrypt) {
-            throw new CipherException('Failed to decrypt data');
-        }
-
+        $decrypt = $this->openSSL->decrypt($key, $decoded, $iv);
         $encrypted = unserialize($decrypt);
         if (!$encrypted || !$encrypted instanceof Encrypted) {
             throw new CipherException('Failed to retrieve encrypted item');
