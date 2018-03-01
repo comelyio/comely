@@ -379,8 +379,9 @@ class Cache implements ComponentInterface
      */
     private function decode(string $key, string $encoded): CacheableInterface
     {
+        $cacheable = substr($encoded, $this->cacheableIdLength);
         // Decode from base64, trim from right (short strings are padded with null bytes), unserialize
-        $cacheable = unserialize(rtrim(base64_decode($encoded)));
+        $cacheable = unserialize(rtrim(base64_decode($cacheable)));
         if (!$cacheable instanceof CacheableInterface) {
             throw new CacheException(sprintf('Could not decode CacheableInterface object for key "%s"', $key));
         }
@@ -400,7 +401,7 @@ class Cache implements ComponentInterface
             $cacheable .= str_repeat("\0", $padding); // Pad with NULL-bytes
         }
 
-        return base64_encode($cacheable);
+        return $this->cacheableId . base64_encode($cacheable);
     }
 
     /**
