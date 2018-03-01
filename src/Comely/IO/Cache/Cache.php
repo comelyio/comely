@@ -158,6 +158,8 @@ class Cache implements ComponentInterface
             if (!$connected) {
                 $this->engine = null;
             }
+
+            return $connected;
         }
 
         return false;
