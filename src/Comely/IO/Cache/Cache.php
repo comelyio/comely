@@ -187,6 +187,8 @@ class Cache implements ComponentInterface
                     $this->connect();
                 }
             }
+
+            return $ping;
         }
 
         return false;
