@@ -87,7 +87,10 @@ class Cache implements ComponentInterface
         return end($this->servers);
     }
 
-
+    /**
+     * @return Cache
+     * @throws \Comely\IO\Events\Exception\ListenerException
+     */
     public function enableIndexing(): self
     {
         $this->index = new Indexing($this);
