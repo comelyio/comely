@@ -39,6 +39,10 @@ class Redis implements EngineInterface
     public function __construct(Server $server)
     {
         $this->server = $server;
+        if (!$this->server->getTimeout()) {
+            throw new EngineException(self::ENGINE, 'Timeout parameter not set');
+        }
+
         $this->connect();
     }
 
