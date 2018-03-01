@@ -294,7 +294,12 @@ class Redis implements EngineInterface
         // Get response from stream
         $response = fgets($this->sock);
         if (!is_string($response)) {
-            throw new RedisException('Failed to receive response from server');
+            $timedOut = @stream_get_meta_data($this->sock)["timed_out"] ?? null;
+            if ($timedOut === true) {
+                throw new RedisException('Redis stream has timed out');
+            }
+
+            throw new RedisException('No response received from server');
         }
 
         // Prepare response for parsing
