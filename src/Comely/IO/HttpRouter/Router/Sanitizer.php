@@ -62,7 +62,9 @@ class Sanitizer
         $sanitized = [];
         foreach ($input as $key => $value) {
             if (!is_string($key) || !preg_match('/^[a-zA-Z0-9\_\-\.]+$/', $key)) {
-                continue; // Not a valid key
+                if (!is_int($key)) {
+                    continue; // Not a valid key
+                }
             }
 
             if (is_scalar($value)) {
