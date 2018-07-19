@@ -125,7 +125,7 @@ class Languages
         $group = $this->translator->_filesCacheId;
         foreach ($this->translator->_files as $file) {
             try {
-                $parsed = Yaml::Parse($languageDirectory->suffixed($file . "yml"))
+                $parsed = Yaml::Parse($languageDirectory->suffixed($file . ".yml"))
                     ->setEOL("\n")
                     ->evaluateBooleans(false)
                     ->generate();
