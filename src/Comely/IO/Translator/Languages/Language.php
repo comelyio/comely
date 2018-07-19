@@ -40,6 +40,10 @@ class Language implements \Serializable
         $this->name = $name;
         $this->group = $group;
         $this->translations = [];
+
+        foreach ($translations as $translated) {
+            $this->feed($translated);
+        }
     }
 
     /**
@@ -85,8 +89,8 @@ class Language implements \Serializable
     {
         foreach ($translations as $key => $value) {
             // Validate key
-            $key = trim(strtolower(sprintf('%s.%s', $parent, $key)), ".-_"); // Trim special chars from start/end
-            if (!preg_match('^[a-z0-9\.\-\_]+$/', $key)) {
+            $key = trim(strtolower(sprintf('%s.%s', $parent ?? "", $key)), ".-_"); // Trim special chars from start/end
+            if (!preg_match('/^[a-z0-9\.\-\_]+$/', $key)) {
                 $this->compileError(sprintf('Invalid translation key in parent "%s"', $parent ?? "~"));
                 continue;
             }
