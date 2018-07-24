@@ -102,7 +102,7 @@ class Bag
      */
     public function hasBag(string $bag): bool
     {
-        return isset($this->bags[$bag]);
+        return isset($this->bags[strtolower($bag)]);
     }
 
     /**
