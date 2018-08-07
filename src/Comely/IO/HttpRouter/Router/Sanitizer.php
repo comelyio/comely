@@ -67,6 +67,8 @@ class Sanitizer
                 }
             }
 
+            $key = strval($key); // String key
+
             if (is_scalar($value)) {
                 if (is_string($value)) {
                     switch ($this->encoding) {
