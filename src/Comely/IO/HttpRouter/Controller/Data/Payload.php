@@ -33,7 +33,7 @@ class Payload extends AbstractIterableData
         if (is_array($payload)) {
             $sanitized = $router->sanitizer()->payload($payload);
             foreach ($sanitized as $key => $value) {
-                $this->push($key, $value);
+                $this->push(strval($key), $value);
             }
         }
     }
