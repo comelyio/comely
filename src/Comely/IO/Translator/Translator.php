@@ -49,9 +49,9 @@ class Translator implements ComponentInterface
     private $languages;
     /** @var null|LanguageCacheInterface */
     private $cache;
-    /** @var null|string */
+    /** @var null|string|Language */
     private $current;
-    /** @var null|string */
+    /** @var null|string|Language */
     private $fallback;
 
     /**
@@ -146,6 +146,19 @@ class Translator implements ComponentInterface
     {
         $this->current = Languages::validateName($lang);;
         return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function current(): ?string
+    {
+        $current = $this->current instanceof Language ? $this->current->name() : $this->current;
+        if (!$current) {
+            $current = $this->fallback instanceof Language ? $this->fallback->name() : $this->fallback;
+        }
+
+        return $current;
     }
 
     /**
