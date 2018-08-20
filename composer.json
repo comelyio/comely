@@ -13,17 +13,17 @@
     "php": ">=7.1.0"
   },
   "replace": {
-    "comely/comely-engine": "self.version",
-    "comely/cache": "self.version",
-    "comely/cipher": "self.version",
-    "comely/database": "self.version",
-    "comely/dependency-inject": "self.version",
-    "comely/events": "self.version",
-    "comely/file-system": "self.version",
-    "comely/http-router": "self.version",
-    "comely/session": "self.version",
-    "comely/translator": "self.version",
-    "comely/yaml": "self.version"
+    "comelyio/comely-kernel": "self.version",
+    "comelyio/cache": "self.version",
+    "comelyio/cipher": "self.version",
+    "comelyio/database": "self.version",
+    "comelyio/dependency-inject": "self.version",
+    "comelyio/events": "self.version",
+    "comelyio/file-system": "self.version",
+    "comelyio/http-router": "self.version",
+    "comelyio/session": "self.version",
+    "comelyio/translator": "self.version",
+    "comelyio/yaml": "self.version"
   },
   "autoload": {
     "psr-4": {
