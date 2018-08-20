@@ -28,7 +28,8 @@
   "autoload": {
     "psr-4": {
       "Comely\\Engine\\": "src/Comely/Engine",
-      "Comely\\IO\\": "src/Comely/IO"
+      "Comely\\IO\\": "src/Comely/IO",
+      "Comely\\Kernel\\": "src/Comely/Kernel"
     }
   },
   "minimum-stability": "dev"
