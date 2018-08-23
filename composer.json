@@ -10,7 +10,10 @@
     }
   ],
   "require": {
-    "php": ">=7.1.0"
+    "php": ">=7.1.0",
+    "ext-pdo": "*",
+    "ext-json": "*",
+    "ext-openssl": "*"
   },
   "replace": {
     "comelyio/comely-kernel": "self.version",
