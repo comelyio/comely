@@ -42,7 +42,7 @@ class Encrypted implements \Serializable
                 $this->data = $data;
                 break;
             case "array":
-                $this->data = base64_encode(json_encode($this->data));
+                $this->data = base64_encode(json_encode($data));
                 break;
             case "object":
                 $this->data = base64_encode(serialize($data));
