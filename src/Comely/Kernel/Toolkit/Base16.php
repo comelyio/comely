@@ -12,12 +12,3 @@
 
 declare(strict_types=1);
 
-namespace Comely\IO\HttpRouter\Exception;
-
-/**
- * Class RouteException
- * @package Comely\IO\HttpRouter\Exception
- */
-class RouteException extends RoutingException
-{
-}
