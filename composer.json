@@ -1,7 +1,12 @@
 {
   "name": "comelyio/comely",
   "description": "Comely IO Components",
-  "keywords": ["comely", "comelyio", "comely.io", "comely2"],
+  "keywords": [
+    "comely",
+    "comelyio",
+    "comely.io",
+    "comely2"
+  ],
   "license": "MIT",
   "authors": [
     {
@@ -13,6 +18,8 @@
     "php": ">=7.1.0",
     "ext-pdo": "*",
     "ext-json": "*",
+    "ext-bcmath": "*",
+    "ext-ctype": "*",
     "ext-openssl": "*"
   },
   "replace": {
@@ -27,6 +34,10 @@
     "comelyio/session": "self.version",
     "comelyio/translator": "self.version",
     "comelyio/yaml": "self.version"
+  },
+  "suggest": {
+    "ext-memcached": "Cache component also supports Memcached",
+    "ext-fileinfo": "For attachments in Mailer component to work properly"
   },
   "autoload": {
     "psr-4": {
