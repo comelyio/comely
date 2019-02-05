@@ -151,7 +151,7 @@ class Session implements ComponentInterface
 
                 $this->storage->write($id, $serialized);
             } catch (\Exception $e) {
-                trigger_error(sprintf('Failed to write session "%s", %s', $e->getMessage()), E_USER_WARNING);
+                trigger_error(sprintf('Failed to write session "%s", %s', $id, $e->getMessage()), E_USER_WARNING);
                 throw $e;
             }
         }
